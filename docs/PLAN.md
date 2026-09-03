@@ -39,7 +39,7 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
 
 # Stage 1 — Voice loop (no memory)
 
-- [ ] done
+- [x] done — offline path green (`make test`, `make demo`), Docker image boots and answers `/health`; live path waits on C1
 
 ### File layout
 
