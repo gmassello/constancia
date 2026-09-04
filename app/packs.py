@@ -174,5 +174,27 @@ def get_pack(key: str) -> VerticalPack:
     return PACKS[key]
 
 
-def system_prompt(pack: VerticalPack, patient_name: str, fragment: str) -> str:
-    return f"{SYSTEM_RULES}\n\nPaciente: {patient_name}.\n\n{fragment}"
+NO_MEMORY = "No tenés antecedentes de este paciente: es la primera vez que hablan."
+MEMORY_HEADER = (
+    "Esto te contó el paciente en llamadas anteriores, de lo más nuevo a lo más viejo. "
+    "Usalo para preguntar por lo que ya sabés, sin volver a pedir lo que ya te dijo:"
+)
+
+
+def _day(reported_at) -> str:
+    return str(reported_at)[:10]
+
+
+def memory_block(facts: list[dict]) -> str:
+    if not facts:
+        return NO_MEMORY
+    lines = "\n".join(f"- {f['fact']} ({_day(f['reported_at'])})" for f in facts)
+    return f"{MEMORY_HEADER}\n{lines}"
+
+
+def system_prompt(pack: VerticalPack, patient_name: str, fragment: str, memory: str = "") -> str:
+    blocks = [SYSTEM_RULES, f"Paciente: {patient_name}."]
+    if memory:
+        blocks.append(memory)
+    blocks.append(fragment)
+    return "\n\n".join(blocks)

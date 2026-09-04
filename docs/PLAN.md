@@ -25,6 +25,13 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
 3. **`patient_memories.value numeric`**: new column for the fact's number (pain 7/10) that feeds the weekly chart without parsing text.
 4. **FastAPI serves the panel** (`panel/dist` as static files): one Render service, one public URL.
 5. **Config with `pydantic-settings`** (spec) even though the loop design suggested `os.environ`: the spec wins.
+6. **Facts carry a short `term`** (2-4 words, `patient_memories.term`) besides the full sentence: it is what feeds
+   `keyterms_prompt` and what the panel shows. A whole fact sentence is a bad key term.
+7. **`recall` runs before `greet`**, not after: the demo's money shot is the agent opening on the knee.
+8. **Gemini's own schema conversion** is used for structured output (`response_schema=FactSet`): the SDK converts
+   the Pydantic model, so hindsight's `clean_schema` (written for tool declarations) is not needed here.
+9. **`app/analysis.py` and `MemoryStore.search()` moved to stage 3**: the first needs a real recording (C1 has not
+   happened yet), the second has no reader until the panel. `calls.analysis` is not created until then.
 
 ## Checkpoints (need a human)
 
@@ -181,7 +188,8 @@ Then **C1**.
 
 # Stage 2 — Longitudinal memory
 
-- [ ] done
+- [x] done — offline path green (`make test` 65 tests, `make demo MEMORY=on` shows recall and
+  supersession), schema and seed verified against local pgvector; Supabase waits on C2
 
 ### Files
 
@@ -222,7 +230,7 @@ Then **C1**.
 2. `app/memory.py` with `MemoryStore` and `FakeStore`.
 3. `app/extract.py` and its tests.
 4. `app/orchestrator.py`: real phases; `run_call(call, channel, llm, store)`.
-5. `app/analysis.py` + `/voice/recording` triggers the analysis in the background.
+5. ~~`app/analysis.py` + `/voice/recording` triggers the analysis in the background.~~ moved to stage 3.
 6. `seed/patients.json`, `scripts/seed.py`, `make seed`.
 7. `POST /calls` accepts `memory: bool`; `GET /patients/{id}/facts` (chain) to verify at C2 without the panel.
 8. `README.md` Honest limits: turn latency, no auth, single worker.

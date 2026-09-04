@@ -1,34 +1,43 @@
 from contextlib import asynccontextmanager
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends, FastAPI, HTTPException, Response, WebSocket
 from pydantic import BaseModel, Field
 from starlette.datastructures import FormData
 
+from app import db
 from app.calls import CALLS, Call, register
 from app.channel import CallEnded, LiveChannel
 from app.config import E164, get_settings, is_twilio_recording
 from app.llm import GeminiLLM
+from app.memory import MemoryStore
 from app.orchestrator import run_call
 from app.packs import get_pack
 from app.security import twilio_form
 from app.telephony import place_call, stream_twiml
 
+STORE: MemoryStore | None = None
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    get_settings()
+    global STORE
+    if get_settings().database_url:
+        STORE = MemoryStore()
     yield
+    STORE = None
+    await db.close_pool()
 
 
 app = FastAPI(title="constancia", lifespan=lifespan)
 
 
 class CallRequest(BaseModel):
-    patient_name: str
-    phone: str = Field(pattern=E164)
-    patient_id: str = "seed"
-    pack: str = "rehab"
+    patient_id: UUID
+    patient_name: str | None = None
+    phone: str | None = Field(default=None, pattern=E164)
+    pack: str | None = None
     memory: bool = True
 
 
@@ -39,20 +48,33 @@ async def health() -> dict:
 
 @app.post("/calls")
 async def create_call(request: CallRequest) -> dict:
+    patient_id = str(request.patient_id)
+    row = await STORE.patient(patient_id) if STORE else None
+    name = request.patient_name or (row or {}).get("name")
+    phone = request.phone or (row or {}).get("phone_e164")
+    if not name or not phone:
+        raise HTTPException(status_code=400, detail="unknown patient: send patient_name and phone")
     try:
-        pack = get_pack(request.pack)
+        pack = get_pack(request.pack or (row or {}).get("program_type") or "rehab")
     except KeyError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     call = register(
         Call(
-            patient_id=request.patient_id,
-            patient_name=request.patient_name,
+            patient_id=patient_id,
+            patient_name=name,
             pack=pack,
             memory=request.memory,
         )
     )
-    call.twilio_sid = place_call(call.id, request.phone)
+    call.twilio_sid = place_call(call.id, phone)
     return {"call_id": call.id, "twilio_sid": call.twilio_sid}
+
+
+@app.get("/patients/{patient_id}/facts")
+async def patient_facts(patient_id: UUID) -> dict:
+    if not STORE:
+        raise HTTPException(status_code=503, detail="no memory store configured")
+    return {"patient_id": str(patient_id), "facts": await STORE.chain(str(patient_id))}
 
 
 @app.post("/voice")
@@ -107,7 +129,7 @@ async def media(websocket: WebSocket, call_id: str) -> None:
     channel = LiveChannel(websocket, call)
     try:
         await channel.start()
-        await run_call(call, channel, GeminiLLM(), get_settings().silence_s)
+        await run_call(call, channel, GeminiLLM(), STORE, get_settings().silence_s)
     except CallEnded:
         call.emit("call_ended", reason="media stream never started")
     finally:

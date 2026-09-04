@@ -94,3 +94,17 @@ def test_trace_returns_the_event_stream(client: TestClient, call) -> None:
 
     assert body["patient"] == "Ana"
     assert [e["type"] for e in body["trace"]] == ["call_started"]
+
+
+def test_calls_rejects_a_patient_id_that_is_not_a_uuid(client: TestClient) -> None:
+    assert client.post("/calls", json={"patient_id": "does-not-exist"}).status_code == 422
+
+
+def test_calls_needs_a_name_and_a_phone_when_the_patient_is_unknown(client: TestClient) -> None:
+    body = {"patient_id": "00000000-0000-4000-8000-000000000000"}
+    assert client.post("/calls", json=body).status_code == 400
+
+
+def test_facts_without_a_memory_store_says_so(client: TestClient) -> None:
+    response = client.get("/patients/00000000-0000-4000-8000-000000000000/facts")
+    assert response.status_code == 503

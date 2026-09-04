@@ -9,6 +9,8 @@ RUN uv sync --frozen --no-dev --no-install-project
 RUN useradd --create-home appuser && chown appuser /app
 
 COPY app ./app
+COPY schema.sql ./
+COPY seed ./seed
 
 USER appuser
 

@@ -1,0 +1,71 @@
+{
+  "professional_id": "3f1b0e4a-7c2d-4a51-9f8e-1d2c3b4a5e60",
+  "patients": [
+    {
+      "id": "8c9d0e1f-2a3b-4c5d-6e7f-8091a2b3c4d5",
+      "name": "Ana",
+      "phone_e164": "+541100000000",
+      "program_type": "rehab",
+      "started_age_days": 21,
+      "calls": [
+        {
+          "id": "1a2b3c4d-5e6f-4071-8293-a4b5c6d7e8f9",
+          "age_days": 7,
+          "memory_enabled": true,
+          "summary": "Primera semana de seguimiento. Dolor de rodilla derecha 7/10 al subir escaleras. Hizo los ejercicios tres veces y se salteó dos días por trabajo. Rigidez leve después de los ejercicios. Refiere una caída en el baño hace tres semanas, anterior al plan.",
+          "transcript": [
+            {"turn_id": 1, "speaker": "agent", "text": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. Te llamo para ver cómo viene la recuperación esta semana."},
+            {"turn_id": 2, "speaker": "patient", "text": "Hola, sí, soy Ana."},
+            {"turn_id": 3, "speaker": "agent", "text": "¿Cuánto te duele hoy del uno al diez, y en qué momento lo sentís más?"},
+            {"turn_id": 4, "speaker": "patient", "text": "La rodilla derecha me duele siete de diez, sobre todo cuando subo escaleras."},
+            {"turn_id": 5, "speaker": "agent", "text": "¿Cuántas veces pudiste hacer los ejercicios esta semana?"},
+            {"turn_id": 6, "speaker": "patient", "text": "Los hice tres veces, me salté dos días porque estuve con mucho trabajo."},
+            {"turn_id": 7, "speaker": "agent", "text": "¿Tuviste alguna molestia nueva después de los ejercicios?"},
+            {"turn_id": 8, "speaker": "patient", "text": "Después de los ejercicios me queda un poco rígida, nada raro."},
+            {"turn_id": 9, "speaker": "agent", "text": "¿Y tuviste alguna caída o algo que te haya asustado?"},
+            {"turn_id": 10, "speaker": "patient", "text": "Hace tres semanas me caí en el baño, pero desde que empecé el plan no me pasó nada."},
+            {"turn_id": 11, "speaker": "agent", "text": "Listo, eso era todo por hoy. Le paso el resumen a tu kinesiólogo. Cuidate, hablamos la semana que viene."}
+          ],
+          "facts": [
+            {
+              "fact": "dolor en la rodilla derecha 7/10 al subir escaleras",
+              "term": "rodilla derecha",
+              "category": "symptom",
+              "value": 7,
+              "quote": "La rodilla derecha me duele siete de diez",
+              "turn_id": 4,
+              "confidence": 0.95
+            },
+            {
+              "fact": "hizo los ejercicios tres veces en la semana y se salteó dos días por trabajo",
+              "term": "ejercicios en casa",
+              "category": "adherence",
+              "value": 3,
+              "quote": "Los hice tres veces, me salté dos días",
+              "turn_id": 6,
+              "confidence": 0.9
+            },
+            {
+              "fact": "rigidez en la rodilla después de los ejercicios",
+              "term": "rigidez",
+              "category": "symptom",
+              "value": null,
+              "quote": "me queda un poco rígida",
+              "turn_id": 8,
+              "confidence": 0.8
+            },
+            {
+              "fact": "se cayó en el baño hace tres semanas, antes de empezar el plan",
+              "term": "caída en el baño",
+              "category": "red_flag",
+              "value": null,
+              "quote": "me caí en el baño",
+              "turn_id": 10,
+              "confidence": 0.85
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

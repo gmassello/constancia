@@ -12,6 +12,8 @@ class Settings(BaseSettings):
 
     gemini_api_key: str
     gemini_model: str = "gemini-3.8-flash"
+    gemini_embedding_model: str = "gemini-embedding-001"
+    embedding_dims: int = 1536
 
     assemblyai_api_key: str
     assemblyai_speech_model: str = "universal-streaming-multilingual"
@@ -26,6 +28,8 @@ class Settings(BaseSettings):
 
     public_base_url: str
     validate_twilio_signature: bool = True
+
+    database_url: str = ""
 
     language: str = "es"
     silence_s: float = 8.0

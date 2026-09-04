@@ -28,6 +28,9 @@ class Call:
     answers: dict[str, str] = field(default_factory=dict)
     escalated: dict | None = None
     summary: str | None = None
+    facts: list[dict] = field(default_factory=list)
+    new_facts: list = field(default_factory=list)
+    memory_prompt: str = ""
     trace: deque = field(default_factory=lambda: deque(maxlen=TRACE_BUFFER))
     subscribers: list[asyncio.Queue] = field(default_factory=list)
     _seq: int = 0

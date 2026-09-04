@@ -1,4 +1,4 @@
-.PHONY: dev test lint demo call smoke smoke-stt smoke-tts models
+.PHONY: dev test lint demo call smoke smoke-stt smoke-tts models db schema seed
 
 dev:
 	uv run uvicorn app.main:app --reload --port 8000
@@ -10,7 +10,7 @@ lint:
 	uv run ruff check .
 
 demo:
-	uv run python scripts/demo.py
+	MEMORY=$(MEMORY) uv run python scripts/demo.py
 
 call:
 	uv run python scripts/place_call.py $(PHONE)
@@ -26,3 +26,12 @@ smoke-tts:
 
 models:
 	uv run python scripts/list_models.py
+
+db:
+	docker-compose up -d db
+
+schema:
+	uv run python -m app.db
+
+seed:
+	uv run python scripts/seed.py

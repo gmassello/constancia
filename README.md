@@ -12,7 +12,7 @@ Built for the [lablab.ai × AssemblyAI Voice Agent Hackathon](HACKATHON.md) on *
 
 ## Where the build is
 
-Stage 1 of four (see `docs/PLAN.md`): **the voice loop end to end, no memory**. What works today:
+Stage 2 of four (see `docs/PLAN.md`): **the voice loop plus longitudinal memory**. What works today:
 
 - Outbound Twilio call with a bidirectional `<Connect><Stream>`.
 - Live µ-law audio to AssemblyAI Universal-Streaming v3 in Spanish, end-of-turn driven.
@@ -20,8 +20,13 @@ Stage 1 of four (see `docs/PLAN.md`): **the voice loop end to end, no memory**. 
 - Barge-in: the patient interrupts, the agent stops and the queued audio is cleared.
 - Deterministic red-flag guard with negation handling. The LLM only phrases the escalation.
 - Per-call trace as an append-only event stream at `GET /calls/{id}/trace`.
+- **Memory**: the call opens with every current fact for that patient in the system prompt, and their key
+  terms in the STT `keyterms_prompt`. After hangup the transcript is extracted into facts, each grounded in a
+  verbatim patient quote and its turn id; a fact that contradicts an old one retires it (`superseded_by` +
+  `valid_until`) instead of deleting it. `memory=false` on a call disables recall and store, nothing else.
+- `GET /patients/{id}/facts` returns the whole chain, current and retired.
 
-Memory, the professional's panel and the deploy land in stages 2, 3 and 4.
+The professional's panel and the deploy land in stages 3 and 4.
 
 ## Run it
 
@@ -29,14 +34,25 @@ No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 43 tests, no network
-make demo          # a full call against a scripted patient, trace printed
+make test          # 65 tests, no network and no database
+make demo          # week 1: a full call against a scripted patient, trace printed
+make demo MEMORY=on  # week 2 over the seed: recall, keyterms and a superseded fact
 ```
 
 With a Gemini key the same demo uses real phrasing:
 
 ```bash
 GEMINI_API_KEY=... make demo
+```
+
+Memory needs Postgres with pgvector. `DATABASE_URL` is optional: without it the service runs, only the
+memory phases are skipped.
+
+```bash
+make db            # pgvector/pgvector:pg17 on localhost:5432
+make schema        # applies schema.sql, idempotent
+make seed          # Ana, one week-1 call and its facts
+uv run pytest -m integration
 ```
 
 For a real phone call, copy `.env.example` to `.env`, fill it, expose the port and dial:
@@ -53,6 +69,8 @@ make call PHONE=+54911...
 
 - **No authentication anywhere.** Anything that can reach the URL can place a call. The panel in stage 3 will not fix this: it is out of scope for the hackathon.
 - **One worker.** Calls live in an in-process dict. Two instances would not see each other's calls.
+- **Extraction runs after hangup**, never during the call: a synchronous write would put dead air on the line.
+  The facts land seconds after the patient hangs up, not while they are still talking.
 - **~1–1.5 s of silence per turn**: the LLM writes the whole sentence before the TTS starts. Sentence-level streaming is the marked upgrade path.
 - Twilio trial accounts only call verified numbers and prepend their own message.
 - Spanish only (Rioplatense). The packs are content, not code, so another language is a translation, not a rewrite.
@@ -67,5 +85,8 @@ make call PHONE=+54911...
 | `app/channel.py` | the voice loop: Twilio ↔ AssemblyAI ↔ TTS, barge-in |
 | `app/packs.py` | the three vertical packs; the only Spanish in the repo |
 | `app/guard.py` | the deterministic red-flag guard |
+| `app/memory.py` | the fact store: recall, supersession, key terms; `FakeStore` for the offline path |
+| `app/extract.py` | structured extraction with span grounding against patient turns |
+| `schema.sql` | the whole data model, applied with `make schema` |
 
 MIT licensed.
