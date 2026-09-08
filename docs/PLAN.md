@@ -32,6 +32,20 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
    the Pydantic model, so hindsight's `clean_schema` (written for tool declarations) is not needed here.
 9. **`app/analysis.py` and `MemoryStore.search()` moved to stage 3**: the first needs a real recording (C1 has not
    happened yet), the second has no reader until the panel. `calls.analysis` is not created until then.
+10. **`app/queries.py` carries no SQL**: it reduces the rows the store already returns. Both stores speak
+    `FACT_COLUMNS`, so one implementation of `chain`/`weekly`/`keyterms_at` serves Postgres and the seed. SQL
+    aggregation would mean writing it twice, which is the divergence §6.6 forbids.
+11. **The store always exists**: `MemoryStore` with `DATABASE_URL`, `load_seed()` without it. `get_settings()`
+    raised on eight missing fields, so the service did not boot at all with no keys; `settings_or_none()` fixes
+    that and `mode=live` is now the only thing that needs credentials.
+12. **SSE with `StreamingResponse`**, not `sse-starlette`: fifteen lines against a new dependency. `retry: 3000`
+    and `Last-Event-ID` let the browser own the reconnect, so the panel needs no backoff of its own.
+13. **The multi-stage Dockerfile lands here**, not in stage 4: without the node stage the image has no panel.
+14. **Replay fixtures come from `mode=scripted`** (`make fixtures`, deterministic, no keys) until C2 allows
+    re-recording them from real calls into the same file names.
+15. **No `Accept: text/html` variant of `/calls/{id}/trace`** (stage 3 asked for one): the panel is the HTML view.
+16. **No test runner in the panel**: `pnpm build` runs `tsc` and that is the check. Two presentational components
+    do not earn vitest.
 
 ## Checkpoints (need a human)
 
@@ -249,7 +263,9 @@ Then **C2**.
 
 # Stage 3 — Professional's panel and replay
 
-- [ ] done
+- [x] done — panel, SSE, replay, `analysis.py` and `search()` green offline: 89 tests with no env and no
+  database, `pnpm build` clean, the whole Postgres path exercised against local pgvector, multi-stage image
+  builds with `panel/dist` inside. Live calls and re-recorded fixtures wait on C1 and C2
 
 ### Files
 

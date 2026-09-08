@@ -105,6 +105,12 @@ def test_calls_needs_a_name_and_a_phone_when_the_patient_is_unknown(client: Test
     assert client.post("/calls", json=body).status_code == 400
 
 
-def test_facts_without_a_memory_store_says_so(client: TestClient) -> None:
-    response = client.get("/patients/00000000-0000-4000-8000-000000000000/facts")
-    assert response.status_code == 503
+def test_without_a_database_the_store_is_the_seed(client: TestClient) -> None:
+    health = client.get("/health").json()
+    assert health["store"] == "seed"
+
+    unknown = client.get("/patients/00000000-0000-4000-8000-000000000000/facts")
+    assert unknown.status_code == 200
+    assert unknown.json()["facts"] == []
+
+    assert [p["name"] for p in client.get("/patients").json()] == ["Ana"]

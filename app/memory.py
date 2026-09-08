@@ -9,11 +9,18 @@ from app.config import get_settings
 from app.packs import VerticalPack
 
 MAX_KEYTERMS = 100
+SEARCH_OVERFETCH = 40
+SEARCH_LIMIT = 5
 SEED_PATH = Path(__file__).resolve().parent.parent / "seed" / "patients.json"
 
 FACT_COLUMNS = (
     "id, patient_id, call_id, fact, term, category, value, quote, turn_id, "
     "confidence, reported_at, valid_until, superseded_by"
+)
+PATIENT_COLUMNS = "id, professional_id, program_type, name, phone_e164, started_at"
+CALL_COLUMNS = (
+    "id, patient_id, started_at, ended_at, twilio_sid, recording_url, "
+    "transcript, summary, escalated, memory_enabled, analysis"
 )
 
 
@@ -67,6 +74,41 @@ class MemoryStore:
             "order by reported_at desc, id",
             (patient_id,),
         )
+
+    async def patients(self) -> list[dict]:
+        return await db.fetch(f"select {PATIENT_COLUMNS} from patients order by name")
+
+    async def calls(self, patient_id: str) -> list[dict]:
+        return await db.fetch(
+            f"select {CALL_COLUMNS} from calls where patient_id = %s order by started_at desc",
+            (patient_id,),
+        )
+
+    async def call(self, call_id: str) -> dict | None:
+        return await db.fetch_one(f"select {CALL_COLUMNS} from calls where id = %s", (call_id,))
+
+    async def save_analysis(self, call_id: str, analysis: dict) -> None:
+        await db.execute(
+            "update calls set analysis = %s::jsonb where id = %s",
+            (json.dumps(analysis, ensure_ascii=False), call_id),
+        )
+
+    async def search(
+        self, professional_id: str, query: str, limit: int = SEARCH_LIMIT
+    ) -> list[dict]:
+        vector = db.to_vector_literal(await self.embed(query))
+        rows = await db.fetch(
+            "select m.id, m.patient_id, p.name as patient_name, m.fact, m.term, m.category, "
+            "m.value, m.reported_at, m.valid_until, "
+            "1 - (m.embedding <=> %s::vector) as similarity "
+            "from patient_memories m join patients p on p.id = m.patient_id "
+            "where p.professional_id = %s and m.embedding is not null "
+            "order by m.embedding <=> %s::vector limit %s",
+            (vector, professional_id, vector, SEARCH_OVERFETCH),
+        )
+        # ponytail: recency re-rank over the 40 nearest. Blend in similarity when a
+        # professional has enough history that the newest 5 stop being the useful 5.
+        return sorted(rows, key=lambda row: row["reported_at"], reverse=True)[:limit]
 
     async def save_call(self, call) -> None:
         await db.execute(
@@ -122,16 +164,49 @@ class MemoryStore:
 
 
 class FakeStore:
-    def __init__(self, patients: list[dict] | None = None, facts: list[dict] | None = None) -> None:
-        self.patients = {p["id"]: dict(p) for p in patients or []}
+    def __init__(
+        self,
+        patients: list[dict] | None = None,
+        facts: list[dict] | None = None,
+        calls: list[dict] | None = None,
+    ) -> None:
+        self._patients = {p["id"]: dict(p) for p in patients or []}
+        self._calls = {c["id"]: dict(c) for c in calls or []}
         self.facts = [dict(f) for f in facts or []]
         self.saved_calls: list[str] = []
 
     async def embed(self, text: str) -> list[float]:
         return normalize([float(len(text)), 1.0])
 
+    async def patients(self) -> list[dict]:
+        return sorted(self._patients.values(), key=lambda row: row["name"])
+
     async def patient(self, patient_id: str) -> dict | None:
-        return self.patients.get(patient_id)
+        return self._patients.get(patient_id)
+
+    async def calls(self, patient_id: str) -> list[dict]:
+        rows = [c for c in self._calls.values() if c["patient_id"] == patient_id]
+        return sorted(rows, key=lambda row: row["started_at"], reverse=True)
+
+    async def call(self, call_id: str) -> dict | None:
+        return self._calls.get(call_id)
+
+    async def save_analysis(self, call_id: str, analysis: dict) -> None:
+        if call_id in self._calls:
+            self._calls[call_id]["analysis"] = analysis
+
+    async def search(
+        self, professional_id: str, query: str, limit: int = SEARCH_LIMIT
+    ) -> list[dict]:
+        # ponytail: substring match. The fake store has no embeddings and never will;
+        # pgvector similarity is exercised by the integration test against real Postgres.
+        needle = query.strip().lower()
+        rows = [
+            fact
+            for fact in self.facts
+            if needle in fact["term"].lower() or needle in fact["fact"].lower()
+        ]
+        return sorted(rows, key=lambda row: row["reported_at"], reverse=True)[:limit]
 
     async def current_facts(self, patient_id: str) -> list[dict]:
         return [
@@ -149,6 +224,19 @@ class FakeStore:
 
     async def save_call(self, call) -> None:
         self.saved_calls.append(call.id)
+        self._calls[call.id] = {
+            "id": call.id,
+            "patient_id": call.patient_id,
+            "started_at": call.started_at,
+            "ended_at": call.ended_at,
+            "twilio_sid": call.twilio_sid,
+            "recording_url": call.recording_url,
+            "transcript": call.transcript,
+            "summary": call.summary,
+            "escalated": call.escalated,
+            "memory_enabled": call.memory,
+            "analysis": None,
+        }
 
     async def insert_fact(self, call, fact, embedding: list[float]) -> str:
         fact_id = str(uuid.uuid4())
@@ -175,7 +263,11 @@ class FakeStore:
         for fact in self.facts:
             if fact["id"] == old_id and fact["superseded_by"] is None:
                 fact["superseded_by"] = new_id
-                fact["valid_until"] = "now"
+                fact["valid_until"] = _now()
+
+
+def _now() -> str:
+    return datetime.now(UTC).isoformat()
 
 
 def days_ago(days: int) -> str:
@@ -184,18 +276,35 @@ def days_ago(days: int) -> str:
 
 def load_seed(path: Path = SEED_PATH) -> FakeStore:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
-    patients, facts = [], []
+    patients, facts, calls = [], [], []
     for patient in data["patients"]:
         patients.append(
             {
                 "id": patient["id"],
+                "professional_id": data["professional_id"],
                 "name": patient["name"],
                 "phone_e164": patient["phone_e164"],
                 "program_type": patient["program_type"],
+                "started_at": days_ago(patient["started_age_days"]),
             }
         )
         for call in patient["calls"]:
             reported_at = days_ago(call["age_days"])
+            calls.append(
+                {
+                    "id": call["id"],
+                    "patient_id": patient["id"],
+                    "started_at": reported_at,
+                    "ended_at": reported_at,
+                    "twilio_sid": None,
+                    "recording_url": None,
+                    "transcript": call["transcript"],
+                    "summary": call["summary"],
+                    "escalated": None,
+                    "memory_enabled": call["memory_enabled"],
+                    "analysis": None,
+                }
+            )
             for fact in call["facts"]:
                 key = f"{call['id']}/{fact['turn_id']}"
                 facts.append(
@@ -209,4 +318,4 @@ def load_seed(path: Path = SEED_PATH) -> FakeStore:
                         "superseded_by": None,
                     }
                 )
-    return FakeStore(patients, facts)
+    return FakeStore(patients, facts, calls)

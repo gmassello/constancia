@@ -20,16 +20,22 @@ class CallEnded(Exception):
 
 
 class ScriptedPatient:
-    def __init__(self, call: Call, answers: list[str | None]) -> None:
+    def __init__(self, call: Call, answers: list[str | None], delay_s: float = 0.0) -> None:
         self.call = call
         self.answers = list(answers)
+        self.delay_s = delay_s
         self.said: list[str] = []
         self.keyterms: list[str] = []
         self.closed = False
 
+    async def _pace(self) -> None:
+        if self.delay_s:
+            await asyncio.sleep(self.delay_s)
+
     async def say(self, text: str) -> None:
         if self.closed:
             raise CallEnded
+        await self._pace()
         self.said.append(text)
         self.call.add_turn("agent", text, interrupted=False)
 
@@ -38,6 +44,7 @@ class ScriptedPatient:
             raise CallEnded
         if not self.answers:
             raise CallEnded
+        await self._pace()
         answer = self.answers.pop(0)
         if answer is None:
             return None

@@ -20,6 +20,26 @@ def test_importing_the_app_without_env_does_not_raise() -> None:
         assert importlib.import_module(module)
 
 
+def test_the_app_starts_and_serves_the_seed_with_no_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    from fastapi.testclient import TestClient
+
+    from app.config import get_settings
+    from app.main import app
+
+    for key in [*REQUIRED, "DATABASE_URL"]:
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.chdir("/")
+    get_settings.cache_clear()
+    try:
+        with TestClient(app) as client:
+            health = client.get("/health").json()
+            assert health["status"] == "ok"
+            assert health["store"] == "seed"
+            assert health["live"] is False
+    finally:
+        get_settings.cache_clear()
+
+
 def test_settings_without_secrets_refuses_to_build(monkeypatch: pytest.MonkeyPatch) -> None:
     from app.config import Settings
 

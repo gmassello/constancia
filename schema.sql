@@ -42,3 +42,5 @@ create table if not exists patient_memories (
 create index if not exists patient_memories_patient_reported_at
   on patient_memories (patient_id, reported_at);
 -- ponytail: no vector index. Exact search is fine below ~10k rows; add HNSW when it isn't.
+
+alter table calls add column if not exists analysis jsonb;

@@ -1,4 +1,4 @@
-.PHONY: dev test lint demo call smoke smoke-stt smoke-tts models db schema seed
+.PHONY: dev test lint demo call smoke smoke-stt smoke-tts smoke-analysis models db schema seed panel panel-dev fixtures
 
 dev:
 	uv run uvicorn app.main:app --reload --port 8000
@@ -24,6 +24,9 @@ smoke-stt:
 smoke-tts:
 	uv run python scripts/smoke_tts.py
 
+smoke-analysis:
+	uv run python scripts/smoke_analysis.py $(URL)
+
 models:
 	uv run python scripts/list_models.py
 
@@ -35,3 +38,12 @@ schema:
 
 seed:
 	uv run python scripts/seed.py
+
+panel:
+	cd panel && pnpm install --frozen-lockfile && pnpm build
+
+panel-dev:
+	cd panel && pnpm dev
+
+fixtures:
+	uv run python scripts/record.py

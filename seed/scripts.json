@@ -1,0 +1,62 @@
+{
+  "week1": {
+    "memory": false,
+    "answers": [
+      "Hola, sí, soy Ana.",
+      "La rodilla derecha me duele siete de diez, sobre todo cuando subo escaleras.",
+      "Los ejercicios los hice tres veces, me salté dos días porque estuve con mucho trabajo.",
+      "Después de los ejercicios me queda un poco rígida, nada raro.",
+      "No, caídas no tuve, nada de eso."
+    ],
+    "facts": [
+      {
+        "fact": "dolor en la rodilla derecha 7/10 al subir escaleras",
+        "term": "rodilla derecha",
+        "category": "symptom",
+        "value": 7,
+        "quote": "me duele siete de diez",
+        "turn_id": 4,
+        "confidence": 0.95
+      },
+      {
+        "fact": "hizo los ejercicios tres veces en la semana",
+        "term": "ejercicios en casa",
+        "category": "adherence",
+        "value": 3,
+        "quote": "los hice tres veces",
+        "turn_id": 6,
+        "confidence": 0.9
+      }
+    ]
+  },
+  "week2": {
+    "memory": true,
+    "answers": [
+      "Hola, sí, soy Ana.",
+      "La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras.",
+      "Esta semana los hice cinco veces, me organicé mejor.",
+      "No, ninguna molestia nueva.",
+      "No, nada de eso."
+    ],
+    "facts": [
+      {
+        "fact": "dolor en la rodilla derecha 4/10 al subir escaleras",
+        "term": "rodilla derecha",
+        "category": "symptom",
+        "value": 4,
+        "quote": "me duele cuatro de diez",
+        "turn_id": 4,
+        "confidence": 0.95
+      },
+      {
+        "fact": "hizo los ejercicios cinco veces en la semana",
+        "term": "ejercicios en casa",
+        "category": "adherence",
+        "value": 5,
+        "quote": "los hice cinco veces",
+        "turn_id": 6,
+        "confidence": 0.9
+      }
+    ]
+  }
+}

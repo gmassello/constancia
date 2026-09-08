@@ -1,3 +1,13 @@
+FROM node:24-slim AS panel
+
+WORKDIR /panel
+RUN corepack enable
+COPY panel/package.json panel/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY panel ./
+RUN pnpm build
+
+
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 WORKDIR /app
@@ -11,6 +21,7 @@ RUN useradd --create-home appuser && chown appuser /app
 COPY app ./app
 COPY schema.sql ./
 COPY seed ./seed
+COPY --from=panel /panel/dist ./panel/dist
 
 USER appuser
 

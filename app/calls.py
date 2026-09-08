@@ -33,6 +33,7 @@ class Call:
     memory_prompt: str = ""
     trace: deque = field(default_factory=lambda: deque(maxlen=TRACE_BUFFER))
     subscribers: list[asyncio.Queue] = field(default_factory=list)
+    task: asyncio.Task | None = None
     _seq: int = 0
 
     def emit(self, type: str, **data) -> dict:

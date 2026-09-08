@@ -1,0 +1,224 @@
+{
+  "call": {
+    "patient_id": "8c9d0e1f-2a3b-4c5d-6e7f-8091a2b3c4d5",
+    "patient_name": "Ana",
+    "pack": "rehab",
+    "memory": false
+  },
+  "events": [
+    {
+      "t": 0.0,
+      "type": "call_started",
+      "patient": "Ana",
+      "pack": "rehab",
+      "memory": false
+    },
+    {
+      "t": 0.0,
+      "type": "phase_started",
+      "phase": "recall"
+    },
+    {
+      "t": 0.0,
+      "type": "memory_off",
+      "phase": "recall",
+      "reason": "memory disabled for this call"
+    },
+    {
+      "t": 0.0,
+      "type": "phase_done",
+      "phase": "recall"
+    },
+    {
+      "t": 0.0,
+      "type": "phase_started",
+      "phase": "greet"
+    },
+    {
+      "t": 0.0,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 1.2,
+      "type": "agent_turn",
+      "turn_id": 1,
+      "text": "Presentate como el asistente de seguimiento del kinesiólogo, saludá al paciente por su nombre y decile que llamás para ver cómo viene la recuperación esta semana. Una o dos oraciones.",
+      "interrupted": false
+    },
+    {
+      "t": 2.402,
+      "type": "patient_turn",
+      "turn_id": 2,
+      "text": "Hola, sí, soy Ana."
+    },
+    {
+      "t": 2.402,
+      "type": "phase_done",
+      "phase": "greet"
+    },
+    {
+      "t": 2.402,
+      "type": "phase_started",
+      "phase": "converse"
+    },
+    {
+      "t": 2.402,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 3.605,
+      "type": "agent_turn",
+      "turn_id": 3,
+      "text": "cuánto le duele hoy del uno al diez y en qué momento del día o con qué movimiento",
+      "interrupted": false
+    },
+    {
+      "t": 4.807,
+      "type": "patient_turn",
+      "turn_id": 4,
+      "text": "La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras."
+    },
+    {
+      "t": 4.807,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 6.009,
+      "type": "agent_turn",
+      "turn_id": 5,
+      "text": "cuántas veces hizo los ejercicios esta semana y si le costó sostener la rutina",
+      "interrupted": false
+    },
+    {
+      "t": 7.211,
+      "type": "patient_turn",
+      "turn_id": 6,
+      "text": "Esta semana los hice cinco veces, me organicé mejor."
+    },
+    {
+      "t": 7.212,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 8.413,
+      "type": "agent_turn",
+      "turn_id": 7,
+      "text": "si tuvo molestias nuevas después de los ejercicios, como hinchazón o rigidez",
+      "interrupted": false
+    },
+    {
+      "t": 9.616,
+      "type": "patient_turn",
+      "turn_id": 8,
+      "text": "No, ninguna molestia nueva."
+    },
+    {
+      "t": 9.616,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 10.818,
+      "type": "agent_turn",
+      "turn_id": 9,
+      "text": "si tuvo alguna caída, un dolor repentino y fuerte, o algo que lo haya asustado",
+      "interrupted": false
+    },
+    {
+      "t": 12.02,
+      "type": "patient_turn",
+      "turn_id": 10,
+      "text": "No, nada de eso."
+    },
+    {
+      "t": 13.221,
+      "type": "agent_turn",
+      "turn_id": 11,
+      "text": "Listo, eso era todo por hoy. Le paso el resumen a tu kinesiólogo. Cuidate, hablamos la semana que viene.",
+      "interrupted": false
+    },
+    {
+      "t": 13.221,
+      "type": "phase_done",
+      "phase": "converse"
+    },
+    {
+      "t": 13.221,
+      "type": "phase_started",
+      "phase": "extract"
+    },
+    {
+      "t": 13.222,
+      "type": "facts_extracted",
+      "count": 2
+    },
+    {
+      "t": 13.222,
+      "type": "phase_done",
+      "phase": "extract"
+    },
+    {
+      "t": 13.222,
+      "type": "phase_started",
+      "phase": "store"
+    },
+    {
+      "t": 13.222,
+      "type": "memory_off",
+      "phase": "store",
+      "reason": "memory disabled for this call"
+    },
+    {
+      "t": 13.222,
+      "type": "phase_done",
+      "phase": "store"
+    },
+    {
+      "t": 13.222,
+      "type": "phase_started",
+      "phase": "summarize"
+    },
+    {
+      "t": 13.222,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 13.222,
+      "type": "summary",
+      "text": "Escribí para el kinesiólogo un resumen breve de la llamada: dolor, adherencia a los ejercicios, molestias y señales de alarma. Texto plano, sin listas. Lo que quedó registrado: dolor en la rodilla derecha 4/10 al subir escaleras. hizo los ejercicios cinco veces en la semana"
+    },
+    {
+      "t": 13.222,
+      "type": "phase_done",
+      "phase": "summarize"
+    },
+    {
+      "t": 13.222,
+      "type": "call_ended",
+      "escalated": false,
+      "answers": {
+        "pain": "La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras.",
+        "adherence": "Esta semana los hice cinco veces, me organicé mejor.",
+        "side_effects": "No, ninguna molestia nueva.",
+        "red_flags": "No, nada de eso."
+      }
+    }
+  ]
+}

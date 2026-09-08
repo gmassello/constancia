@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 E164 = r"^\+[1-9]\d{7,14}$"
@@ -39,6 +39,13 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+def settings_or_none() -> Settings | None:
+    try:
+        return get_settings()
+    except ValidationError:
+        return None
 
 
 def is_twilio_recording(url: str) -> bool:
