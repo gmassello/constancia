@@ -20,13 +20,13 @@ The LLM writes sentences and extracts structure; it never chooses.
 
 ## One call, end to end
 
-1. `POST /calls` (`app/main.py:71`) resolves the patient, picks the vertical pack, registers a `Call`
+1. `POST /calls` (`app/main.py:75`) resolves the patient, picks the vertical pack, registers a `Call`
    and branches on `mode`.
 2. In `live` mode, `place_call` (`app/telephony.py:21`) asks Twilio to dial, pointing its webhook at
    `POST /voice` with `record=True`.
-3. Twilio calls `POST /voice` (`app/main.py:179`). After the signature check it gets back TwiML that
+3. Twilio calls `POST /voice` (`app/main.py:183`). After the signature check it gets back TwiML that
    connects a bidirectional Media Stream to `wss://.../media/{call_id}`.
-4. Twilio opens that socket (`app/main.py:267`). A `LiveChannel` (`app/channel.py:61`) connects to
+4. Twilio opens that socket (`app/main.py:271`). A `LiveChannel` (`app/channel.py:61`) connects to
    AssemblyAI and starts both readers, and `run_call` takes over.
 5. `run_call` (`app/orchestrator.py:111`) walks the six phases.
 6. After hangup, Twilio posts the recording to `/voice/recording` and the post-call analysis runs as
@@ -119,10 +119,14 @@ mode by `make fixtures`.
 
 ## Storage
 
-Two stores behind one duck-typed interface, chosen once in the lifespan (`app/main.py:38`):
+Two stores behind one duck-typed interface, chosen once in the lifespan (`app/main.py:39`):
 
 ```python
-STORE = MemoryStore() if settings and settings.database_url else load_seed()
+if settings and settings.database_url:
+    await asyncio.to_thread(db.init_schema)
+    STORE = MemoryStore()
+else:
+    STORE = load_seed()
 ```
 
 Postgres with pgvector when `DATABASE_URL` is set and the settings validate; otherwise the JSON seed,
@@ -132,7 +136,9 @@ in process. Both return the same columns (`FACT_COLUMNS`, `app/memory.py:16`), w
 > The naming trap: **`MemoryStore` is the Postgres one.** The "memory" in its name is longitudinal
 > memory, not RAM. The in-process one is `FakeStore`.
 
-The schema is [`../schema.sql`](../schema.sql), applied idempotently by `make schema`.
+The schema is [`../schema.sql`](../schema.sql), and the Postgres branch above applies it before the
+service starts serving — idempotent, so every boot after the first changes nothing, and a deployed
+instance never meets an empty database. `make schema` does the same thing by hand.
 
 ## System boundaries
 

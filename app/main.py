@@ -35,7 +35,11 @@ WEB_DIST = Path(__file__).resolve().parent.parent / "web" / "dist"
 async def lifespan(app: FastAPI):
     global STORE
     settings = settings_or_none()
-    STORE = MemoryStore() if settings and settings.database_url else load_seed()
+    if settings and settings.database_url:
+        await asyncio.to_thread(db.init_schema)
+        STORE = MemoryStore()
+    else:
+        STORE = load_seed()
     yield
     STORE = None
     await db.close_pool()

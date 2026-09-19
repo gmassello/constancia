@@ -61,3 +61,16 @@ async def test_a_fact_survives_a_round_trip_and_is_retired_by_supersession() -> 
         await db.execute("delete from calls where patient_id = %s", (patient_id,))
         await db.execute("delete from patients where id = %s", (patient_id,))
         await db.close_pool()
+
+
+async def test_the_schema_can_be_applied_twice() -> None:
+    db.init_schema()
+    db.init_schema()
+
+    tables = await db.fetch(
+        "select table_name from information_schema.tables "
+        "where table_schema = 'public' order by table_name"
+    )
+    names = [row["table_name"] for row in tables]
+    assert {"patients", "calls", "patient_memories"} <= set(names)
+    await db.close_pool()

@@ -359,7 +359,12 @@ Then **C3**.
 ### Steps
 
 0. ~~Public landing on the Nocturne design system, with theme, language and register toggles.~~ done — `docs/LANDING.md`.
-1. Multi-stage Dockerfile, push + Render auto-deploy from `render.yaml`, managed Postgres `DATABASE_URL` on Render, `PUBLIC_BASE_URL` = Render URL, `make seed` against it.
+1. Multi-stage Dockerfile, push + Render auto-deploy from `render.yaml`, managed Postgres
+   `DATABASE_URL` on Render, `PUBLIC_BASE_URL` = Render URL, `make seed` against it. — The Blueprint
+   now declares the database and wires `DATABASE_URL` itself, and the schema lands at boot; what is
+   left for a person is the account, the nine credentials, `PUBLIC_BASE_URL` and the seed. The image
+   was built and booted locally against an empty Postgres to prove it. Runbook in
+   [`OPERATIONS.md`](OPERATIONS.md).
 2. ~~`video/reset.sh`, `docs/video-script.md`, `video/narration.tsv`~~ done — the track measures
    3:12 against the 5:00 cap; what is left of this step is listening to `video/out/narration.wav`
    end to end.

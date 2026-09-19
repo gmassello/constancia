@@ -86,7 +86,7 @@ Same duck-typed interface: `patient`, `patients`, `call`, `calls`, `chain`, `cur
 | `/reset` | refused, `409` | reloads the seed |
 
 > **`MemoryStore` is the Postgres one.** The name means longitudinal memory, not RAM. `store_kind()`
-> (`app/main.py:44`) reports it as `postgres` and `FakeStore` as `seed`.
+> (`app/main.py:48`) reports it as `postgres` and `FakeStore` as `seed`.
 
 `supersede` (`app/memory.py:158`) carries `and superseded_by is null` in its `WHERE`, which is what
 makes retiring the same fact twice a no-op rather than a second retirement.
@@ -109,6 +109,11 @@ Two accessors, and the difference matters:
 The second one is the degraded mode: with no credentials the service still boots, serves the pages,
 runs `scripted` and `replay` calls and answers every read endpoint. Only `mode=live` is refused.
 
+It is also why `DATABASE_URL` alone does not switch the store: the lifespan reads it off
+`settings_or_none()`, which is `None` until all eight required variables validate. When it is not
+`None` and carries a database, the lifespan applies `schema.sql` in a thread before building
+`MemoryStore` — `init_schema()` (`app/db.py:52`) is synchronous psycopg, and the DDL is idempotent.
+
 ### The import-time rule
 
 From [`../AGENTS.md`](../AGENTS.md): **`get_settings()` is called from the lifespan or from a request,
@@ -127,7 +132,7 @@ Two consequences visible throughout the code, and both are deliberate:
 
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path. There
   are five on this side and each one is worth reading: `app/guard.py:6`, `app/memory.py:109`,
-  `app/memory.py:201`, `app/main.py:224`, `schema.sql:44`.
+  `app/memory.py:201`, `app/main.py:228`, `schema.sql:44`.
 - **Exact versions** (`==`) in `pyproject.toml`; `uv.lock` is committed.
 - **The transcript is data, never instructions.** Nothing the patient says is executed or treated as
   a directive to the model.

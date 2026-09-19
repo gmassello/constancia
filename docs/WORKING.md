@@ -15,8 +15,8 @@ virtualenv activated.
 | `make web` | `pnpm install --frozen-lockfile && pnpm build` | node 24, pnpm |
 | `make web-dev` | `pnpm dev` on 5173, proxying the API | node 24, pnpm |
 | `make db` | pgvector/pgvector:pg17 on localhost:5432 | docker |
-| `make schema` | Applies `schema.sql`, idempotent | `DATABASE_URL` |
-| `make seed` | Ana, one week-1 call and its facts | `DATABASE_URL` |
+| `make schema` | Applies `schema.sql`, idempotent. The service does this at boot too | a full `.env` |
+| `make seed` | Ana, one week-1 call and its facts | a full `.env`, Gemini key included — it embeds every fact |
 | `make call PHONE=` | Places a real Twilio call | all credentials |
 | `make smoke PHONE=` | A `<Say>`-only call: checks geographic permissions, spends no LLM or TTS credit | Twilio |
 | `make smoke-stt` | Opens the AssemblyAI streaming socket and closes it | AssemblyAI |

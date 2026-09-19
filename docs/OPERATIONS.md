@@ -85,7 +85,7 @@ pages, still runs `scripted` and `replay` calls and still answers every read end
 
 | Variable | Default | Effect |
 |---|---|---|
-| `DATABASE_URL` | *(empty)* | **The persistence switch.** Set it and the store is Postgres; leave it and the store is the JSON seed. |
+| `DATABASE_URL` | *(empty)* | **The persistence switch** — but only with the eight required variables also set, because the store is chosen from `settings_or_none()`, which returns `None` without them. With it, the store is Postgres and the schema is applied at boot; without it, the store is the JSON seed. |
 | `GEMINI_MODEL` | `gemini-3.8-flash` | |
 | `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-001` | |
 | `ASSEMBLYAI_SPEECH_MODEL` | `universal-streaming-multilingual` | |
@@ -122,11 +122,45 @@ A multi-stage [`../Dockerfile`](../Dockerfile): a `node:24-slim` stage builds `w
 stage installs the Python deps, copies `app/`, `schema.sql`, `seed/` and the built front end, and runs
 as a non-root user. One image, one service, one public URL — the API serves the pages.
 
-[`../render.yaml`](../render.yaml) declares the Render service: Docker runtime, free plan,
-`healthCheckPath: /health`, and the ten environment variables as `sync: false` so none of them are
-stored in the repo.
+[`../render.yaml`](../render.yaml) declares the Render service — Docker runtime, free plan,
+`healthCheckPath: /health` — **and the database**: `constancia-db`, free plan, Postgres 17, the same
+major as `make db`. `DATABASE_URL` comes from it with `fromDatabase`, so there is no connection
+string to copy. The nine credentials stay `sync: false` and are typed into the dashboard; none of
+them is in the repo.
 
 The container binds `${PORT:-8000}`; Render sets `PORT`. Local development uses 8001.
+
+**The schema applies itself at boot.** When the store is Postgres, the lifespan runs `schema.sql`
+before serving (`app/main.py:39`) — it is idempotent end to end, so every boot after the first is a
+no-op, and `tests/test_db.py` asserts exactly that. A fresh Render database therefore comes up with
+its three tables and the `vector` extension already there. If the database is unreachable the service
+fails to start and the deploy goes red, which is the loud version of the problem: before this, the
+health check passed and every screen with data returned `500`.
+
+### The order
+
+```bash
+git push                      # 1. the Blueprint builds from the repo
+                              # 2. New > Blueprint on Render, pick this repo, apply render.yaml
+                              # 3. type the nine credentials into the service's Environment tab
+                              # 4. PUBLIC_BASE_URL = the URL Render just assigned, then redeploy
+make seed                     # 5. from your laptop, with .env pointing at the managed database
+curl https://<url>/health     # 6. from another network: {"store":"postgres","live":true}
+```
+
+Step 5 is the one that surprises people: `scripts/seed.py` needs **a full `.env`, not just
+`DATABASE_URL`** — `MemoryStore()` builds `Settings`, which requires all eight credentials, and
+`embed()` calls Gemini for every fact, so the key has to be a working one. Point `DATABASE_URL` at
+the external connection string Render shows for the database and run it once.
+
+### Two things about the free plan
+
+- **The service sleeps after 15 minutes without traffic** and takes about a minute to come back, with
+  a loading page in between. A judge opening a cold URL waits that minute. Either keep a ping every
+  ten minutes from a free uptime service, or upgrade the instance for the judging window.
+- **A free Postgres expires 30 days after it is created**, then has a 14-day grace period before
+  Render deletes it. Created for this submission it outlives the deadline, but it is not a place to
+  leave anything you want to keep.
 
 ## Checkpoints that need a person
 

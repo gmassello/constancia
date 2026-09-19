@@ -20,7 +20,7 @@ Two pages, built as two HTML entries: the public landing at `/` and the professi
 There is no router and no SPA fallback. The multi-page split happens at build time, so the landing
 never loads the panel's bundle.
 
-FastAPI serves the result (`app/main.py:284-297`) and the ordering is deliberate: `/` and `/panel`
+FastAPI serves the result (`app/main.py:288-301`) and the ordering is deliberate: `/` and `/panel`
 are **explicit routes** so they can carry `Cache-Control: no-store`, and the `StaticFiles` mount goes
 last, after every API route. Vite hashes the assets but not `index.html`; a cached `index.html` keeps
 naming the previous build's bundles, which is a confusing way to lose an afternoon. `/assets/*` stays

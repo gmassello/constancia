@@ -24,4 +24,11 @@ services:
       - key: PUBLIC_BASE_URL
         sync: false
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: constancia-db
+          property: connectionString
+
+databases:
+  - name: constancia-db
+    plan: free
+    postgresMajorVersion: "17"
