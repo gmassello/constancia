@@ -22,6 +22,13 @@ class Question:
 
 
 @dataclass(frozen=True)
+class Measure:
+    category: str
+    scale_max: float | None
+    lower_is_better: bool
+
+
+@dataclass(frozen=True)
 class RedFlag:
     rule: str
     pattern: str
@@ -36,6 +43,7 @@ class VerticalPack:
     summarize: str
     questions: tuple[Question, ...]
     keyterm_categories: tuple[str, ...]
+    measures: tuple[Measure, ...]
     red_flags: tuple[RedFlag, ...]
     escalation: str
     reprompt: str
@@ -64,6 +72,7 @@ REHAB = VerticalPack(
         Question("red_flags", "si tuvo alguna caída, un dolor repentino y fuerte, o algo que lo haya asustado"),
     ),
     keyterm_categories=("symptom", "adherence", "red_flag"),
+    measures=(Measure("symptom", 10, True), Measure("adherence", 7, False)),
     red_flags=(
         RedFlag(
             "sudden_sharp_pain",
@@ -117,6 +126,7 @@ POSTPARTUM = VerticalPack(
         Question("red_flags", "si tuvo fiebre, dolor de cabeza fuerte o algo que la haya asustado"),
     ),
     keyterm_categories=("symptom", "mood", "red_flag"),
+    measures=(Measure("symptom", 10, True), Measure("mood", 10, False)),
     red_flags=(
         RedFlag(
             "heavy_bleeding",
@@ -151,6 +161,11 @@ CHRONIC = VerticalPack(
         Question("red_flags", "si tuvo dolor en el pecho, falta de aire o visión borrosa"),
     ),
     keyterm_categories=("symptom", "clinical_value", "adherence", "red_flag"),
+    measures=(
+        Measure("symptom", 10, True),
+        Measure("clinical_value", None, True),
+        Measure("adherence", 7, False),
+    ),
     red_flags=(
         RedFlag(
             "chest_pain",

@@ -11,8 +11,8 @@
   50% { opacity: 1; transform: scale(1.35); }
 }
 @keyframes noc-strike {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  from { text-decoration-color: transparent; }
+  to { text-decoration-color: var(--color-accent); }
 }
 @keyframes noc-breathe {
   0%, 100% { opacity: 0.5; }
@@ -26,9 +26,18 @@
 .noc-in { animation: noc-in 0.34s ease both; }
 .noc-slide { animation: noc-slide 0.32s ease both; }
 .noc-pulse { animation: noc-pulse 2.4s ease-in-out infinite; }
-.noc-strike { animation: noc-strike 0.5s ease both; }
+.noc-strike {
+  text-decoration: line-through;
+  text-decoration-color: var(--color-accent);
+  animation: noc-strike 0.5s ease both;
+}
 .noc-breathe { animation: noc-breathe 9s ease-in-out infinite; }
 .noc-wave { animation: noc-wave 0.9s ease-in-out infinite; }
+
+.is-paused .noc-pulse,
+.is-paused .noc-wave {
+  animation-play-state: paused;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .noc-in,
@@ -40,7 +49,6 @@
     animation: none;
   }
   .noc-wave { transform: scaleY(0.6); }
-  .noc-strike { transform: scaleX(1); }
 }
 
 a { text-decoration: none; }
@@ -108,15 +116,4 @@ a:hover { color: var(--text-accent); }
   .demo-split {
     grid-template-columns: minmax(0, 1fr) !important;
   }
-}
-
-.gloss {
-  display: block;
-  margin: 3px 0 0;
-  padding-left: 9px;
-  border-left: 1px solid var(--color-divider);
-  font-size: 11.5px;
-  line-height: 1.45;
-  font-style: italic;
-  color: var(--text-muted);
 }

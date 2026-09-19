@@ -1,7 +1,9 @@
 import type { Lang } from "../prefs"
+import { speech } from "./content"
 
-export type Copy = {
+type Strings = {
   brand: string
+  home: string
   dataSeed: string
   dataPostgres: string
   phoneReady: string
@@ -9,12 +11,12 @@ export type Copy = {
   noPatients: string
 
   followedSince: (day: string) => string
-  memory: string
-  modeScripted: string
-  modeReplay: string
-  modeLive: string
-  modeLiveDisabled: string
-  callNow: string
+  callWithoutMemory: string
+  callWithMemory: string
+  callHint: string
+  callReplay: string
+  callLive: string
+  callLiveHint: string
 
   liveTitle: string
   liveNow: string
@@ -27,13 +29,24 @@ export type Copy = {
   waitingForCall: string
 
   weeklyTitle: string
-  weekLabel: (year: string, week: string) => string
   noNumbers: string
+  measure: Record<string, string>
+  unit: Record<string, string>
+  better: string
+  worse: string
+  same: string
+  changeBy: (amount: number, verdict: string) => string
+  onlyOneCall: string
+  scaleNote: (max: number) => string
 
   fileTitle: string
+  fileLede: string
+  fileNote: string
   noHistory: string
-  quoteMeta: (quote: string, turn: number, day: string) => string
-  retiredOn: (day: string) => string
+  factCurrent: string
+  factRetired: string
+  saidOn: (day: string, turn: number) => string
+  heldUntil: (day: string) => string
 
   keytermsTitle: string
   firstCall: string
@@ -70,8 +83,9 @@ export type Copy = {
   reason: Record<string, string>
 }
 
-const en: Copy = {
+const en: Strings = {
   brand: "constancia",
+  home: "Home",
   dataSeed: "data: local seed",
   dataPostgres: "data: postgres",
   phoneReady: "phone: ready",
@@ -79,12 +93,13 @@ const en: Copy = {
   noPatients: "No patients loaded.",
 
   followedSince: (day) => `in follow-up since ${day}`,
-  memory: "memory",
-  modeScripted: "scripted",
-  modeReplay: "recorded",
-  modeLive: "live",
-  modeLiveDisabled: "live (no keys)",
-  callNow: "Call now",
+  callWithoutMemory: "Call without memory",
+  callWithMemory: "Call with memory",
+  callHint:
+    "Same questions either way. With memory the call opens with what she said last week, and a fact that contradicts an old one retires it.",
+  callReplay: "replay a recorded call",
+  callLive: "Dial her real phone",
+  callLiveHint: "This one rings an actual number and spends credit.",
 
   liveTitle: "Call in progress",
   liveNow: "live",
@@ -96,14 +111,26 @@ const en: Copy = {
   activity: "Activity",
   waitingForCall: "Waiting for the call…",
 
-  weeklyTitle: "Weekly evolution",
-  weekLabel: (year, week) => `${year} w${week}`,
+  weeklyTitle: "How she is doing",
   noNumbers: "No numeric value to chart yet.",
+  measure: { symptom: "pain", adherence: "sessions", clinical_value: "reading", mood: "mood" },
+  unit: { symptom: "out of 10", adherence: "a week", clinical_value: "", mood: "out of 10" },
+  better: "better",
+  worse: "worse",
+  same: "no change",
+  changeBy: (amount, verdict) => `${amount} since last week · ${verdict}`,
+  onlyOneCall: "One call so far — nothing to compare against yet.",
+  scaleNote: (max) => `scale 0 to ${max}`,
 
-  fileTitle: "Patient file",
+  fileTitle: "What the agent remembers",
+  fileLede: "Every line came out of a call and keeps the words the patient used.",
+  fileNote:
+    "Nothing is deleted. A retired fact keeps its quote, its turn and the window it was true for.",
   noHistory: "No history: this is the first call.",
-  quoteMeta: (quote, turn, day) => `«${quote}» · turn ${turn} · ${day}`,
-  retiredOn: (day) => ` · retired ${day}`,
+  factCurrent: "current",
+  factRetired: "retired",
+  saidOn: (day, turn) => `said on ${day} · turn ${turn}`,
+  heldUntil: (day) => ` · held until ${day}`,
 
   keytermsTitle: "Key terms that fed the STT",
   firstCall: "First call: nothing on file.",
@@ -164,8 +191,9 @@ const en: Copy = {
   },
 }
 
-const es: Copy = {
+const es: Strings = {
   brand: "constancia",
+  home: "Inicio",
   dataSeed: "datos: seed local",
   dataPostgres: "datos: postgres",
   phoneReady: "teléfono: listo",
@@ -173,12 +201,13 @@ const es: Copy = {
   noPatients: "No hay pacientes cargados.",
 
   followedSince: (day) => `en seguimiento desde ${day}`,
-  memory: "memoria",
-  modeScripted: "simulada",
-  modeReplay: "grabada",
-  modeLive: "real",
-  modeLiveDisabled: "real (sin claves)",
-  callNow: "Llamar ahora",
+  callWithoutMemory: "Llamar sin memoria",
+  callWithMemory: "Llamar con memoria",
+  callHint:
+    "Las mismas preguntas en los dos casos. Con memoria la llamada abre con lo que contó la semana pasada, y un dato que contradice a uno viejo lo retira.",
+  callReplay: "reproducir una llamada grabada",
+  callLive: "Marcar su teléfono real",
+  callLiveHint: "Esta hace sonar un número de verdad y gasta crédito.",
 
   liveTitle: "Llamada en curso",
   liveNow: "en vivo",
@@ -190,14 +219,26 @@ const es: Copy = {
   activity: "Actividad",
   waitingForCall: "Esperando la llamada…",
 
-  weeklyTitle: "Evolución semanal",
-  weekLabel: (year, week) => `${year} s${week}`,
+  weeklyTitle: "Cómo viene",
   noNumbers: "Todavía no hay ningún valor numérico para graficar.",
+  measure: { symptom: "dolor", adherence: "sesiones", clinical_value: "medición", mood: "ánimo" },
+  unit: { symptom: "de 10", adherence: "por semana", clinical_value: "", mood: "de 10" },
+  better: "mejor",
+  worse: "peor",
+  same: "sin cambio",
+  changeBy: (amount, verdict) => `${amount} desde la semana pasada · ${verdict}`,
+  onlyOneCall: "Una sola llamada hasta ahora — todavía no hay con qué comparar.",
+  scaleNote: (max) => `escala 0 a ${max}`,
 
-  fileTitle: "Ficha del paciente",
+  fileTitle: "Lo que el agente recuerda",
+  fileLede: "Cada línea salió de una llamada y conserva las palabras que usó el paciente.",
+  fileNote:
+    "No se borra nada. Un dato retirado conserva su cita, su turno y la ventana en que fue cierto.",
   noHistory: "Sin antecedentes: es la primera vez que hablan.",
-  quoteMeta: (quote, turn, day) => `«${quote}» · turno ${turn} · ${day}`,
-  retiredOn: (day) => ` · retirado ${day}`,
+  factCurrent: "vigente",
+  factRetired: "retirado",
+  saidOn: (day, turn) => `lo dijo el ${day} · turno ${turn}`,
+  heldUntil: (day) => ` · vigente hasta el ${day}`,
 
   keytermsTitle: "Key terms que alimentaron el STT",
   firstCall: "Primera llamada: no había nada en ficha.",
@@ -258,10 +299,19 @@ const es: Copy = {
   },
 }
 
-const base: Record<Lang, Copy> = { en, es }
+export type Copy = Strings & {
+  data: (text: string) => string
+  day: (iso: string) => string
+}
+
+const base: Record<Lang, Strings> = { en, es }
 
 export function copy(lang: Lang): Copy {
-  return base[lang]
+  return {
+    ...base[lang],
+    data: (text) => speech(lang, text),
+    day: (iso) => new Intl.DateTimeFormat(lang, { day: "numeric", month: "short" }).format(new Date(iso)),
+  }
 }
 
 export function label(map: Record<string, string>, key: unknown): string {

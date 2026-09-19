@@ -16,15 +16,15 @@ function describe(event: Event, c: Copy): Line | null {
         tone: "recall",
         label: c.railRecall,
         text: c.railRecallText(Number(event.facts)),
-        detail: (event.keyterms as string[]).join(" · "),
+        detail: (event.keyterms as string[]).map(c.data).join(" · "),
       }
     case "fact_stored":
       return {
         key,
         tone: "stored",
         label: c.railStored,
-        text: String(event.fact),
-        detail: c.railQuote(String(event.quote), Number(event.turn_id)),
+        text: c.data(String(event.fact)),
+        detail: c.railQuote(c.data(String(event.quote)), Number(event.turn_id)),
       }
     case "fact_superseded":
       return { key, tone: "superseded", label: c.railSuperseded, text: c.railSupersededText }
@@ -33,7 +33,7 @@ function describe(event: Event, c: Copy): Line | null {
         key,
         tone: "rejected",
         label: c.railRejected,
-        text: String(event.fact),
+        text: c.data(String(event.fact)),
         detail: label(c.reason, event.reason),
       }
     case "guard_hit":
@@ -46,7 +46,7 @@ function describe(event: Event, c: Copy): Line | null {
         text: c.railMemoryOffText(label(c.phase, event.phase)),
       }
     case "summary":
-      return { key, tone: "summary", label: c.railSummary, text: String(event.text) }
+      return { key, tone: "summary", label: c.railSummary, text: c.data(String(event.text)) }
     case "analysis_ready":
       return {
         key,

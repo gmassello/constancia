@@ -26,6 +26,7 @@ from app.telephony import place_call, stream_twiml
 STORE = None
 KEEPALIVE_S = 15.0
 SSE_HEADERS = {"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"}
+PAGE_HEADERS = {"Cache-Control": "no-store"}
 DEFAULT_FIXTURE = "week2-on"
 WEB_DIST = Path(__file__).resolve().parent.parent / "web" / "dist"
 
@@ -147,7 +148,8 @@ async def patient_chain(patient_id: UUID) -> list[dict]:
 
 @app.get("/patients/{patient_id}/weekly")
 async def patient_weekly(patient_id: UUID, term: str | None = None) -> list[dict]:
-    return queries.weekly(await STORE.chain(str(patient_id)), term)
+    pack_key = (await STORE.patient(str(patient_id)) or {}).get("program_type", "rehab")
+    return queries.weekly(await STORE.chain(str(patient_id)), get_pack(pack_key), term)
 
 
 @app.get("/patients/{patient_id}/facts")
@@ -281,8 +283,15 @@ async def media(websocket: WebSocket, call_id: str) -> None:
 
 if WEB_DIST.is_dir():
 
+    def page(*parts: str) -> FileResponse:
+        return FileResponse(WEB_DIST.joinpath(*parts), headers=PAGE_HEADERS)
+
+    @app.get("/", include_in_schema=False)
+    async def landing() -> FileResponse:
+        return page("index.html")
+
     @app.get("/panel", include_in_schema=False)
     async def panel() -> FileResponse:
-        return FileResponse(WEB_DIST / "panel" / "index.html")
+        return page("panel", "index.html")
 
     app.mount("/", StaticFiles(directory=WEB_DIST, html=True), name="web")

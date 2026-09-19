@@ -3,8 +3,6 @@ from datetime import datetime
 from app.memory import keyterms
 from app.packs import VerticalPack
 
-CHART_CATEGORIES = ("symptom", "clinical_value")
-
 
 def _at(value) -> datetime:
     return value if isinstance(value, datetime) else datetime.fromisoformat(str(value))
@@ -29,27 +27,48 @@ def chain(rows: list[dict]) -> list[dict]:
     return out
 
 
-def tracked_term(rows: list[dict]) -> str | None:
+def tracked_term(rows: list[dict], category: str) -> str | None:
     counts: dict[str, int] = {}
     for row in rows:
-        if row.get("value") is not None and row["category"] in CHART_CATEGORIES:
+        if row.get("value") is not None and row["category"] == category:
             counts[row["term"]] = counts.get(row["term"], 0) + 1
     return max(counts, key=lambda term: (counts[term], term)) if counts else None
 
 
-def weekly(rows: list[dict], term: str | None = None) -> list[dict]:
-    term = term or tracked_term(rows)
-    if term is None:
-        return []
+def _points(rows: list[dict], term: str) -> list[dict]:
     latest: dict[str, dict] = {}
     for row in sorted(rows, key=lambda r: _at(r["reported_at"])):
         if row["term"] == term and row.get("value") is not None:
             latest[_week(row["reported_at"])] = row
     return [
-        {"week": week, "value": float(latest[week]["value"]), "term": term}
+        {
+            "week": week,
+            "day": str(latest[week]["reported_at"]),
+            "value": float(latest[week]["value"]),
+        }
         for week in sorted(latest)
     ]
 
+
+def weekly(rows: list[dict], pack: VerticalPack, term: str | None = None) -> list[dict]:
+    series = []
+    for measure in pack.measures:
+        followed = term if term else tracked_term(rows, measure.category)
+        if followed is None:
+            continue
+        points = _points(rows, followed)
+        if not points:
+            continue
+        series.append(
+            {
+                "category": measure.category,
+                "term": followed,
+                "scale_max": measure.scale_max,
+                "lower_is_better": measure.lower_is_better,
+                "points": points,
+            }
+        )
+    return series
 
 
 def keyterms_at(rows: list[dict], when, pack: VerticalPack) -> list[str]:

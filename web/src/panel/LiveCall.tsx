@@ -47,7 +47,7 @@ export default function LiveCall({
           {turns.map((turn) => (
             <div className={`turn ${turn.type === "agent_turn" ? "agent" : "patient"}`} key={turn.seq}>
               <span className="who">{turn.type === "agent_turn" ? c.agent : c.patient}</span>
-              <p>{String(turn.text)}</p>
+              <p>{c.data(String(turn.text))}</p>
             </div>
           ))}
         </div>

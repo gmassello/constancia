@@ -41,7 +41,15 @@ export type CallRow = {
 
 export type Turn = { turn_id: number; speaker: string; text: string; at: string }
 
-export type Week = { week: string; value: number; term: string }
+export type Point = { week: string; day: string; value: number }
+
+export type Series = {
+  category: string
+  term: string
+  scale_max: number | null
+  lower_is_better: boolean
+  points: Point[]
+}
 
 export type Health = { status: string; calls: number; store: string; live: boolean }
 

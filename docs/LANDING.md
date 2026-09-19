@@ -20,7 +20,7 @@ From `styles.css` we take the tokens — `--color-bg #161826`, `--color-surface 
 
 The landing is seven blocks: sticky header; hero with copy left and a live demo card right; a metrics band on the section gradient (70% / 3 verticals / 333 h / 89 tests); *How it works* in four steps; *Memory* in four cards; *Stack* with the five services and the honest limits; a closing CTA; a footer. Six own keyframes: `noc-in`, `noc-slide`, `noc-pulse`, `noc-strike`, `noc-breathe`, `noc-wave`.
 
-The demo card is a scripted loop (`SCRIPT`, ten steps with delays) with two views: `call` (transcript plus activity rail) and `chain` (the fact chain with an animated strike-through).
+The demo card is a scripted loop (`SCRIPTS.week1` and `SCRIPTS.week2`, each a list of beats with delays) behind a week selector, played at `PACE` (1.6) times the delays written into the beats, with two views: `call` (transcript plus activity rail) and `chain` (the facts as dated links, the retired one struck through). Step back, pause, step forward and replay sit under both.
 
 Every number the design prints is already true of this repo: 70% non-adherence (`INTENT.md` §3.1), three packs, 333 free STT hours, 89 tests green.
 
@@ -167,25 +167,73 @@ The panel gets its own `copy.ts` with its own type and **one register**. The two
 
 10. **`web/src/panel/panel.css`** — the panel on the aliases so both themes work. Four hard-coded light-theme hex values need theming: the agent and patient turn backgrounds, the rail's `flash`, and the `.tag-red_flag` pair. Rename the panel's `.tag`. Do **not** map `--write` to `--color-accent-2`: the readme calls accent-2 "a machine-derived stand-in … treat them as one role", and its 100–300 steps are literally the same hex values as accent's, which would make `stored` and `superseded` indistinguishable in the rail — the one contrast the demo exists to show. It becomes `--tone-dim`, which the label text and the strike-through already disambiguate.
 
-11. **`app/main.py`, `Dockerfile`, `Makefile`, `.gitignore`** — `PANEL_DIST` becomes `WEB_DIST` at `web/dist`, mount stays at `/` and stays last. `panel/` → `web/` across the five Dockerfile lines, `make panel` / `panel-dev` → `make web` / `web-dev`, and the two ignore entries.
+11. **`app/main.py`, `Dockerfile`, `Makefile`, `.gitignore`** — `PANEL_DIST` becomes `WEB_DIST` at `web/dist`, mount stays at `/` and stays last.
+    Both entry pages are served by explicit routes rather than by the mount, so they can carry `Cache-Control: no-store`. Vite hashes the asset filenames but not `index.html`, and a cached `index.html` keeps naming the bundles it was built against: rebuild, reload, and the browser serves the previous build with no sign anything is stale. The pages are ~1.1 kB, so never storing them costs nothing, and `/assets/*` stays cacheable through the mount, which is the half that matters. `panel/` → `web/` across the five Dockerfile lines, `make panel` / `panel-dev` → `make web` / `web-dev`, and the two ignore entries.
 
 12. **`CLAUDE.md`** — the rule says the only Spanish in the repo is what the patient hears in `app/packs.py`. A bilingual interface adds `web/src/*/copy.ts`. Amend it rather than leave the repo quietly breaking its own standard.
 
 ## Deviations from the design
 
-1. **The landing gets links to `/panel`.** The design anchors every CTA to `#demo` because it did not know an app existed at another route. The header button and the closing secondary CTA point at the panel: a landing with no way into the product is a dead end.
-2. **The `chain` view plays by itself when the script ends.** On the canvas `hero` is an enum the designer flips by hand; the landing renders one. The script already ends on a 3.2 s hold and `CHAIN` is already computed — showing the chain during that hold, with the strike-through animating, uses both of the design's views and puts the payoff on screen. Then it loops back.
-3. **`replaySpeed` is not exposed.** It was a canvas knob; the landing pins it at 1.
-4. **The call content stays Spanish, with an English gloss under it.** The agent really does speak Rioplatense
-   Spanish, and a "verbatim quote" that has been translated is not verbatim — the grounding claim dies with it.
-   But an English reader cannot follow the money shot in an untranslated dialogue. So in English each turn, each
-   extracted fact and the key-term list carry a dimmed italic translation beneath the Spanish; in Spanish the
-   gloss is not rendered at all. The quote itself is never glossed: it is the evidence. The glosses live beside
-   their source in `SCRIPT` and `CHAIN`, not in `copy.ts`, because they translate that datum rather than the
-   interface.
-5. **Three toggles the design does not have, and a light theme the system does not ship.** Both are extensions of Nocturne — derived from its ramps, built from its `.seg` — not departures from it.
-6. **Ramp steps and text opacities become semantic aliases.** A step that reads on one ground does not read on the other, so the indirection is what makes two themes possible at all.
-7. **The six looping animations respect `prefers-reduced-motion`.** The design loops them unconditionally.
+1. **The landing gets links to `/panel`, and the panel gets one back.** The design anchors every CTA to `#demo` because it did not know an app existed at another route. The header button and the closing secondary CTA point at the panel: a landing with no way into the product is a dead end.
+   The reverse was a dead end too. The panel's only way home was the `constancia` wordmark, which carries no underline, no icon and no hover cue until the pointer is already on it — a convention, not an affordance, and useless to anyone who does not know to try it. The sidebar now has a labelled `← Home` under the store line, matching the landing's explicit *Open the panel* rather than relying on a reader guessing that a heading is a link. The wordmark stays a link as well; it costs nothing.
+2. **The `chain` view plays by itself when the script ends, and is laid out as a chain.** On the canvas `hero` is an enum the designer flips by hand; the landing renders one. The script already ends on a 3.2 s hold and `CHAIN` is already computed — showing the chain during that hold uses both of the design's views and puts the payoff on screen. Then it loops back.
+   The canvas nested the retired fact inside a tinted box under the current one, distinguished only by dimming and a rule drawn over it. Two near-identical sentences differing in one digit, and the reader had to infer which replaced which. It is now a two-link vertical timeline: a filled dot for the fact in force, labelled with the date it took effect, and a hollow one for the retired fact, labelled with the window it was true for (`31 Aug → 7 Sep`). Both values stay legible — the comparison between 7 and 4 *is* the story, so the strike-through covers the sentence and not the number.
+   The strike itself was an absolutely positioned 1 px `div` at a hard-coded `top: 17`, spanning the full padded width: it overshot the sentence, crossed the value on the right, and would have floated free of any text that wrapped. It is now `text-decoration: line-through` on the text itself, with the `noc-strike` keyframe animating `text-decoration-color` from transparent. The browser owns the geometry, wrapped lines included.
+3. **The card plays both calls, not just the second one.** The design shipped one script, the week-two call, and the page around it promised two: the hero CTA reads *Watch week 1 → week 2* and the closing block is titled *Two calls. One patient. That is the whole demo.* A judge clicking that button saw a single call, which is the kind of overclaim that costs more than the feature is worth. `SCRIPTS` now holds a week-one script — memory off, the agent asking from a blank file, the same two questions — and a `.seg` in the card header switches between them, resetting the player. Week one does not loop on itself: after its chain has held, the card moves on to week two, so choosing week one plays the sequence the CTA names rather than stranding the visitor on the call that proves nothing. Week two then loops, because it is the payoff and because a visitor who never asked for week one should not be made to sit through it.
+   The two ends are what carry the argument, so they differ: week one closes on two facts with a single dated link each and *nothing to retire*, week two on the same two facts with their predecessors struck through beneath them. Week one's own note (`demoChainNoteFirst`) points forward — *the file was empty before this call; these two facts are what week 2 opens by asking about* — so the selector reads as a sequence rather than two unrelated demos. Week one's rail says `no facts on file · first call` where week two's says `4 facts on file`.
+   There is no third copy of the data: week one's chain renders the `previous` half of each `CHAIN` entry as current, dated from `from` instead of `from → until`. The same fact, framed by which call you are watching.
+
+4. **`replaySpeed` is not exposed, but a pause is.** Speed was a canvas knob and the landing pins it at 1 for the
+   visitor. Internally the beats are stretched by a single `PACE` constant instead of nineteen edited delays:
+   the design's timings put a fifteen-word sentence on screen for 1.5 s, which is under what it takes to read
+   one. `PACE` multiplies the beats only — `CHAIN_HOLD_MS` stays at 4.2 s, because the chain is the frame
+   people actually stop on and the pause button is there for holding it longer.
+   Pause is the one playback control the card does surrender, and deviation 2 is the reason: the chain is the
+   payoff, it plays on a timed hold, and a visitor who wants to read the struck-through fact should not have to
+   wait out another full loop. It also stops the card from restarting under a narrator while the video is being
+   recorded. `Replay` resumes as well as restarts, so the card can never be left frozen on its first frame.
+   `↺` sits ahead of all of them and is the only control that resets the demo rather than the call: back to
+   week one, first beat, playing. `Replay` deliberately keeps its narrower meaning — watch *this* call
+   again — because after the selector exists, restarting the current week and restarting the sequence are
+   different things and a visitor deep in week two wants both.
+   Flanking it, `◀` and `▶` walk the script a beat at a time and pause on the way, which is how anyone gets
+   to read a rail entry that is on screen for 600 ms. `▶` crosses out of week one into week two exactly as
+   the timer does, so the button never refuses a move the loop would have made by itself; it greys out only
+   at the end of week two, through Nocturne's own `.btn:disabled`. `◀` does not cross back: the selector is
+   one click away, and a back button that rewinds into a different call is a stranger thing than a bounded
+   one. Both are rendered under `prefers-reduced-motion`, where the pause button is not — that path pins the
+   card on the chain and schedules nothing, so stepping is the only way that visitor sees the call at all.
+   Pause stops two separate things, because the card has two clocks. The beats are a chained `setTimeout`, which
+   the effect simply stops scheduling. The looping CSS — the live dot and the audio bars — is the browser's own,
+   and stopping it takes `animation-play-state`. Without it the card would say *paused* while the dot kept
+   pulsing, which reads as a hang rather than a pause.
+   That rule names `.noc-pulse` and `.noc-wave`, the two that loop, and deliberately not every animation in the
+   subtree. A one-shot entrance paused at its first frame never gets a second one: `noc-in` starts at
+   `opacity: 0` with `fill: both`, so pausing inside its 0.34 s window strands that row invisible until the
+   visitor resumes, and the card appears to have lost its content. A pause should stop what repeats, not
+   abandon what was arriving.
+   Under `prefers-reduced-motion` the button is not rendered at all: that path never animates, so there is
+   nothing to pause.
+5. **The call content is translated, and each language renders alone.** The agent really does speak Rioplatense
+   Spanish, so the card shows a call that happened in Spanish. An earlier pass kept that Spanish on screen in
+   both languages and hung a dimmed italic translation beneath every line, which left the English reader — the
+   one who needs the translation — reading the money shot twice. Now every turn, every extracted fact, the
+   key-term list and the quotes carry an `{ es, en }` pair and the card renders one side of it: English is
+   English throughout, Spanish is Spanish throughout, and nothing is subtitled.
+   The cost is that the quote travels with the rest. A translated quote is no longer verbatim, so in English the
+   grounding claim narrows from *these are the syllables she said* to *this fact comes from turn 4* — which is
+   what the turn number beside it already asserted, and what the panel can still prove against the real
+   transcript. Each English quote is written as a literal substring of the English turn above it, so the card
+   stays internally consistent. The pairs live beside their source in `SCRIPT` and `CHAIN`, not in `copy.ts`,
+   because they translate that datum rather than the interface.
+   The card header carried an `es-AR` tag, which was what named the call's real language and marked the English
+   rendering as a translation. It was removed on request, so nothing on the card says so any more and the
+   English reader has no reason to think the call was not in English. The claim survives in the prose — the
+   `Stack` section still says the transcription runs in Spanish, in both registers — but not beside the
+   transcript. Put a locale back in the header if that ever has to be legible at a glance.
+6. **Three toggles the design does not have, and a light theme the system does not ship.** Both are extensions of Nocturne — derived from its ramps, built from its `.seg` — not departures from it.
+7. **Ramp steps and text opacities become semantic aliases.** A step that reads on one ground does not read on the other, so the indirection is what makes two themes possible at all.
+8. **The six looping animations respect `prefers-reduced-motion`.** The design loops them unconditionally.
 
 ## Verification
 
@@ -195,7 +243,7 @@ cd web && pnpm build                        # tsc is the copy check; two HTML ou
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
   --include=*.tsx --include=*.ts --include=*.css | grep -v tokens.css
 make web && make dev
-curl -s -o /dev/null -w '%{http_code}\n' localhost:8000/ localhost:8000/panel
+curl -s -o /dev/null -w '%{http_code}\n' localhost:8001/ localhost:8001/panel
 docker build -t constancia:landing .
 ```
 

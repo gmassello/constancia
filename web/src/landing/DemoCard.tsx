@@ -3,24 +3,30 @@ import { useEffect, useState } from "react"
 import { prefersReducedMotion, type Lang } from "../prefs"
 import type { Copy } from "./copy"
 
+type Week = "week1" | "week2"
+
 type RailKey = "recall" | "newFact" | "retired" | "summary"
+
+type Text = { es: string; en: string }
+
+type Pick = (value: Text) => string
+
+const both = (value: string): Text => ({ es: value, en: value })
 
 type Beat = {
   d: number
-  turn?: { who: "agent" | "patient"; text: string; gloss: string }
+  turn?: { who: "agent" | "patient"; text: Text }
   rail?: {
     key: RailKey
-    text?: string
-    gloss?: string
-    detail?: string
-    detailGloss?: string
-    quote?: string
+    text?: Text
+    detail?: Text
+    quote?: Text
     turn?: number
   }
-  supersede?: "pain" | "adherence"
 }
 
 const CHAIN_HOLD_MS = 4200
+const PACE = 1.6
 
 const TONE: Record<RailKey, string> = {
   recall: "var(--color-accent)",
@@ -29,66 +35,79 @@ const TONE: Record<RailKey, string> = {
   summary: "var(--tone-dim)",
 }
 
-const SCRIPT: Beat[] = [
+const WEEK2: Beat[] = [
   {
     d: 500,
     rail: {
       key: "recall",
-      detail: "rodilla derecha · ejercicios en casa · rigidez · caída en el baño",
-      detailGloss: "right knee · home exercises · stiffness · bathroom fall",
+      detail: {
+        es: "rodilla derecha · ejercicios en casa · rigidez · caída en el baño",
+        en: "right knee · home exercises · stiffness · bathroom fall",
+      },
     },
   },
   {
     d: 1000,
     turn: {
       who: "agent",
-      text: "Hola Ana. La semana pasada me dijiste que la rodilla te dolía 7 de 10 al subir escaleras. ¿Cómo viene esta semana?",
-      gloss: "Hi Ana. Last week you told me your knee hurt 7 out of 10 climbing stairs. How has this week been?",
+      text: {
+        es: "Hola Ana. La semana pasada me dijiste que la rodilla te dolía 7 de 10 al subir escaleras. ¿Cómo viene esta semana?",
+        en: "Hi Ana. Last week you told me your knee hurt 7 out of 10 climbing stairs. How has this week been?",
+      },
     },
   },
   {
     d: 1500,
     turn: {
       who: "patient",
-      text: "La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras.",
-      gloss: "My knee is a lot better — it is four out of ten on the stairs now.",
+      text: {
+        es: "La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras.",
+        en: "My knee is a lot better — it is four out of ten on the stairs now.",
+      },
     },
   },
   {
     d: 800,
     rail: {
       key: "newFact",
-      text: "dolor en la rodilla derecha 4/10 al subir escaleras",
-      gloss: "right knee pain 4/10 climbing stairs",
-      quote: "me duele cuatro de diez",
+      text: {
+        es: "dolor en la rodilla derecha 4/10 al subir escaleras",
+        en: "right knee pain 4/10 climbing stairs",
+      },
+      quote: { es: "me duele cuatro de diez", en: "it is four out of ten" },
       turn: 4,
     },
   },
-  { d: 600, supersede: "pain", rail: { key: "retired", detail: "valid_until 2026-09-07" } },
+  { d: 600, rail: { key: "retired", detail: both("valid_until 2026-09-07") } },
   {
     d: 1100,
     turn: {
       who: "agent",
-      text: "¿Cuántas veces pudiste hacer los ejercicios esta semana?",
-      gloss: "How many times did you manage the exercises this week?",
+      text: {
+        es: "¿Cuántas veces pudiste hacer los ejercicios esta semana?",
+        en: "How many times did you manage the exercises this week?",
+      },
     },
   },
   {
     d: 1400,
     turn: {
       who: "patient",
-      text: "Esta semana los hice cinco veces, me organicé mejor.",
-      gloss: "I did them five times this week, I got myself better organised.",
+      text: {
+        es: "Esta semana los hice cinco veces, me organicé mejor.",
+        en: "I did them five times this week, I got myself better organised.",
+      },
     },
   },
   {
     d: 800,
-    supersede: "adherence",
     rail: {
       key: "newFact",
-      text: "hizo los ejercicios cinco veces en la semana",
-      gloss: "did the exercises five times this week",
-      quote: "los hice cinco veces",
+      text: {
+        es: "hizo los ejercicios cinco veces en la semana",
+        en: "did the exercises five times this week",
+      },
+      quote: { es: "los hice cinco veces", en: "I did them five times" },
       turn: 6,
     },
   },
@@ -96,110 +115,322 @@ const SCRIPT: Beat[] = [
     d: 1000,
     turn: {
       who: "agent",
-      text: "Listo, eso era todo por hoy. Le paso el resumen a tu kinesióloga. Hablamos la semana que viene.",
-      gloss: "That is everything for today. I will send the summary to your physio. We will talk next week.",
+      text: {
+        es: "Listo, eso era todo por hoy. Le paso el resumen a tu kinesióloga. Hablamos la semana que viene.",
+        en: "That is everything for today. I will send the summary to your physio. We will talk next week.",
+      },
     },
   },
   { d: 700, rail: { key: "summary" } },
 ]
 
+const WEEK1: Beat[] = [
+  {
+    d: 500,
+    rail: {
+      key: "recall",
+      text: { es: "sin datos en ficha", en: "no facts on file" },
+      detail: { es: "primera llamada", en: "first call" },
+    },
+  },
+  {
+    d: 1000,
+    turn: {
+      who: "agent",
+      text: {
+        es: "Hola Ana, soy el seguimiento de la clínica. ¿Cómo viene la rodilla esta semana?",
+        en: "Hi Ana, this is the clinic follow-up. How has your knee been this week?",
+      },
+    },
+  },
+  {
+    d: 1500,
+    turn: {
+      who: "patient",
+      text: {
+        es: "La rodilla derecha me duele siete de diez al subir escaleras.",
+        en: "My right knee hurts seven out of ten climbing stairs.",
+      },
+    },
+  },
+  {
+    d: 800,
+    rail: {
+      key: "newFact",
+      text: {
+        es: "dolor en la rodilla derecha 7/10 al subir escaleras",
+        en: "right knee pain 7/10 climbing stairs",
+      },
+      quote: {
+        es: "La rodilla derecha me duele siete de diez",
+        en: "My right knee hurts seven out of ten",
+      },
+      turn: 4,
+    },
+  },
+  {
+    d: 1100,
+    turn: {
+      who: "agent",
+      text: {
+        es: "¿Cuántas veces pudiste hacer los ejercicios esta semana?",
+        en: "How many times did you manage the exercises this week?",
+      },
+    },
+  },
+  {
+    d: 1400,
+    turn: {
+      who: "patient",
+      text: {
+        es: "Los hice tres veces, me salté dos días por trabajo.",
+        en: "I did them three times, I skipped two days because of work.",
+      },
+    },
+  },
+  {
+    d: 800,
+    rail: {
+      key: "newFact",
+      text: {
+        es: "hizo los ejercicios tres veces y se salteó dos días por trabajo",
+        en: "did the exercises three times, skipped two days for work",
+      },
+      quote: {
+        es: "Los hice tres veces, me salté dos días",
+        en: "I did them three times, I skipped two days",
+      },
+      turn: 6,
+    },
+  },
+  {
+    d: 1000,
+    turn: {
+      who: "agent",
+      text: {
+        es: "Listo, eso era todo por hoy. Te llamo la semana que viene.",
+        en: "That is everything for today. I will call you again next week.",
+      },
+    },
+  },
+  { d: 700, rail: { key: "summary" } },
+]
+
+const SCRIPTS: Record<Week, Beat[]> = { week1: WEEK1, week2: WEEK2 }
+
 const CHAIN = {
   pain: {
     category: "symptom",
-    text: "dolor en la rodilla derecha 4/10 al subir escaleras",
-    gloss: "right knee pain 4/10 climbing stairs",
-    value: "4/10",
-    quote: "me duele cuatro de diez",
-    turn: 4,
-    day: "2026-09-07",
-    oldText: "dolor en la rodilla derecha 7/10 al subir escaleras",
-    oldGloss: "right knee pain 7/10 climbing stairs",
-    oldValue: "7/10",
-    oldQuote: "La rodilla derecha me duele siete de diez",
-    oldTurn: 4,
-    oldDay: "2026-09-07",
-    before: {
-      text: "dolor en la rodilla derecha 7/10 al subir escaleras",
-      gloss: "right knee pain 7/10 climbing stairs",
-      value: "7/10",
-      quote: "La rodilla derecha me duele siete de diez",
+    current: {
+      text: {
+        es: "dolor en la rodilla derecha 4/10 al subir escaleras",
+        en: "right knee pain 4/10 climbing stairs",
+      },
+      value: "4/10",
+      quote: { es: "me duele cuatro de diez", en: "it is four out of ten" },
       turn: 4,
-      day: "2026-08-31",
+      day: "2026-09-07",
+    },
+    previous: {
+      text: {
+        es: "dolor en la rodilla derecha 7/10 al subir escaleras",
+        en: "right knee pain 7/10 climbing stairs",
+      },
+      value: "7/10",
+      quote: {
+        es: "La rodilla derecha me duele siete de diez",
+        en: "My right knee hurts seven out of ten",
+      },
+      turn: 4,
+      from: "2026-08-31",
+      until: "2026-09-07",
     },
   },
   adherence: {
     category: "adherence",
-    text: "hizo los ejercicios cinco veces en la semana",
-    gloss: "did the exercises five times this week",
-    value: "5×",
-    quote: "los hice cinco veces",
-    turn: 6,
-    day: "2026-09-07",
-    oldText: "hizo los ejercicios tres veces y se salteó dos días por trabajo",
-    oldGloss: "did the exercises three times, skipped two days for work",
-    oldValue: "3×",
-    oldQuote: "Los hice tres veces, me salté dos días",
-    oldTurn: 6,
-    oldDay: "2026-09-07",
-    before: {
-      text: "hizo los ejercicios tres veces y se salteó dos días por trabajo",
-      gloss: "did the exercises three times, skipped two days for work",
-      value: "3×",
-      quote: "Los hice tres veces, me salté dos días",
+    current: {
+      text: {
+        es: "hizo los ejercicios cinco veces en la semana",
+        en: "did the exercises five times this week",
+      },
+      value: "5×",
+      quote: { es: "los hice cinco veces", en: "I did them five times" },
       turn: 6,
-      day: "2026-08-31",
+      day: "2026-09-07",
+    },
+    previous: {
+      text: {
+        es: "hizo los ejercicios tres veces y se salteó dos días por trabajo",
+        en: "did the exercises three times, skipped two days for work",
+      },
+      value: "3×",
+      quote: {
+        es: "Los hice tres veces, me salté dos días",
+        en: "I did them three times, I skipped two days",
+      },
+      turn: 6,
+      from: "2026-08-31",
+      until: "2026-09-07",
     },
   },
 }
 
 const WAVE_DELAYS = [0, 0.1, 0.2, 0.3, 0.45, 0.25, 0.15, 0.35]
 
+function Link({
+  fill,
+  ring,
+  label,
+  text,
+  struck,
+  value,
+  valueColor,
+  meta,
+}: {
+  fill: string
+  ring: string
+  label: string
+  text: string
+  struck?: boolean
+  value: string
+  valueColor: string
+  meta: string
+}) {
+  return (
+    <div style={{ position: "relative" }}>
+      <span
+        style={{
+          position: "absolute",
+          left: -17,
+          top: 4,
+          width: 7,
+          height: 7,
+          boxSizing: "border-box",
+          borderRadius: "50%",
+          background: fill,
+          border: `1px solid ${ring}`,
+        }}
+      />
+      <div
+        style={{
+          fontSize: 9.5,
+          letterSpacing: "0.07em",
+          textTransform: "uppercase",
+          color: "var(--text-muted)",
+          marginBottom: 3,
+        }}
+      >
+        {label}
+      </div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+        <span
+          className={struck ? "noc-strike" : undefined}
+          style={{
+            fontSize: struck ? 12 : 13,
+            lineHeight: 1.45,
+            flex: 1,
+            color: struck ? "var(--tone-dim)" : undefined,
+          }}
+        >
+          {text}
+        </span>
+        <span
+          style={{ fontFamily: "var(--font-heading)", fontSize: struck ? 15 : 20, color: valueColor }}
+        >
+          {value}
+        </span>
+      </div>
+      <div style={{ fontSize: 10.5, color: "var(--text-muted)", marginTop: 2 }}>{meta}</div>
+    </div>
+  )
+}
+
 function railText(
   copy: Copy,
   beat: Beat,
-): { label: string; text: string; detail?: string; gloss?: string; detailGloss?: string } {
+  t: Pick,
+): { label: string; text: string; detail?: string } {
   const rail = beat.rail!
   if (rail.key === "recall") {
     return {
       label: copy.railRecall,
-      text: copy.railRecallText,
-      detail: rail.detail,
-      detailGloss: rail.detailGloss,
+      text: rail.text ? t(rail.text) : copy.railRecallText,
+      detail: rail.detail && t(rail.detail),
     }
   }
   if (rail.key === "newFact") {
-    const detail = rail.quote ? copy.demoTurnRef(rail.quote, rail.turn ?? 0) : rail.detail
-    return { label: copy.railNewFact, text: rail.text ?? "", detail, gloss: rail.gloss }
+    const detail = rail.quote
+      ? copy.demoTurnRef(t(rail.quote), rail.turn ?? 0)
+      : rail.detail && t(rail.detail)
+    return { label: copy.railNewFact, text: rail.text ? t(rail.text) : "", detail }
   }
   if (rail.key === "retired") {
-    return { label: copy.railRetired, text: copy.railRetiredText, detail: rail.detail }
+    return {
+      label: copy.railRetired,
+      text: copy.railRetiredText,
+      detail: rail.detail && t(rail.detail),
+    }
   }
   return { label: copy.railSummary, text: copy.railSummaryText, detail: copy.railSummaryDetail }
 }
 
 export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) {
-  const gloss = lang === "en"
+  const t: Pick = (value) => value[lang]
+  const day = (iso: string) =>
+    new Intl.DateTimeFormat(lang, { day: "numeric", month: "short" }).format(
+      new Date(`${iso}T00:00:00`),
+    )
 
-  const [step, setStep] = useState(prefersReducedMotion() ? SCRIPT.length : 0)
+  const [week, setWeekState] = useState<Week>("week2")
+  const script = SCRIPTS[week]
+  const [step, setStep] = useState(prefersReducedMotion() ? script.length : 0)
+  const [paused, setPaused] = useState(false)
+  const still = prefersReducedMotion()
+  const first = week === "week1"
+
+  const setWeek = (next: Week) => {
+    setWeekState(next)
+    setStep(prefersReducedMotion() ? SCRIPTS[next].length : 0)
+    setPaused(false)
+  }
 
   useEffect(() => {
-    if (prefersReducedMotion()) return
-    const done = step >= SCRIPT.length
-    const wait = done ? CHAIN_HOLD_MS : SCRIPT[step].d
-    const timer = setTimeout(() => setStep(done ? 0 : step + 1), wait)
+    // ponytail: resuming restarts the current beat's whole delay, not its remainder.
+    // Store the start timestamp and subtract it if the pacing ever has to be exact.
+    if (paused || prefersReducedMotion()) return
+    const done = step >= script.length
+    const wait = done ? CHAIN_HOLD_MS : script[step].d * PACE
+    const timer = setTimeout(() => {
+      if (!done) {
+        setStep(step + 1)
+        return
+      }
+      if (week === "week1") setWeekState("week2")
+      setStep(0)
+    }, wait)
     return () => clearTimeout(timer)
-  }, [step])
+  }, [step, paused, script, week])
 
-  const shown = SCRIPT.slice(0, Math.min(step, SCRIPT.length)).map((beat, at) => ({ beat, at }))
+  const stepTo = (next: number) => {
+    setPaused(true)
+    if (next > script.length && first) {
+      setWeekState("week2")
+      setStep(0)
+      return
+    }
+    setStep(Math.min(Math.max(next, 0), script.length))
+  }
+
+  const shown = script.slice(0, Math.min(step, script.length)).map((beat, at) => ({ beat, at }))
   const turns = shown.filter((entry) => entry.beat.turn).slice(-6)
   const rail = shown.filter((entry) => entry.beat.rail).slice(-5)
-  const superseded = new Set(shown.map((entry) => entry.beat.supersede).filter(Boolean))
-  const ended = step >= SCRIPT.length
+  const ended = step >= script.length
   const turnCount = shown.filter((entry) => entry.beat.turn).length
 
   return (
     <div
       id="demo"
+      className={paused ? "is-paused" : undefined}
       style={{
         minWidth: 0,
         borderRadius: "var(--radius-lg)",
@@ -231,11 +462,24 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
           }}
         />
         <span style={{ fontFamily: "var(--font-heading)", fontSize: 13 }}>{c.demoCaption}</span>
-        <span className="tag tag-outline" style={{ marginLeft: "auto", fontSize: 10 }}>
-          es-AR
-        </span>
-        <span className="tag tag-accent" style={{ fontSize: 10 }}>
-          {c.demoMemoryOn}
+        <div className="seg" style={{ marginLeft: "auto", fontSize: 10 }}>
+          {(["week1", "week2"] as Week[]).map((option) => (
+            <label className="seg-opt" key={option}>
+              <input
+                type="radio"
+                name="demo-week"
+                checked={week === option}
+                onChange={() => setWeek(option)}
+              />
+              {option === "week1" ? c.demoWeek1 : c.demoWeek2}
+            </label>
+          ))}
+        </div>
+        <span
+          className={first ? "tag tag-outline" : "tag tag-accent"}
+          style={{ fontSize: 10 }}
+        >
+          {first ? c.demoMemoryOff : c.demoMemoryOn}
         </span>
       </div>
 
@@ -249,10 +493,11 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
             gap: 12,
           }}
         >
-          <h6 style={{ margin: 0, fontSize: 10, color: "var(--text-muted)" }}>{c.demoChain}</h6>
+          <h6 style={{ margin: 0, fontSize: 10, color: "var(--text-muted)" }}>
+            {first ? c.demoChainFirst : c.demoChain}
+          </h6>
           {(Object.keys(CHAIN) as Array<keyof typeof CHAIN>).map((key) => {
             const row = CHAIN[key]
-            const retired = superseded.has(key)
             return (
               <div
                 className="noc-in"
@@ -263,72 +508,61 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
                   padding: "11px 12px",
                   display: "flex",
                   flexDirection: "column",
-                  gap: 7,
+                  gap: 9,
                 }}
               >
-                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                  <span className="tag tag-accent" style={{ fontSize: 10 }}>
-                    {c.demoCategory[row.category] ?? row.category}
-                  </span>
-                  <span style={{ fontSize: 13, lineHeight: 1.45, flex: 1 }}>
-                    {retired ? row.text : row.before.text}
-                    {gloss && (
-                      <span className="gloss">{retired ? row.gloss : row.before.gloss}</span>
-                    )}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "var(--font-heading)",
-                      fontSize: 20,
-                      color: "var(--text-accent)",
-                    }}
-                  >
-                    {retired ? row.value : row.before.value}
-                  </span>
-                </div>
-                <div style={{ fontSize: 10.5, color: "var(--text-muted)" }}>
-                  {retired
-                    ? c.demoFactMeta(row.quote, row.turn, row.day)
-                    : c.demoFactMeta(row.before.quote, row.before.turn, row.before.day)}
-                </div>
-                {retired && (
-                  <div
-                    style={{
-                      position: "relative",
-                      padding: "8px 10px",
-                      borderRadius: "var(--radius-sm)",
-                      background: "color-mix(in srgb, var(--color-bg) 60%, transparent)",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 8, opacity: 0.55 }}>
-                      <span style={{ fontSize: 12, lineHeight: 1.45, flex: 1 }}>
-                        {row.oldText}
-                        {gloss && <span className="gloss">{row.oldGloss}</span>}
-                      </span>
-                      <span style={{ fontFamily: "var(--font-heading)", fontSize: 15 }}>{row.oldValue}</span>
-                    </div>
-                    <div style={{ fontSize: 10.5, opacity: 0.45, marginTop: 2 }}>
-                      {c.demoFactMeta(row.oldQuote, row.oldTurn, row.oldDay)}
-                    </div>
-                    <div
-                      className="noc-strike"
-                      style={{
-                        position: "absolute",
-                        left: 10,
-                        right: 10,
-                        top: 17,
-                        height: 1,
-                        background: "var(--color-accent)",
-                        transformOrigin: "left",
-                      }}
+                <span className="tag tag-accent" style={{ fontSize: 10, alignSelf: "flex-start" }}>
+                  {c.demoCategory[row.category] ?? row.category}
+                </span>
+                <div
+                  style={{
+                    marginLeft: 3,
+                    paddingLeft: 13,
+                    borderLeft: "1px solid var(--color-divider)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 10,
+                  }}
+                >
+                  {first ? (
+                    <Link
+                      fill="var(--color-accent)"
+                      ring="var(--color-accent)"
+                      label={`${c.demoChainCurrent} · ${day(row.previous.from)}`}
+                      text={t(row.previous.text)}
+                      value={row.previous.value}
+                      valueColor="var(--text-accent)"
+                      meta={c.demoTurnRef(t(row.previous.quote), row.previous.turn)}
                     />
-                  </div>
-                )}
+                  ) : (
+                    <>
+                      <Link
+                        fill="var(--color-accent)"
+                        ring="var(--color-accent)"
+                        label={`${c.demoChainCurrent} · ${day(row.current.day)}`}
+                        text={t(row.current.text)}
+                        value={row.current.value}
+                        valueColor="var(--text-accent)"
+                        meta={c.demoTurnRef(t(row.current.quote), row.current.turn)}
+                      />
+                      <Link
+                        fill="var(--color-bg)"
+                        ring="var(--tone-dim)"
+                        label={`${c.demoChainRetired} · ${day(row.previous.from)} → ${day(row.previous.until)}`}
+                        text={t(row.previous.text)}
+                        struck
+                        value={row.previous.value}
+                        valueColor="var(--tone-dim)"
+                        meta={c.demoTurnRef(t(row.previous.quote), row.previous.turn)}
+                      />
+                    </>
+                  )}
+                </div>
               </div>
             )
           })}
           <div style={{ marginTop: "auto", fontSize: 11.5, color: "var(--text-muted)" }}>
-            {c.demoChainNote}
+            {first ? c.demoChainNoteFirst : c.demoChainNote}
           </div>
         </div>
       ) : (
@@ -370,9 +604,8 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
                     color: beat.turn!.who === "agent" ? "var(--text-accent)" : "var(--color-text)",
                   }}
                 >
-                  {beat.turn!.text}
+                  {t(beat.turn!.text)}
                 </p>
-                {gloss && <p className="gloss">{beat.turn!.gloss}</p>}
               </div>
             ))}
             <div style={{ marginTop: "auto", display: "flex", alignItems: "flex-end", gap: 3, height: 22 }}>
@@ -402,7 +635,7 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
           >
             <h6 style={{ margin: 0, fontSize: 10, color: "var(--text-muted)" }}>{c.demoActivity}</h6>
             {rail.map(({ beat, at }) => {
-              const line = railText(c, beat)
+              const line = railText(c, beat, t)
               const tone = TONE[beat.rail!.key]
               return (
                 <div
@@ -422,7 +655,6 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
                     {line.label}
                   </div>
                   <div style={{ fontSize: 12, lineHeight: 1.45 }}>{line.text}</div>
-                  {gloss && line.gloss && <div className="gloss">{line.gloss}</div>}
                   {line.detail && (
                     <div
                       style={{
@@ -435,7 +667,6 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
                       {line.detail}
                     </div>
                   )}
-                  {gloss && line.detailGloss && <div className="gloss">{line.detailGloss}</div>}
                 </div>
               )
             })}
@@ -452,11 +683,59 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
           borderTop: "1px solid var(--color-divider)",
         }}
       >
-        <button className="btn btn-ghost" onClick={() => setStep(0)} style={{ fontSize: 12 }}>
+        <button
+          className="btn btn-ghost"
+          aria-label={c.demoRestart}
+          onClick={() => setWeek("week1")}
+          style={{ fontSize: 12 }}
+        >
+          ↺
+        </button>
+        <button
+          className="btn btn-ghost"
+          aria-label={c.demoBack}
+          disabled={step === 0}
+          onClick={() => stepTo(step - 1)}
+          style={{ fontSize: 11 }}
+        >
+          ◀
+        </button>
+        {!still && (
+          <button
+            className="btn btn-ghost"
+            onClick={() => setPaused(!paused)}
+            style={{ fontSize: 12 }}
+          >
+            {paused ? c.demoResume : c.demoPause}
+          </button>
+        )}
+        <button
+          className="btn btn-ghost"
+          aria-label={c.demoForward}
+          disabled={step === script.length && !first}
+          onClick={() => stepTo(step + 1)}
+          style={{ fontSize: 11 }}
+        >
+          ▶
+        </button>
+        <button
+          className="btn btn-ghost"
+          onClick={() => {
+            setStep(0)
+            setPaused(false)
+          }}
+          style={{ fontSize: 12 }}
+        >
           {c.demoReplay}
         </button>
         <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-muted)" }}>
-          {ended ? c.demoEnded : c.demoStreaming(turnCount)}
+          {ended
+            ? first
+              ? c.demoEndedFirst
+              : c.demoEnded
+            : paused
+              ? c.demoPaused(turnCount)
+              : c.demoStreaming(turnCount)}
         </span>
       </div>
     </div>

@@ -29,7 +29,7 @@ Stage 3 of four plus the public landing (see `docs/PLAN.md` and `docs/LANDING.md
   dark theme, English or Spanish, and a technical or plain register — the same page written for a judge and
   for the physiotherapist who would pay for it. It opens light and in English; `?lang=es` opens it in Spanish
   directly, and every choice is remembered.
-- **The professional's panel** at `/panel`: patient list, weekly chart, the supersession chain with the
+- **The professional's panel** at `/panel`: patient list, how the two tracked measures are moving — pain out of ten and sessions a week, each with its scale and whether the change is good — the supersession chain with the
   verbatim quote and turn id behind every fact, the key terms that fed the STT, and the live call —
   transcript and activity rail over SSE, with the new facts highlighted as they land. It reads the same
   theme and language the visitor chose on the landing.
@@ -53,12 +53,16 @@ No keys needed for the offline path:
 uv sync
 make test          # 89 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
-make dev           # http://localhost:8000 — the landing; the panel is at /panel
+make dev           # http://localhost:8001 — the landing; the panel is at /panel
 ```
 
-In the panel, **Call now** in *scripted* mode runs a whole call with no phone and no keys: the transcript
-appears turn by turn, the rail lights up as facts land, and the 7/10 knee is struck through by the 4/10.
-Uncheck *memory* and the same call starts from scratch — that is the honest A/B.
+The panel offers the A/B as two buttons: **Call with memory** and **Call without memory**. Both run the whole
+call with no phone and no keys — the transcript appears turn by turn, the rail lights up as facts land — and
+the difference is the point: with memory the agent opens by quoting last week and the 7/10 knee ends struck
+through by the 4/10; without it, the call starts from scratch. Both sides of that transcript are canned: with
+no `GEMINI_API_KEY` the agent's lines come from `seed/scripts.json`, keyed to the pack's question ids, not
+from the model. *Replay a recorded call* plays a fixture instead, and a **Dial her real phone** button appears
+only when credentials are loaded — the two main buttons never place a real call.
 
 `POST /reset` puts the in-memory seed back where it started, which is what a second take needs.
 
@@ -89,7 +93,7 @@ uv run pytest -m integration
 For a real phone call, copy `.env.example` to `.env`, fill it, expose the port and dial:
 
 ```bash
-ngrok http 8000                       # PUBLIC_BASE_URL is the https URL it prints
+ngrok http 8001                       # PUBLIC_BASE_URL is the https URL it prints
 make dev
 make smoke PHONE=+54911...            # geographic permissions, no LLM or TTS credit spent
 make smoke-stt && make smoke-tts      # the two failure modes that cost the most time
@@ -111,13 +115,18 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
   recording has to be downloaded and re-uploaded instead of passed by URL.
 - **Calls live in memory.** After a restart the panel loses the live trace of past calls; the history comes
   from the database instead.
-- **In English the panel shows English chrome over Spanish data.** The summary is written by the agent and the
-  facts, quotes and transcript are the patient's own words. The patient is not the visitor, so they do not
-  translate.
-- **The landing's hero card is a scripted loop**, not a live call: ten canned beats with the real copy. The
-  panel is where a real call is watched. Its dialogue stays in Spanish in both languages, because that is what
-  the agent actually speaks; in English a translation is shown under each line, and the verbatim quote is never
-  translated.
+- **In English the panel translates the canned content, not live output.** Every fact, quote, transcript turn,
+  key term and summary that ships in `seed/` has an English counterpart in `web/src/panel/content.ts`, keyed by
+  the Spanish string, so the demo reads end to end in either language. A fact a real call extracts is not in
+  that table and falls through in Spanish — deliberately, since showing an invented translation of a verbatim
+  quote is worse than showing the quote. That path needs a Gemini key and a phone, so it is not the one a
+  reader of this README will hit first.
+- **The landing's hero card is a scripted loop**, not a live call: two canned scripts with the real copy — week
+  one with memory off, week two with it on — behind a selector, with step, pause and replay controls under
+  them, plus a reset that takes the whole sequence back to week one. The panel is where a real call is watched. The call itself happened in
+  Spanish, and the card renders it whole in whichever language the visitor picked — turns, facts and quotes
+  together — so in English the quote is a translation and the turn id beside it, not the wording, is what
+  anchors the fact. Nothing on the card itself says the call was in Spanish; only the `Stack` section does.
 - Twilio trial accounts only call verified numbers and prepend their own message.
 - Spanish only (Rioplatense). The packs are content, not code, so another language is a translation, not a rewrite.
 

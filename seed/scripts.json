@@ -27,7 +27,15 @@
         "turn_id": 6,
         "confidence": 0.9
       }
-    ]
+    ],
+    "agent": {
+      "greet": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. Te llamo para ver cómo venís con la recuperación esta semana.",
+      "pain": "Contame, ¿cuánto te duele hoy del uno al diez, y en qué momento o con qué movimiento lo notás más?",
+      "adherence": "¿Cuántas veces pudiste hacer los ejercicios esta semana? ¿Te costó sostener la rutina?",
+      "side_effects": "¿Tuviste alguna molestia nueva después de los ejercicios, algo de hinchazón o rigidez?",
+      "red_flags": "Una última: ¿tuviste alguna caída, un dolor repentino y fuerte, o algo que te haya asustado?",
+      "summary": "Primera llamada de seguimiento. Refiere dolor en rodilla derecha 7/10 al subir escaleras. Hizo los ejercicios tres veces y se salteó dos días por trabajo. Rigidez leve después de los ejercicios, sin señales de alarma."
+    }
   },
   "week2": {
     "memory": true,
@@ -57,6 +65,14 @@
         "turn_id": 6,
         "confidence": 0.9
       }
-    ]
+    ],
+    "agent": {
+      "greet": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. La semana pasada me contaste que la rodilla te dolía siete de diez al subir escaleras, así que te llamo para ver cómo viene esta semana.",
+      "pain": "Contame, ¿cuánto te duele hoy del uno al diez al subir escaleras?",
+      "adherence": "La semana pasada los ejercicios los hiciste tres veces. ¿Cuántas veces pudiste esta semana?",
+      "side_effects": "¿Tuviste alguna molestia nueva después de los ejercicios, algo de hinchazón o rigidez?",
+      "red_flags": "Una última: ¿tuviste alguna caída, un dolor repentino y fuerte, o algo que te haya asustado?",
+      "summary": "Segunda llamada de seguimiento. El dolor en rodilla derecha bajó de 7/10 a 4/10 al subir escaleras. Mejoró la adherencia: cinco sesiones esta semana contra tres la anterior. Sin molestias nuevas ni señales de alarma."
+    }
   }
 }

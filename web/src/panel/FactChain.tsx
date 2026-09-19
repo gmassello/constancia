@@ -1,19 +1,57 @@
 import type { Fact } from "./api"
 import { label, type Copy } from "./copy"
 
-const day = (value: string) => value.slice(0, 10)
+const PULSE = "M3 12h3.6l2.1-5.6 3.4 11.2 2.2-5.6H21"
+const CHECK = "M4 12.6l5 5L20 6.4"
+const FLAG = "M5.5 21V4h12.5l-2.6 4.6L18 13.2H5.5"
+const RING = "M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"
 
-function Row({ fact, retired, copy: c }: { fact: Fact; retired: boolean; copy: Copy }) {
+// ponytail: only the three categories the rehab pack produces have a drawing.
+// mood and clinical_value fall back to the ring; give them their own path when a
+// postpartum or chronic patient reaches the panel.
+const ICON: Record<string, string> = { symptom: PULSE, adherence: CHECK, red_flag: FLAG }
+
+function Entry({
+  fact,
+  current,
+  paired,
+  copy: c,
+}: {
+  fact: Fact
+  current: boolean
+  paired: boolean
+  copy: Copy
+}) {
+  const name = label(c.category, fact.category)
   return (
-    <div className={retired ? "fact retired" : "fact"}>
-      <div className="fact-head">
-        <span className={`pill pill-${fact.category}`}>{label(c.category, fact.category)}</span>
-        <span className="fact-text">{fact.fact}</span>
-        {fact.value !== null && <span className="fact-value">{fact.value}</span>}
-      </div>
-      <div className="fact-meta">
-        {c.quoteMeta(fact.quote, fact.turn_id, day(fact.reported_at))}
-        {retired && fact.valid_until && c.retiredOn(day(fact.valid_until))}
+    <div className={current ? "entry" : "entry retired"}>
+      <span className="entry-dot" />
+      <svg
+        className={fact.category === "red_flag" ? "entry-icon alarm" : "entry-icon"}
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        role="img"
+        aria-label={name}
+      >
+        <path d={ICON[fact.category] ?? RING} strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <div className="entry-body">
+        <div className="entry-head">
+          <span className="entry-text">{c.data(fact.fact)}</span>
+          {fact.category === "red_flag" && <span className="pill pill-red_flag">{name}</span>}
+          {paired && (
+            <span className="entry-state">{current ? c.factCurrent : c.factRetired}</span>
+          )}
+        </div>
+        <p className="entry-quote">«{c.data(fact.quote)}»</p>
+        <p className="entry-source">
+          {c.saidOn(c.day(fact.reported_at), fact.turn_id)}
+          {!current && fact.valid_until && c.heldUntil(c.day(fact.valid_until))}
+        </p>
       </div>
     </div>
   )
@@ -26,14 +64,16 @@ export default function FactChain({ facts, copy: c }: { facts: Fact[]; copy: Cop
   return (
     <div>
       <h2>{c.fileTitle}</h2>
+      <p className="file-lede">{c.fileLede}</p>
       {facts.map((fact) => (
         <div className="chain" key={fact.id}>
-          <Row fact={fact} retired={false} copy={c} />
+          <Entry fact={fact} current paired={fact.superseded.length > 0} copy={c} />
           {fact.superseded.map((old) => (
-            <Row fact={old} key={old.id} retired copy={c} />
+            <Entry fact={old} key={old.id} current={false} paired copy={c} />
           ))}
         </div>
       ))}
+      <p className="file-note">{c.fileNote}</p>
     </div>
   )
 }

@@ -12,10 +12,14 @@ async def rows() -> list[dict]:
 
 
 def knee(value: float, reported_at: str, fact_id: str) -> dict:
+    return fact("rodilla derecha", "symptom", value, reported_at, fact_id)
+
+
+def fact(term: str, category: str, value, reported_at: str, fact_id: str) -> dict:
     return {
         "id": fact_id,
-        "term": "rodilla derecha",
-        "category": "symptom",
+        "term": term,
+        "category": category,
         "value": value,
         "reported_at": reported_at,
         "superseded_by": None,
@@ -61,16 +65,46 @@ async def test_chain_walks_a_supersession_longer_than_one_step() -> None:
 
 
 async def test_weekly_follows_one_term_and_takes_the_newest_value_per_week() -> None:
-    weeks = queries.weekly([knee(7, WEEK_1, "a"), knee(4, WEEK_2, "b")])
+    [series] = queries.weekly([knee(7, WEEK_1, "a"), knee(4, WEEK_2, "b")], get_pack("rehab"))
 
-    assert [w["week"] for w in weeks] == ["2026-W36", "2026-W37"]
-    assert [w["value"] for w in weeks] == [7.0, 4.0]
-    assert {w["term"] for w in weeks} == {"rodilla derecha"}
+    assert series["term"] == "rodilla derecha"
+    assert [p["week"] for p in series["points"]] == ["2026-W36", "2026-W37"]
+    assert [p["value"] for p in series["points"]] == [7.0, 4.0]
+
+
+async def test_weekly_keeps_each_category_in_its_own_series() -> None:
+    series = queries.weekly(
+        [
+            knee(7, WEEK_1, "a"),
+            knee(4, WEEK_2, "b"),
+            fact("ejercicios en casa", "adherence", 3, WEEK_1, "c"),
+            fact("ejercicios en casa", "adherence", 5, WEEK_2, "d"),
+        ],
+        get_pack("rehab"),
+    )
+
+    assert [s["category"] for s in series] == ["symptom", "adherence"]
+    assert [p["value"] for p in series[0]["points"]] == [7.0, 4.0]
+    assert [p["value"] for p in series[1]["points"]] == [3.0, 5.0]
+
+
+async def test_weekly_carries_the_scale_and_the_direction_from_the_pack() -> None:
+    series = queries.weekly([knee(7, WEEK_1, "a")], get_pack("rehab"))
+
+    assert series[0]["scale_max"] == 10
+    assert series[0]["lower_is_better"] is True
+
+
+async def test_weekly_points_carry_the_day_they_were_reported() -> None:
+    [series] = queries.weekly([knee(7, WEEK_1, "a")], get_pack("rehab"))
+
+    assert series["points"][0]["day"] == WEEK_1
 
 
 async def test_weekly_is_empty_when_no_fact_carries_a_number() -> None:
-    assert queries.weekly([]) == []
-    assert queries.weekly([f for f in await rows() if f["value"] is None]) == []
+    pack = get_pack("rehab")
+    assert queries.weekly([], pack) == []
+    assert queries.weekly([f for f in await rows() if f["value"] is None], pack) == []
 
 
 async def test_keyterms_at_ignores_facts_the_call_itself_produced() -> None:

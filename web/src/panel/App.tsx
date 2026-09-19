@@ -37,6 +37,9 @@ export default function App() {
             {health.live ? c.phoneReady : c.phoneNoKeys}
           </div>
         )}
+        <a className="btn btn-secondary aside-home" href="/">
+          ← {c.home}
+        </a>
         <div className="aside-controls">
           <div className="seg">
             {(["en", "es"] as Lang[]).map((option) => (

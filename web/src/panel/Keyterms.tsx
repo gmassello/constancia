@@ -10,7 +10,7 @@ export default function Keyterms({ terms, copy: c }: { terms: string[]; copy: Co
         <div className="chips">
           {terms.map((term) => (
             <span className="chip" key={term}>
-              {term}
+              {c.data(term)}
             </span>
           ))}
         </div>

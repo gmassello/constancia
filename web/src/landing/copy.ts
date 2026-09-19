@@ -27,19 +27,32 @@ export type Copy = {
   featureQuoteBody: string
 
   demoCaption: string
+  demoWeek1: string
+  demoWeek2: string
   demoMemoryOn: string
+  demoMemoryOff: string
   demoTranscript: string
   demoAgent: string
   demoPatient: string
   demoTurnRef: (quote: string, turn: number) => string
-  demoFactMeta: (quote: string, turn: number, day: string) => string
   demoCategory: Record<string, string>
   demoActivity: string
   demoChain: string
+  demoChainFirst: string
+  demoChainCurrent: string
+  demoChainRetired: string
   demoChainNote: string
+  demoChainNoteFirst: string
   demoReplay: string
+  demoPause: string
+  demoResume: string
+  demoRestart: string
+  demoBack: string
+  demoForward: string
   demoEnded: string
+  demoEndedFirst: string
   demoStreaming: (turn: number) => string
+  demoPaused: (turn: number) => string
 
   railRecall: string
   railRecallText: string
@@ -126,21 +139,35 @@ const en: Copy = {
   featureQuoteTitle: "Every fact quoted",
   featureQuoteBody: "Verbatim span + turn id, or it is discarded",
 
-  demoCaption: "Ana · week 2 · rehab",
+  demoCaption: "Ana · rehab",
+  demoWeek1: "week 1",
+  demoWeek2: "week 2",
   demoMemoryOn: "memory on",
+  demoMemoryOff: "memory off",
   demoTranscript: "Live transcript",
   demoAgent: "agent",
   demoPatient: "patient",
   demoTurnRef: (quote, turn) => `«${quote}» · turn ${turn}`,
-  demoFactMeta: (quote, turn, day) => `«${quote}» · turn ${turn} · ${day}`,
   demoCategory: { symptom: "symptom", adherence: "adherence" },
   demoActivity: "Activity",
   demoChain: "Patient file · supersession chain",
+  demoChainFirst: "Patient file · 2 facts on a blank slate",
+  demoChainCurrent: "current",
+  demoChainRetired: "retired",
   demoChainNote:
-    "Nothing is deleted. The retired fact keeps its quote, its turn id and the date it stopped being true.",
+    "Nothing is deleted. The retired fact keeps its quote, its turn id and the window it was true for.",
+  demoChainNoteFirst:
+    "The file was empty before this call. These two facts are what week 2 opens by asking about.",
   demoReplay: "Replay",
+  demoPause: "Pause",
+  demoResume: "Resume",
+  demoRestart: "Start the demo over, from week 1",
+  demoBack: "Previous step",
+  demoForward: "Next step",
   demoEnded: "call ended · 2 facts stored, 2 retired",
+  demoEndedFirst: "call ended · 2 facts stored, nothing to retire",
   demoStreaming: (turn) => `turn ${turn} · streaming`,
+  demoPaused: (turn) => `turn ${turn} · paused`,
 
   railRecall: "recall",
   railRecallText: "4 facts on file",
@@ -238,21 +265,35 @@ const es: Copy = {
   featureQuoteTitle: "Todo dato, citado",
   featureQuoteBody: "Cita textual y número de turno, o se descarta",
 
-  demoCaption: "Ana · semana 2 · rehab",
+  demoCaption: "Ana · rehab",
+  demoWeek1: "semana 1",
+  demoWeek2: "semana 2",
   demoMemoryOn: "memoria activa",
+  demoMemoryOff: "memoria apagada",
   demoTranscript: "Transcripción en vivo",
   demoAgent: "agente",
   demoPatient: "paciente",
   demoTurnRef: (quote, turn) => `«${quote}» · turno ${turn}`,
-  demoFactMeta: (quote, turn, day) => `«${quote}» · turno ${turn} · ${day}`,
   demoCategory: { symptom: "síntoma", adherence: "adherencia" },
   demoActivity: "Actividad",
   demoChain: "Ficha del paciente · cadena de supersesión",
+  demoChainFirst: "Ficha del paciente · 2 datos sobre una ficha vacía",
+  demoChainCurrent: "vigente",
+  demoChainRetired: "retirado",
   demoChainNote:
-    "No se borra nada. El dato retirado conserva su cita, su turno y la fecha en que dejó de ser cierto.",
+    "No se borra nada. El dato retirado conserva su cita, su turno y la ventana en que fue cierto.",
+  demoChainNoteFirst:
+    "Antes de esta llamada la ficha estaba vacía. Con estos dos datos arranca la semana 2.",
   demoReplay: "Repetir",
+  demoPause: "Pausar",
+  demoResume: "Reanudar",
+  demoRestart: "Empezar la demo de cero, desde la semana 1",
+  demoBack: "Paso anterior",
+  demoForward: "Paso siguiente",
   demoEnded: "llamada terminada · 2 datos nuevos, 2 retirados",
+  demoEndedFirst: "llamada terminada · 2 datos nuevos, nada que retirar",
   demoStreaming: (turn) => `turno ${turn} · en curso`,
+  demoPaused: (turn) => `turno ${turn} · pausado`,
 
   railRecall: "memoria",
   railRecallText: "4 datos en ficha",
@@ -323,6 +364,15 @@ const es: Copy = {
 }
 
 const enPlain = {
+  demoChain: "What Ana said before, and what she says now",
+  demoChainFirst: "What Ana told us on the very first call",
+  demoChainCurrent: "now",
+  demoChainRetired: "replaced",
+  demoChainNote:
+    "The old answer is not erased. It stays, crossed out, next to the dates it was true between, so you can always see what changed and when.",
+  demoChainNoteFirst:
+    "Nobody had asked her any of this before. Next week the call starts from these two answers instead of from zero.",
+
   heroKicker: "A phone call that remembers",
   heroBodyProduct:
     "Constancia phones your patients once a week, asks the same questions every time, tells you straight away if something sounds wrong — and starts the next call with what they told you last week.",
@@ -380,6 +430,15 @@ const enPlain = {
 type PlainKey = keyof typeof enPlain
 
 const esPlain: Record<PlainKey, string> = {
+  demoChain: "Lo que Ana dijo antes, y lo que dice ahora",
+  demoChainFirst: "Lo que Ana contó en la primera llamada",
+  demoChainCurrent: "ahora",
+  demoChainRetired: "reemplazado",
+  demoChainNote:
+    "La respuesta vieja no se borra. Queda tachada, al lado de las fechas entre las que fue cierta, así siempre se ve qué cambió y cuándo.",
+  demoChainNoteFirst:
+    "Nadie le había preguntado nada de esto antes. La semana que viene la llamada arranca de estas dos respuestas y no de cero.",
+
   heroKicker: "Una llamada que se acuerda",
   heroBodyProduct:
     "Constancia llama a tus pacientes una vez por semana, hace siempre las mismas preguntas, te avisa enseguida si algo suena mal — y arranca la llamada siguiente con lo que te contaron la semana pasada.",

@@ -65,7 +65,7 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
 
 | # | After | What the human does | What must happen |
 |---|---|---|---|
-| C1 | Stage 1 | Fill `.env` (Gemini, AssemblyAI, Twilio SID/token/number, ElevenLabs key/voice), `ngrok config add-authtoken`, `ngrok http 8000`, answer the phone | `make smoke` rings; `make call PHONE=+54...`: greeting, 4 questions in order, barge-in, goodbye; `/calls/{id}/trace` shows both sides |
+| C1 | Stage 1 | Fill `.env` (Gemini, AssemblyAI, Twilio SID/token/number, ElevenLabs key/voice), `ngrok config add-authtoken`, `ngrok http 8001`, answer the phone | `make smoke` rings; `make call PHONE=+54...`: greeting, 4 questions in order, barge-in, goodbye; `/calls/{id}/trace` shows both sides |
 | C2 | Stage 2 | Create a Supabase project (or use `make db` locally), set `DATABASE_URL`, answer two calls | Call 1 from scratch; call 2 opens on the knee; 7/10 superseded by 4/10 in the DB; `memory=off` does not ask about the knee |
 | C3 | Stage 3 | Open the panel during a call | Live transcript, rail with highlight, superseded chain, chart, replay with no keys |
 | C4 | Stage 4 | Render account, deploy, recording session with the skill, upload the video, submit the deck on lablab | Public URL from another network; `video/reset.sh --check` all green; `demo.mp4` under 300 s; `SUBMISSION.md` with evidence on every row |
@@ -313,14 +313,14 @@ Then **C2**.
 1. `app/queries.py` + endpoints + tests.
 2. SSE with replay buffer (`Call.subscribe()` already exists).
 3. `app/replay.py` and recorded fixtures (`GET /calls/{id}/export` to dump them at C2).
-4. Panel: `pnpm create vite` scaffold, components, dev proxy to `localhost:8000`; `make panel` builds to `panel/dist`.
+4. Panel: `pnpm create vite` scaffold, components, dev proxy to `localhost:8001`; `make panel` builds to `panel/dist`.
 5. `[!WARNING]` about no auth in README.
 
 ### Verification
 
 ```bash
 make test && cd panel && pnpm test && pnpm build
-make dev                       # open http://localhost:8000, Call now mode=replay: the call shows with no keys
+make dev                       # open http://localhost:8001, Call now mode=replay: the call shows with no keys
 ```
 
 Then **C3**.

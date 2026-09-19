@@ -28,11 +28,19 @@ def extraction(script: dict, current_facts: list[dict]) -> str:
     )
 
 
-def build_llm(script: dict, current_facts: list[dict]):
+def agent_lines(script: dict, pack) -> list[str]:
+    said = script["agent"]
+    return [said["greet"], *(said[q.key] for q in pack.questions), said["summary"]]
+
+
+def build_llm(script: dict, current_facts: list[dict], pack):
     settings = settings_or_none()
     if settings and settings.gemini_api_key:
         return GeminiLLM()
-    return ScriptedLLM(structured_replies=[extraction(script, current_facts)])
+    return ScriptedLLM(
+        replies=agent_lines(script, pack),
+        structured_replies=[extraction(script, current_facts)],
+    )
 
 
 async def run_scripted(call: Call, store, name: str | None = None, delay_s=TURN_DELAY_S) -> Call:
@@ -41,7 +49,8 @@ async def run_scripted(call: Call, store, name: str | None = None, delay_s=TURN_
     name = name or ("week2" if facts else "week1")
     script = available[name]
     channel = ScriptedPatient(call, list(script["answers"]), delay_s=delay_s)
-    return await run_call(call, channel, build_llm(script, facts), store, silence_s=0.1)
+    llm = build_llm(script, facts, call.pack)
+    return await run_call(call, channel, llm, store, silence_s=0.1)
 
 
 def export(call: Call) -> dict:
