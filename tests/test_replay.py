@@ -36,6 +36,23 @@ async def test_scripted_picks_week_1_for_a_patient_with_no_history() -> None:
     assert call.transcript[3]["text"].startswith("La rodilla derecha me duele siete")
 
 
+async def test_the_alarm_script_escalates_and_stops_asking() -> None:
+    store = load_seed()
+    call = build()
+    await replay.run_scripted(call, store, "alarm", delay_s=0.0)
+
+    assert call.escalated["rule"] == "fall"
+    spoken = " ".join(t["text"] for t in call.transcript if t["speaker"] == "agent")
+    assert "molestia" not in spoken and "asustado" not in spoken
+
+    saved = await store.call(call.id)
+    assert saved["escalated"]["rule"] == "fall"
+    assert saved["summary"]
+
+    flags = [f for f in await store.current_facts(PATIENT) if f["category"] == "red_flag"]
+    assert "me caí bajando la escalera" in [f["quote"] for f in flags]
+
+
 async def test_export_starts_at_zero_and_never_goes_back() -> None:
     call = build()
     await replay.run_scripted(call, load_seed(), delay_s=0.0)
@@ -48,12 +65,15 @@ async def test_export_starts_at_zero_and_never_goes_back() -> None:
     assert all("seq" not in event and "at" not in event for event in recording["events"])
 
 
-async def test_recorded_replays_the_same_events_and_rebuilds_the_transcript() -> None:
+@pytest.mark.parametrize(("script", "fixture"), [(None, "week2-on"), ("alarm", "alarm")])
+async def test_recorded_replays_the_same_events_and_rebuilds_the_transcript(
+    script: str | None, fixture: str
+) -> None:
     original = build()
-    await replay.run_scripted(original, load_seed(), delay_s=0.0)
+    await replay.run_scripted(original, load_seed(), script, delay_s=0.0)
 
     played = build()
-    await replay.run_recorded(played, "week2-on", speed=1000.0)
+    await replay.run_recorded(played, fixture, speed=1000.0)
 
     assert types_of(played) == types_of(original)
     assert [t["text"] for t in played.transcript] == [t["text"] for t in original.transcript]

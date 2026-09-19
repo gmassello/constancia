@@ -151,6 +151,15 @@ async def test_memory_on_puts_the_previous_facts_in_the_prompt() -> None:
     assert [f["value"] for f in current if f["term"] == "rodilla derecha"] == [4]
 
 
+async def test_the_summary_reaches_the_stored_call() -> None:
+    call, channel, llm, store = build_week_2(memory=True)
+    await orchestrator.run_call(call, channel, llm, store, silence_s=0.01)
+
+    saved = await store.call(call.id)
+    assert call.summary
+    assert saved["summary"] == call.summary
+
+
 async def test_memory_off_never_mentions_the_knee() -> None:
     call, channel, llm, store = build_week_2(memory=False)
     await orchestrator.run_call(call, channel, llm, store, silence_s=0.01)

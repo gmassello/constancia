@@ -2,6 +2,11 @@
 
 Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a checkpoint that needs a human (keys, a phone, a screen recording). Tick the boxes as stages land.
 
+> **This is a record, not a reference.** The stage sections describe what was planned, in the order
+> it was planned. The part still worth reading as a decision log is the **deviation register**
+> below: twenty numbered entries saying what was built differently from `INTENT.md`, and why. For
+> how the system works today, start at [`README.md`](README.md).
+
 ## Context
 
 `INTENT.md` fixes the build order: **stage 1 is the voice loop end to end with a fixed prompt and no memory**, then memory, then the panel, then deploy and deliverables. The agent speaks Rioplatense Spanish to the patient; everything that lives in the repo (code, docs, commits) is in English; prompts and patient lines are content and stay in Spanish.
@@ -23,7 +28,7 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
 1. **The extractor receives every current fact with its id** (already loaded by `recall`, fewer than 50) instead of top-5 via pgvector: simpler and more accurate for deciding `supersedes`. pgvector stays for the professional's search in the panel.
 2. **Speech Understanding does not feed the extractor**: the recording arrives by callback after hangup, and extraction runs at hangup on the live transcript. Entities and sentiment are stored in `calls.analysis jsonb` and shown in the panel and the trace.
 3. **`patient_memories.value numeric`**: new column for the fact's number (pain 7/10) that feeds the weekly chart without parsing text.
-4. **FastAPI serves the panel** (`panel/dist` as static files): one Render service, one public URL.
+4. **FastAPI serves the panel** (`web/dist` as static files): one Render service, one public URL.
 5. **Config with `pydantic-settings`** (spec) even though the loop design suggested `os.environ`: the spec wins.
 6. **Facts carry a short `term`** (2-4 words, `patient_memories.term`) besides the full sentence: it is what feeds
    `keyterms_prompt` and what the panel shows. A whole fact sentence is a bad key term.
@@ -55,8 +60,9 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
     `accent-700` where the readme's pressed-state line says 600. Every ramp step and text opacity the design
     wrote inline became a semantic alias; a `grep` for ramp steps outside `tokens.css` must return nothing.
 19. **Three reader preferences** the design does not have — theme, language and register — persisted in
-    `localStorage` and applied before first paint. English and dark are the defaults: English because the
-    judges read it, dark because it is the ground the design chose and light is our derivation of it.
+    `localStorage` and applied before first paint. English and **light** are the defaults: English
+    because the judges read it, light because it reads as a clinical tool rather than a landing page.
+    `prefers-color-scheme` is deliberately not consulted; see `LANDING.md`.
 20. **The panel is bilingual, not English-only.** This replaces the earlier plan to simply translate it:
     English is the annotated, authoritative set and Spanish the translation. `CLAUDE.md` gained its second
     language exception for the two `copy.ts` files.
@@ -86,7 +92,7 @@ constancia/
   Dockerfile              ringdown's (uv, non-root, $PORT)
   render.yaml             web docker, plan free, healthCheckPath /health, envVars sync:false
   .env.example            every key with an empty value
-  .gitignore              .env, .venv, __pycache__, video/out/, video/*.mov, runs/, panel/node_modules, panel/dist
+  .gitignore              .env, .venv, __pycache__, video/out/, video/*.mov, runs/, web/node_modules, web/dist
   CLAUDE.md               hard rules: repo in English, exact versions, no secrets, tests without network
   HACKATHON.md            rules and criteria transcribed from INTENT §5
   SUBMISSION.md           table criterion | how we show it | where the judge sees it | status
@@ -277,9 +283,9 @@ Then **C2**.
 
 # Stage 3 — Professional's panel and replay
 
-- [x] done — panel, SSE, replay, `analysis.py` and `search()` green offline: 89 tests with no env and no
+- [x] done — panel, SSE, replay, `analysis.py` and `search()` green offline: 92 tests with no env and no
   database, `pnpm build` clean, the whole Postgres path exercised against local pgvector, multi-stage image
-  builds with `panel/dist` inside. Live calls and re-recorded fixtures wait on C1 and C2
+  builds with `web/dist` inside. Live calls and re-recorded fixtures wait on C1 and C2
 
 ### Files
 
@@ -291,11 +297,11 @@ Then **C2**.
                           /patients/{id}/weekly, /calls/{id}/events (SSE: buffer replay + live,
                           keep-alive every 15 s), /calls/{id}/trace (JSON or HTML by Accept),
                           POST /calls {patient_id, memory, mode: live|scripted|replay};
-                          StaticFiles at / serving panel/dist
+                          StaticFiles at / serving web/dist
   app/replay.py           replays seed/replay/*.json (events with relative ts) through the same bus,
                           honouring timings; `scripted` runs ScriptedPatient + Gemini with no phone
   seed/replay/week1.json, week2-off.json, week2-on.json   recorded from real calls at C2
-  panel/                  Vite + React 19 + TypeScript, no UI or charting libraries
+  web/                    Vite + React 19 + TypeScript, no UI or charting libraries
     src/api.ts            fetch + EventSource with reconnect and backoff
     src/App.tsx           patient list → patient view
     src/PatientView.tsx   header, "Call now" button (memory on/off, mode), calls
@@ -313,7 +319,7 @@ Then **C2**.
 1. `app/queries.py` + endpoints + tests.
 2. SSE with replay buffer (`Call.subscribe()` already exists).
 3. `app/replay.py` and recorded fixtures (`GET /calls/{id}/export` to dump them at C2).
-4. Panel: `pnpm create vite` scaffold, components, dev proxy to `localhost:8001`; `make panel` builds to `panel/dist`.
+4. Panel: `pnpm create vite` scaffold, components, dev proxy to `localhost:8001`; `make web` builds to `web/dist`.
 5. `[!WARNING]` about no auth in README.
 
 ### Verification
@@ -329,12 +335,13 @@ Then **C3**.
 
 # Stage 4 — Deploy, video and deliverables
 
-- [ ] done
+- [ ] done — the recording kit, the deck and the deliverables tracker are written (steps 2, 4 and 5);
+  what is left needs a person: the Render deploy (step 1) and the recording session (step 3)
 
 ### Files
 
 ```
-  Dockerfile              multi-stage: node build of panel/ → uv python 3.12 image
+  Dockerfile              multi-stage: node build of web/ → uv python 3.12 image
   render.yaml             full envVars, healthCheckPath /health
   video/narration.tsv     the 7 beats of INTENT §9 (280 s), columns beat/gap/caption/speak
   video/reset.sh          --check: seed patient exists, week-1 facts present, no call in flight,
@@ -352,11 +359,16 @@ Then **C3**.
 ### Steps
 
 0. ~~Public landing on the Nocturne design system, with theme, language and register toggles.~~ done — `docs/LANDING.md`.
-1. Multi-stage Dockerfile, `make deploy` (push + Render auto-deploy), Supabase `DATABASE_URL` on Render, `PUBLIC_BASE_URL` = Render URL, `make seed` against Supabase.
-2. `video/reset.sh`, `docs/video-script.md`, `video/narration.tsv`; `build-audio.sh` and listen to the narration.
+1. Multi-stage Dockerfile, push + Render auto-deploy from `render.yaml`, managed Postgres `DATABASE_URL` on Render, `PUBLIC_BASE_URL` = Render URL, `make seed` against it.
+2. ~~`video/reset.sh`, `docs/video-script.md`, `video/narration.tsv`~~ done — the track measures
+   3:12 against the 5:00 cap; what is left of this step is listening to `video/out/narration.wav`
+   end to end.
 3. Recording session with the `personal-record-video` skill (1280x800 window, mic off, phone off camera); `fit-to-audio.py`, `build-video.sh`, `MAX_SECONDS=300`.
-4. `docs/deck.md`, endcard, `SUBMISSION.md`, `README.md`, `HACKATHON.md` reviewed.
-5. Annotate the deviations above in `INTENT.md`.
+4. ~~`docs/deck.md`, endcard, `SUBMISSION.md`~~ done — the deck is also published as slides, and
+   `video/endcard.sh` renders the endcard from the project's own tokens. `README.md` gets its final
+   pass once there is a public URL and a video to link.
+5. ~~Annotate the deviations above in `INTENT.md`.~~ done — five `Built differently` notes, where
+   its text would otherwise mislead.
 
 ### Verification
 

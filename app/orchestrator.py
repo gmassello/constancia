@@ -96,6 +96,8 @@ async def summarize(call: Call, channel, llm, store, silence_s: float) -> None:
         fragment = f"{fragment} Lo que quedó registrado: {found}"
     call.summary = await phrase(call, llm, fragment)
     call.emit("summary", text=call.summary)
+    if call.memory and store is not None:
+        await store.save_call(call)
 
 
 PHASES = (

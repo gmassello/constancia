@@ -8,11 +8,11 @@ Patients in home rehab abandon their exercise plan about 70% of the time. Nobody
 
 The same engine serves three verticals as config packs: `rehab`, `postpartum`, `chronic`.
 
-Built for the [lablab.ai × AssemblyAI Voice Agent Hackathon](HACKATHON.md) on **Path B**: AssemblyAI Universal-Streaming v3 over a real phone call, Gemini Flash for phrasing, ElevenLabs for µ-law audio, Twilio Media Streams for the line.
+Built for the [lablab.ai × AssemblyAI Voice Agent Hackathon](docs/HACKATHON.md) on **Path B**: AssemblyAI Universal-Streaming v3 over a real phone call, Gemini Flash for phrasing, ElevenLabs for µ-law audio, Twilio Media Streams for the line.
 
 ## Where the build is
 
-Stage 3 of four plus the public landing (see `docs/PLAN.md` and `docs/LANDING.md`): **the voice loop, longitudinal memory, the professional's panel and the page that explains them**. What works today:
+Stage 3 of four plus the public landing (see [`docs/PLAN.md`](docs/PLAN.md) and [`docs/LANDING.md`](docs/LANDING.md)): **the voice loop, longitudinal memory, the professional's panel and the page that explains them**. What works today:
 
 - Outbound Twilio call with a bidirectional `<Connect><Stream>`.
 - Live µ-law audio to AssemblyAI Universal-Streaming v3 in Spanish, end-of-turn driven.
@@ -24,7 +24,8 @@ Stage 3 of four plus the public landing (see `docs/PLAN.md` and `docs/LANDING.md
   terms in the STT `keyterms_prompt`. After hangup the transcript is extracted into facts, each grounded in a
   verbatim patient quote and its turn id; a fact that contradicts an old one retires it (`superseded_by` +
   `valid_until`) instead of deleting it. `memory=false` on a call disables recall and store, nothing else.
-- `GET /patients/{id}/facts` returns the whole chain, current and retired.
+- `GET /patients/{id}/chain` returns the whole chain, current facts with the ones they retired
+  hanging off them; `/facts` returns the same rows flat. Every route is in [`docs/API.md`](docs/API.md).
 - **A public landing** at `/`, built on the Nocturne design system, with three reader preferences: light or
   dark theme, English or Spanish, and a technical or plain register — the same page written for a judge and
   for the physiotherapist who would pay for it. It opens light and in English; `?lang=es` opens it in Spanish
@@ -45,13 +46,31 @@ The deploy, the video and the deliverables land in stage 4.
 > There is no authentication anywhere. Anything that can reach the URL can read every patient's history and
 > place a call. This is a hackathon demo with fictitious data, not a product.
 
+## Documentation
+
+[**`docs/README.md`**](docs/README.md) is the index: it says which document answers which question.
+
+| | |
+|---|---|
+| [`docs/PRODUCT.md`](docs/PRODUCT.md) | what this is and who pays for it, without jargon |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | one call end to end, the phases, the three modes, memory |
+| [`docs/BACKEND.md`](docs/BACKEND.md) | the eighteen modules and the four worth reading first |
+| [`docs/FRONTEND.md`](docs/FRONTEND.md) | build, design system, the bilingual machinery, the panel |
+| [`docs/API.md`](docs/API.md) | all twenty routes, the webhooks, the SSE contract |
+| [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | running it, every environment variable, Docker and Render |
+| [`docs/WORKING.md`](docs/WORKING.md) | the Makefile, the gates, the conventions |
+
+[`docs/INTENT.md`](docs/INTENT.md), [`docs/PLAN.md`](docs/PLAN.md) and
+[`docs/LANDING.md`](docs/LANDING.md) are records rather than reference — the spec written before the
+code, the build order with its deviation register, and the landing's design log.
+
 ## Run it
 
 No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 89 tests, no network and no database
+make test          # 95 green, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 ```
@@ -61,8 +80,9 @@ call with no phone and no keys — the transcript appears turn by turn, the rail
 the difference is the point: with memory the agent opens by quoting last week and the 7/10 knee ends struck
 through by the 4/10; without it, the call starts from scratch. Both sides of that transcript are canned: with
 no `GEMINI_API_KEY` the agent's lines come from `seed/scripts.json`, keyed to the pack's question ids, not
-from the model. *Replay a recorded call* plays a fixture instead, and a **Dial her real phone** button appears
-only when credentials are loaded — the two main buttons never place a real call.
+from the model. *Replay a recorded call* plays a fixture instead, **Call with a red flag** runs the `alarm` script — the
+patient reports a fall, the guard stops asking and the call is marked — and a **Dial her real phone** button
+appears only when credentials are loaded. None of the scripted buttons ever places a real call.
 
 `POST /reset` puts the in-memory seed back where it started, which is what a second take needs.
 
@@ -134,8 +154,8 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
 
 | Path | What it is |
 |---|---|
-| `docs/INTENT.md` | the spec: market, architecture, demo plan, scope |
-| `docs/PLAN.md` | the four-stage build order with checkpoints |
+| [`docs/`](docs/README.md) | the documentation, indexed |
+| `app/main.py` | the entry point: the twenty routes and the store choice |
 | `app/orchestrator.py` | the phase pipeline; the code decides, the LLM phrases |
 | `app/channel.py` | the voice loop: Twilio ↔ AssemblyAI ↔ TTS, barge-in |
 | `app/packs.py` | the three vertical packs; the only Spanish in the repo |
@@ -149,5 +169,6 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
 | `web/src/tokens.css` | the Nocturne tokens, the derived light theme and the semantic aliases |
 | `web/src/*/copy.ts` | every interface string, English base and Spanish translation |
 | `schema.sql` | the whole data model, applied with `make schema` |
+| `AGENTS.md`, `app/AGENTS.md`, `web/AGENTS.md` | the hard rules, and the ones specific to each half |
 
 MIT licensed.

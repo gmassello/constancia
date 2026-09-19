@@ -1,0 +1,240 @@
+{
+  "call": {
+    "patient_id": "8c9d0e1f-2a3b-4c5d-6e7f-8091a2b3c4d5",
+    "patient_name": "Ana",
+    "pack": "rehab",
+    "memory": true
+  },
+  "events": [
+    {
+      "t": 0.0,
+      "type": "call_started",
+      "patient": "Ana",
+      "pack": "rehab",
+      "memory": true
+    },
+    {
+      "t": 0.0,
+      "type": "phase_started",
+      "phase": "recall"
+    },
+    {
+      "t": 0.0,
+      "type": "recall",
+      "facts": 4,
+      "keyterms": [
+        "rodilla derecha",
+        "ejercicios en casa",
+        "rigidez",
+        "caída en el baño"
+      ]
+    },
+    {
+      "t": 0.0,
+      "type": "phase_done",
+      "phase": "recall"
+    },
+    {
+      "t": 0.0,
+      "type": "phase_started",
+      "phase": "greet"
+    },
+    {
+      "t": 0.0,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 1.201,
+      "type": "agent_turn",
+      "turn_id": 1,
+      "text": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. La semana pasada me contaste que la rodilla te dolía siete de diez al subir escaleras, así que te llamo para ver cómo viene esta semana.",
+      "interrupted": false
+    },
+    {
+      "t": 2.402,
+      "type": "patient_turn",
+      "turn_id": 2,
+      "text": "Hola, sí, soy Ana."
+    },
+    {
+      "t": 2.402,
+      "type": "phase_done",
+      "phase": "greet"
+    },
+    {
+      "t": 2.402,
+      "type": "phase_started",
+      "phase": "converse"
+    },
+    {
+      "t": 2.403,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 3.607,
+      "type": "agent_turn",
+      "turn_id": 3,
+      "text": "Contame, ¿cuánto te duele hoy del uno al diez al subir escaleras?",
+      "interrupted": false
+    },
+    {
+      "t": 4.808,
+      "type": "patient_turn",
+      "turn_id": 4,
+      "text": "La rodilla viene parecida, cinco de diez al subir escaleras."
+    },
+    {
+      "t": 4.81,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 6.011,
+      "type": "agent_turn",
+      "turn_id": 5,
+      "text": "La semana pasada los ejercicios los hiciste tres veces. ¿Cuántas veces pudiste esta semana?",
+      "interrupted": false
+    },
+    {
+      "t": 7.212,
+      "type": "patient_turn",
+      "turn_id": 6,
+      "text": "Los hice dos veces nada más, porque el martes me caí bajando la escalera y quedé dolorida."
+    },
+    {
+      "t": 7.213,
+      "type": "guard_hit",
+      "input": "Los hice dos veces nada más, porque el martes me caí bajando la escalera y quedé dolorida.",
+      "value": "me cai",
+      "rule": "fall",
+      "branch": "escalate"
+    },
+    {
+      "t": 7.213,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 8.413,
+      "type": "agent_turn",
+      "turn_id": 7,
+      "text": "Ana, una caída es algo que hay que ver hoy mismo. Por favor contactá ahora a tu kinesiólogo y contale lo que me dijiste; yo dejo esta llamada marcada para que la vea. Cuidate mucho.",
+      "interrupted": false
+    },
+    {
+      "t": 8.413,
+      "type": "phase_done",
+      "phase": "converse"
+    },
+    {
+      "t": 8.413,
+      "type": "phase_started",
+      "phase": "extract"
+    },
+    {
+      "t": 8.414,
+      "type": "facts_extracted",
+      "count": 3
+    },
+    {
+      "t": 8.414,
+      "type": "phase_done",
+      "phase": "extract"
+    },
+    {
+      "t": 8.414,
+      "type": "phase_started",
+      "phase": "store"
+    },
+    {
+      "t": 8.415,
+      "type": "fact_stored",
+      "id": "5349b8a3-3945-403a-a10d-02ea292f411d",
+      "fact": "dolor en la rodilla derecha 5/10 al subir escaleras",
+      "term": "rodilla derecha",
+      "category": "symptom",
+      "value": 5.0,
+      "quote": "cinco de diez",
+      "turn_id": 4
+    },
+    {
+      "t": 8.415,
+      "type": "fact_superseded",
+      "old_id": "1e5ed3db-6c84-5c04-8974-8ada6ec868d4",
+      "new_id": "5349b8a3-3945-403a-a10d-02ea292f411d"
+    },
+    {
+      "t": 8.415,
+      "type": "fact_stored",
+      "id": "2bb4225d-fd3b-4817-b9a9-db0c51bb2b71",
+      "fact": "hizo los ejercicios dos veces en la semana",
+      "term": "ejercicios en casa",
+      "category": "adherence",
+      "value": 2.0,
+      "quote": "Los hice dos veces",
+      "turn_id": 6
+    },
+    {
+      "t": 8.415,
+      "type": "fact_superseded",
+      "old_id": "57ee6aa9-40ed-554f-9642-00aa15a92cc3",
+      "new_id": "2bb4225d-fd3b-4817-b9a9-db0c51bb2b71"
+    },
+    {
+      "t": 8.415,
+      "type": "fact_stored",
+      "id": "f1fbda8d-376c-4698-8f2e-2c2c66f5fdbe",
+      "fact": "se cayó bajando la escalera el martes",
+      "term": "caída en escalera",
+      "category": "red_flag",
+      "value": null,
+      "quote": "me caí bajando la escalera",
+      "turn_id": 6
+    },
+    {
+      "t": 8.415,
+      "type": "phase_done",
+      "phase": "store"
+    },
+    {
+      "t": 8.415,
+      "type": "phase_started",
+      "phase": "summarize"
+    },
+    {
+      "t": 8.415,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 8.415,
+      "type": "summary",
+      "text": "Llamada de seguimiento interrumpida por señal de alarma. Dolor de rodilla derecha 5/10 al subir escaleras. Hizo los ejercicios dos veces. Refiere una caída bajando la escalera el martes: se le pidió contactar al kinesiólogo hoy mismo y la llamada quedó marcada."
+    },
+    {
+      "t": 8.415,
+      "type": "phase_done",
+      "phase": "summarize"
+    },
+    {
+      "t": 8.415,
+      "type": "call_ended",
+      "escalated": true,
+      "answers": {
+        "pain": "La rodilla viene parecida, cinco de diez al subir escaleras."
+      }
+    }
+  ]
+}

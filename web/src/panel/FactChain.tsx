@@ -64,7 +64,7 @@ export default function FactChain({ facts, copy: c }: { facts: Fact[]; copy: Cop
   return (
     <div>
       <h2>{c.fileTitle}</h2>
-      <p className="file-lede">{c.fileLede}</p>
+      <p className="card-lede">{c.fileLede}</p>
       {facts.map((fact) => (
         <div className="chain" key={fact.id}>
           <Entry fact={fact} current paired={fact.superseded.length > 0} copy={c} />
@@ -73,7 +73,7 @@ export default function FactChain({ facts, copy: c }: { facts: Fact[]; copy: Cop
           ))}
         </div>
       ))}
-      <p className="file-note">{c.fileNote}</p>
+      <p className="card-note">{c.fileNote}</p>
     </div>
   )
 }

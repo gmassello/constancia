@@ -30,6 +30,8 @@ def extraction(script: dict, current_facts: list[dict]) -> str:
 
 def agent_lines(script: dict, pack) -> list[str]:
     said = script["agent"]
+    if "order" in script:
+        return [said[key] for key in script["order"]]
     return [said["greet"], *(said[q.key] for q in pack.questions), said["summary"]]
 
 

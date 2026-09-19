@@ -10,3 +10,4 @@ runs/
 web/node_modules/
 web/dist/
 web/tsconfig.tsbuildinfo
+video/.endcard.rendered.html

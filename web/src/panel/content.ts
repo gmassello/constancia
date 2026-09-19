@@ -48,6 +48,12 @@ const EN: Record<string, string> = {
   "Hace tres semanas me caí en el baño, pero desde que empecé el plan no me pasó nada.":
     "Three weeks ago I fell in the bathroom, but nothing has happened since I started the plan.",
   "No, caídas no tuve, nada de eso.": "No, no falls, nothing like that.",
+  "La rodilla viene parecida, cinco de diez al subir escaleras.":
+    "The knee is about the same, five out of ten climbing stairs.",
+  "Los hice dos veces nada más, porque el martes me caí bajando la escalera y quedé dolorida.":
+    "I only did them twice, because on Tuesday I fell coming down the stairs and I was left sore.",
+  "Ana, una caída es algo que hay que ver hoy mismo. Por favor contactá ahora a tu kinesiólogo y contale lo que me dijiste; yo dejo esta llamada marcada para que la vea. Cuidate mucho.":
+    "Ana, a fall is something that has to be looked at today. Please contact your physio now and tell them what you told me; I am flagging this call so they see it. Take good care.",
   "No, nada de eso.": "No, nothing like that.",
 
   "Listo, eso era todo por hoy. Le paso el resumen a tu kinesiólogo. Cuidate, hablamos la semana que viene.":
@@ -59,9 +65,14 @@ const EN: Record<string, string> = {
     "First follow-up call. Reports right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Mild stiffness after the exercises, no red flags.",
   "Segunda llamada de seguimiento. El dolor en rodilla derecha bajó de 7/10 a 4/10 al subir escaleras. Mejoró la adherencia: cinco sesiones esta semana contra tres la anterior. Sin molestias nuevas ni señales de alarma.":
     "Second follow-up call. Right knee pain dropped from 7/10 to 4/10 climbing stairs. Adherence improved: five sessions this week against three the week before. No new discomfort and no red flags.",
+  "Llamada de seguimiento interrumpida por señal de alarma. Dolor de rodilla derecha 5/10 al subir escaleras. Hizo los ejercicios dos veces. Refiere una caída bajando la escalera el martes: se le pidió contactar al kinesiólogo hoy mismo y la llamada quedó marcada.":
+    "Follow-up call cut short by a red flag. Right knee pain 5/10 climbing stairs. Did the exercises twice. Reports a fall coming down the stairs on Tuesday: she was asked to contact her physio today and the call was flagged.",
 
   "dolor en la rodilla derecha 7/10 al subir escaleras": "right knee pain 7/10 climbing stairs",
   "dolor en la rodilla derecha 4/10 al subir escaleras": "right knee pain 4/10 climbing stairs",
+  "dolor en la rodilla derecha 5/10 al subir escaleras": "right knee pain 5/10 climbing stairs",
+  "hizo los ejercicios dos veces en la semana": "did the exercises twice this week",
+  "se cayó bajando la escalera el martes": "fell coming down the stairs on Tuesday",
   "hizo los ejercicios tres veces en la semana y se salteó dos días por trabajo":
     "did the exercises three times, skipped two days for work",
   "hizo los ejercicios tres veces en la semana": "did the exercises three times this week",
@@ -74,6 +85,7 @@ const EN: Record<string, string> = {
   "ejercicios en casa": "home exercises",
   rigidez: "stiffness",
   "caída en el baño": "bathroom fall",
+  "caída en escalera": "stairs fall",
 
   "La rodilla derecha me duele siete de diez": "My right knee hurts seven out of ten",
   "me duele siete de diez": "hurts seven out of ten",
@@ -83,6 +95,9 @@ const EN: Record<string, string> = {
   "los hice cinco veces": "I did them five times",
   "me queda un poco rígida": "it stays a little stiff",
   "me caí en el baño": "I fell in the bathroom",
+  "cinco de diez": "five out of ten",
+  "Los hice dos veces": "I did them twice",
+  "me caí bajando la escalera": "I fell coming down the stairs",
 }
 
 export function speech(lang: Lang, text: string): string {

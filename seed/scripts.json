@@ -74,5 +74,56 @@
       "red_flags": "Una última: ¿tuviste alguna caída, un dolor repentino y fuerte, o algo que te haya asustado?",
       "summary": "Segunda llamada de seguimiento. El dolor en rodilla derecha bajó de 7/10 a 4/10 al subir escaleras. Mejoró la adherencia: cinco sesiones esta semana contra tres la anterior. Sin molestias nuevas ni señales de alarma."
     }
+  },
+  "alarm": {
+    "memory": true,
+    "answers": [
+      "Hola, sí, soy Ana.",
+      "La rodilla viene parecida, cinco de diez al subir escaleras.",
+      "Los hice dos veces nada más, porque el martes me caí bajando la escalera y quedé dolorida."
+    ],
+    "facts": [
+      {
+        "fact": "dolor en la rodilla derecha 5/10 al subir escaleras",
+        "term": "rodilla derecha",
+        "category": "symptom",
+        "value": 5,
+        "quote": "cinco de diez",
+        "turn_id": 4,
+        "confidence": 0.95
+      },
+      {
+        "fact": "hizo los ejercicios dos veces en la semana",
+        "term": "ejercicios en casa",
+        "category": "adherence",
+        "value": 2,
+        "quote": "Los hice dos veces",
+        "turn_id": 6,
+        "confidence": 0.9
+      },
+      {
+        "fact": "se cayó bajando la escalera el martes",
+        "term": "caída en escalera",
+        "category": "red_flag",
+        "value": null,
+        "quote": "me caí bajando la escalera",
+        "turn_id": 6,
+        "confidence": 0.95
+      }
+    ],
+    "agent": {
+      "greet": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. La semana pasada me contaste que la rodilla te dolía siete de diez al subir escaleras, así que te llamo para ver cómo viene esta semana.",
+      "pain": "Contame, ¿cuánto te duele hoy del uno al diez al subir escaleras?",
+      "adherence": "La semana pasada los ejercicios los hiciste tres veces. ¿Cuántas veces pudiste esta semana?",
+      "escalation": "Ana, una caída es algo que hay que ver hoy mismo. Por favor contactá ahora a tu kinesiólogo y contale lo que me dijiste; yo dejo esta llamada marcada para que la vea. Cuidate mucho.",
+      "summary": "Llamada de seguimiento interrumpida por señal de alarma. Dolor de rodilla derecha 5/10 al subir escaleras. Hizo los ejercicios dos veces. Refiere una caída bajando la escalera el martes: se le pidió contactar al kinesiólogo hoy mismo y la llamada quedó marcada."
+    },
+    "order": [
+      "greet",
+      "pain",
+      "adherence",
+      "escalation",
+      "summary"
+    ]
   }
 }

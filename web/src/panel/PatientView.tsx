@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 
+import Calls from "./Calls"
 import FactChain from "./FactChain"
 import Keyterms from "./Keyterms"
 import LiveCall from "./LiveCall"
@@ -8,8 +9,6 @@ import { get, post, type CallRow, type Fact, type Patient, type Series } from ".
 import { label, type Copy } from "./copy"
 
 type Mode = "scripted" | "replay" | "live"
-
-const day = (value: string) => value.slice(0, 10)
 
 export default function PatientView({
   patient,
@@ -44,10 +43,10 @@ export default function PatientView({
     reload().catch((cause: Error) => setError(cause.message))
   }, [reload])
 
-  const call = async (memory: boolean, mode: Mode) => {
+  const call = async (memory: boolean, mode: Mode, script?: string) => {
     setError(null)
     try {
-      const body = { patient_id: patient.id, memory, mode }
+      const body = { patient_id: patient.id, memory, mode, script }
       const started = await post<{ call_id: string }>("/calls", body)
       setCallId(started.call_id)
     } catch (cause) {
@@ -62,7 +61,7 @@ export default function PatientView({
           <div>
             <h1>{patient.name}</h1>
             <div className="label">
-              {label(c.program, patient.program_type)} · {c.followedSince(day(patient.started_at))}
+              {label(c.program, patient.program_type)} · {c.followedSince(c.day(patient.started_at))}
             </div>
           </div>
           <div className="controls">
@@ -78,6 +77,9 @@ export default function PatientView({
             <div className="controls-row">
               <button className="btn btn-ghost" onClick={() => call(true, "replay")}>
                 {c.callReplay}
+              </button>
+              <button className="btn btn-ghost" onClick={() => call(true, "scripted", "alarm")}>
+                {c.callAlarm}
               </button>
             </div>
             {live && (
@@ -105,14 +107,10 @@ export default function PatientView({
 
       <section className="card">
         <Keyterms terms={terms} copy={c} />
-        <h3>{c.callsTitle}</h3>
-        {calls.length === 0 && <p className="empty">{c.noCalls}</p>}
-        {calls.map((row) => (
-          <div className="call-row" key={row.id}>
-            <div className="label">{c.callMeta(day(row.started_at), row.memory_enabled)}</div>
-            {row.summary && <p>{c.data(row.summary)}</p>}
-          </div>
-        ))}
+      </section>
+
+      <section className="card">
+        <Calls calls={calls} copy={c} />
       </section>
     </div>
   )

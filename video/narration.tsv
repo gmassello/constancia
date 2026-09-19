@@ -1,0 +1,85 @@
+beat	gap	caption	speak
+# ---------------------------------------------------------------------------
+# constancia — narration for the 5-minute demo video.
+#
+# Seven beats against a 300 s hard cap. The shot list that goes with this file
+# is docs/video-script.md and the beat labels below are its rows.
+#
+# The shot list budgets ~280 s of screen time; this track is shorter on purpose.
+# fit-to-audio.py keeps the moments where the screen changes at 1x and compresses
+# the waiting, so the recording is fitted to THIS length, not the other way round.
+# The pure-pause rows are where the viewer reads the panel: lengthen those, not
+# the sentences, when a beat needs more air.
+#
+# If the track runs over the cap, cut in this order and do not improvise a new
+# one on the day: (1) beat 2:00 down to 25 s by dropping its last two lines,
+# (2) beat 3:40 down to 30 s by dropping the key-terms lines. Beats 0:50 and
+# 2:40 are the money shots and are never the ones that get cut.
+#
+# Rows whose caption is empty are pure pauses: they buy screen time while the
+# call runs. They are what keeps a beat as long as the shot list says it is.
+# ---------------------------------------------------------------------------
+
+1:problem	0.8	About 7 in 10 home-rehab patients quit	About seven in ten patients in home rehabilitation quit their exercise plan.
+1:problem	0.4	Not because the plan is wrong
+1:problem	0.4	Because nobody follows up
+1:problem	0.5	A physio with 40 patients cannot make 40 calls	A physiotherapist with forty patients cannot make forty calls a week.
+1:problem	0.4	So the follow-up simply does not happen
+1:problem	1.0
+
+2:product	0.8	constancia phones the patient every week	Constancia phones the patient every week.
+2:product	0.4	And remembers what she said last time
+2:product	0.6	That last part is the whole product
+2:product	1.0
+2:product	0.5	One engine, three packs	One engine, three packs.
+2:product	0.4	Rehab, postpartum, chronic care
+2:product	0.5	The clinical content is configuration, not code
+2:product	1.2
+
+3:call-one	0.8	Week one. The agent asks from scratch	Week one. The agent asks from scratch.
+3:call-one	0.5	It dials a real phone. Nothing on file yet
+3:call-one	0.6	AssemblyAI transcribes her as she speaks	Assembly A I transcribes her as she speaks.
+3:call-one	1.5
+3:call-one	0.4	It asks the four rehab questions in order
+3:call-one	3.0
+3:call-one	0.4	Right knee, 7 out of 10, climbing stairs	Right knee, seven out of ten, climbing stairs.
+3:call-one	0.5	The exercises, three times this week
+3:call-one	3.2
+3:call-one	0.4	She hangs up and the facts land
+3:call-one	0.5	Every fact carries her exact words
+3:call-one	0.6	No quote, no fact. The extractor drops it	No quote, no fact. The extractor drops it.
+3:call-one	3.5
+
+4:memory-off	0.8	One week later. The same patient	One week later. The same patient.
+4:memory-off	0.5	First, with memory switched off
+4:memory-off	1.2
+4:memory-off	0.4	The agent asks the generic protocol
+4:memory-off	0.5	Nothing about the knee. It never knew	Nothing about the knee. It never knew.
+4:memory-off	1.0
+4:memory-off	0.4	This is every follow-up bot you have used
+4:memory-off	2.5
+
+5:memory-on	0.8	Now the same call, with memory on	Now the same call, with memory on.
+5:memory-on	1.5
+5:memory-on	0.4	It opens by asking about the knee on stairs
+5:memory-on	3.0
+5:memory-on	0.4	She says it is down to 4 out of 10	She says it is down to four out of ten.
+5:memory-on	3.0
+5:memory-on	0.4	The 7 out of 10 is not overwritten	The seven out of ten is not overwritten.
+5:memory-on	0.5	It is retired, and it stays in the file
+5:memory-on	4.0
+
+6:panel	0.8	This is what the physio opens on Monday	This is what the physiotherapist opens on Monday.
+6:panel	0.5	Pain down, sessions up, week over week
+6:panel	1.0
+6:panel	0.4	Every line keeps the words the patient used
+6:panel	0.6	And the words that primed the recogniser	And the words that primed the speech recogniser.
+6:panel	2.5
+6:panel	0.4	A red flag stops the call and marks it	A red flag stops the call and marks it.
+6:panel	0.5	That decision is code, never the model
+6:panel	2.5
+
+7:close	0.8	Every call costs cents. The physio gets the hour back	Every call costs cents. The physiotherapist gets the hour back.
+7:close	0.5	Sold per professional, not per patient
+7:close	0.6	Built on AssemblyAI Universal-Streaming	Built on Assembly A I Universal Streaming.
+7:close	0.8	constancia. Thanks for watching	Constancia. Thanks for watching.

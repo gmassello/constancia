@@ -15,6 +15,7 @@ TAKES = (
     ("week1", "week1", False),
     ("week2-off", "week2", False),
     ("week2-on", "week2", True),
+    ("alarm", "alarm", True),
 )
 
 

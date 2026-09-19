@@ -1,5 +1,11 @@
 # constancia — public landing and the Nocturne pass
 
+> **This is a record, not a reference.** Written as a spec before the landing was built, and since
+> half-converted into a log — the *Deviations from the design* section is past tense, the rest is
+> not. What it still owns is the reasoning: the OKLCH derivation of the light theme with measured
+> contrast ratios, and the design of the copy types. For the front end as it is today, read
+> [`FRONTEND.md`](FRONTEND.md).
+
 Stage 4 work, written up before it is built. Implements the Claude Design file **`Constancia Landing.dc.html`** (project `a0ec86f1-c514-4b03-b8b0-2404abd0f7f2`, design system **Nocturne** `nocturne-487bbaa7`), brings the professional's panel under the same tokens, and gives both pages three reader preferences: **theme**, **language** and **register**.
 
 ## Context
@@ -18,11 +24,11 @@ Nocturne is **CSS only**. `_ds_bundle.js` is empty (`components: []`) and `suppo
 
 From `styles.css` we take the tokens — `--color-bg #161826`, `--color-surface #232532`, `--color-text #e9e9ed`, the blurple accent `--color-accent #9184d9`, the `neutral-100..900` and `accent-100..900` ramps, `--color-section` / `--color-section-glow`, Inter, `--radius-*`, `--shadow-*`, `--space-*` — and the classes `.btn`, `.tag`, `.hr`, and `.seg` + `.seg-opt`, the system's own segmented control on native radios with no script. That last one is what the toggles are built from.
 
-The landing is seven blocks: sticky header; hero with copy left and a live demo card right; a metrics band on the section gradient (70% / 3 verticals / 333 h / 89 tests); *How it works* in four steps; *Memory* in four cards; *Stack* with the five services and the honest limits; a closing CTA; a footer. Six own keyframes: `noc-in`, `noc-slide`, `noc-pulse`, `noc-strike`, `noc-breathe`, `noc-wave`.
+The landing is seven blocks: sticky header; hero with copy left and a live demo card right; a metrics band on the section gradient (70% / 3 verticals / 333 h / 95 tests); *How it works* in four steps; *Memory* in four cards; *Stack* with the five services and the honest limits; a closing CTA; a footer. Six own keyframes: `noc-in`, `noc-slide`, `noc-pulse`, `noc-strike`, `noc-breathe`, `noc-wave`.
 
 The demo card is a scripted loop (`SCRIPTS.week1` and `SCRIPTS.week2`, each a list of beats with delays) behind a week selector, played at `PACE` (1.6) times the delays written into the beats, with two views: `call` (transcript plus activity rail) and `chain` (the facts as dated links, the retired one struck through). Step back, pause, step forward and replay sit under both.
 
-Every number the design prints is already true of this repo: 70% non-adherence (`INTENT.md` §3.1), three packs, 333 free STT hours, 89 tests green.
+Every number the design prints is already true of this repo: 70% non-adherence (`INTENT.md` §3.1), three packs, 333 free STT hours, 95 tests green.
 
 ## Decisions
 
@@ -103,7 +109,7 @@ web/src/landing/copy.ts
 
 The panel gets its own `copy.ts` with its own type and **one register**. The two surfaces do not share a single string, and one shared 116-key type would only guarantee that every error lands in the same enormous file.
 
-**The panel also prints raw backend values today**, which no `copy.ts` reaches on its own and which are wrong even in Spanish:
+**The panel also printed raw backend values** when this was written — none of them reachable by a `copy.ts` on its own, and wrong even in Spanish. All four are fixed: the maps live at the end of `web/src/panel/copy.ts` and are resolved through `label()`; the `switch` in `ActivityRail` is now closed; and `WeeklyChart` labels its axis with real dates. The list is kept as the record of what was wrong:
 
 - `FactChain` renders `fact.category` verbatim — `symptom`, `adherence`, `mood`, `clinical_value`, `red_flag` from `app/extract.py`. Needs a five-entry map per language. So does `patient.program_type`.
 - `ActivityRail` prints `event.rule` from the guard (`sudden_sharp_pain`, `fall`, `swelling_with_fever`), `event.phase`, and `event.reason` — which arrives as literal English from `app/extract.py` and `app/orchestrator.py`.
@@ -238,7 +244,7 @@ The panel gets its own `copy.ts` with its own type and **one register**. The two
 ## Verification
 
 ```bash
-uv run ruff check . && uv run pytest -q     # 89, with no environment variable set
+uv run ruff check . && uv run pytest -q     # 95 green, with no environment variable set
 cd web && pnpm build                        # tsc is the copy check; two HTML outputs
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
   --include=*.tsx --include=*.ts --include=*.css | grep -v tokens.css

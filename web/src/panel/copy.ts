@@ -15,6 +15,7 @@ type Strings = {
   callWithMemory: string
   callHint: string
   callReplay: string
+  callAlarm: string
   callLive: string
   callLiveHint: string
 
@@ -49,10 +50,20 @@ type Strings = {
   heldUntil: (day: string) => string
 
   keytermsTitle: string
+  keytermsLede: string
+  keytermsFile: string
+  keytermsPass: string
+  keytermsHear: string
+  keytermsNote: string
   firstCall: string
   callsTitle: string
+  callsLede: string
   noCalls: string
-  callMeta: (day: string, memory: boolean) => string
+  callWithMemoryTag: string
+  callWithoutMemoryTag: string
+  callEscalated: string
+  noSummary: string
+  showTranscript: (turns: number) => string
 
   themeToLight: string
   themeToDark: string
@@ -98,6 +109,7 @@ const en: Strings = {
   callHint:
     "Same questions either way. With memory the call opens with what she said last week, and a fact that contradicts an old one retires it.",
   callReplay: "replay a recorded call",
+  callAlarm: "call with a red flag",
   callLive: "Dial her real phone",
   callLiveHint: "This one rings an actual number and spends credit.",
 
@@ -132,11 +144,23 @@ const en: Strings = {
   saidOn: (day, turn) => `said on ${day} · turn ${turn}`,
   heldUntil: (day) => ` · held until ${day}`,
 
-  keytermsTitle: "Key terms that fed the STT",
-  firstCall: "First call: nothing on file.",
-  callsTitle: "Calls",
+  keytermsTitle: "Words the agent listened for",
+  keytermsLede:
+    "Before dialling, the agent hands the speech recogniser the words from the call before, so it writes them down right.",
+  keytermsFile: "last week's file",
+  keytermsPass: "handed over before dialling",
+  keytermsHear: "heard right on the call",
+  keytermsNote: "AssemblyAI Universal-Streaming · keyterms_prompt, updated live during the call.",
+  firstCall: "This was the first call: the file was empty, so there was nothing to listen for.",
+  callsTitle: "Calls so far",
+  callsLede:
+    "One line per call. The summary is what the agent wrote for the professional right after hanging up.",
   noCalls: "No calls yet.",
-  callMeta: (day, memory) => `${day} · memory ${memory ? "on" : "off"}`,
+  callWithMemoryTag: "with memory",
+  callWithoutMemoryTag: "without memory",
+  callEscalated: "escalated",
+  noSummary: "No summary: the call did not get that far.",
+  showTranscript: (turns) => `see the conversation (${turns} turns)`,
 
   themeToLight: "Switch to the light theme",
   themeToDark: "Switch to the dark theme",
@@ -206,6 +230,7 @@ const es: Strings = {
   callHint:
     "Las mismas preguntas en los dos casos. Con memoria la llamada abre con lo que contó la semana pasada, y un dato que contradice a uno viejo lo retira.",
   callReplay: "reproducir una llamada grabada",
+  callAlarm: "llamada con señal de alarma",
   callLive: "Marcar su teléfono real",
   callLiveHint: "Esta hace sonar un número de verdad y gasta crédito.",
 
@@ -240,11 +265,23 @@ const es: Strings = {
   saidOn: (day, turn) => `lo dijo el ${day} · turno ${turn}`,
   heldUntil: (day) => ` · vigente hasta el ${day}`,
 
-  keytermsTitle: "Key terms que alimentaron el STT",
-  firstCall: "Primera llamada: no había nada en ficha.",
-  callsTitle: "Llamadas",
+  keytermsTitle: "Las palabras que el agente esperaba oír",
+  keytermsLede:
+    "Antes de marcar, el agente le pasa al reconocedor de voz las palabras de la llamada anterior, para que las escriba bien.",
+  keytermsFile: "la ficha de la semana pasada",
+  keytermsPass: "se las pasa antes de marcar",
+  keytermsHear: "las escucha bien en la llamada",
+  keytermsNote: "AssemblyAI Universal-Streaming · keyterms_prompt, actualizado en vivo durante la llamada.",
+  firstCall: "Era la primera llamada: la ficha estaba vacía, así que no había nada que esperar.",
+  callsTitle: "Las llamadas hasta ahora",
+  callsLede:
+    "Una línea por llamada. El resumen es lo que el agente le dejó escrito al profesional apenas cortó.",
   noCalls: "Todavía no hubo ninguna llamada.",
-  callMeta: (day, memory) => `${day} · memoria ${memory ? "on" : "off"}`,
+  callWithMemoryTag: "con memoria",
+  callWithoutMemoryTag: "sin memoria",
+  callEscalated: "escaló",
+  noSummary: "Sin resumen: la llamada no llegó hasta ahí.",
+  showTranscript: (turns) => `ver la conversación (${turns} turnos)`,
 
   themeToLight: "Cambiar al tema claro",
   themeToDark: "Cambiar al tema oscuro",

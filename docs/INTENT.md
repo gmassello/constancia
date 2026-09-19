@@ -4,6 +4,11 @@
 
 Starting spec for the lablab.ai × AssemblyAI **Voice Agent Hackathon**. Covers market validation, architecture, how the project maps to the judging criteria, the demo plan, and what is deliberately out of scope. Deadline: **30 Sep 2026, 12:00 ART**.
 
+> **This is a record, not a reference.** Written on 2026-09-02, before any code existed — its last
+> section is called *Before writing code*. Where it disagrees with the repo, the repo is right, and
+> the deviation register at the top of [`PLAN.md`](PLAN.md) usually says why. For how the system
+> works today, start at [`README.md`](README.md).
+
 ---
 
 ## 1. Decisions
@@ -18,7 +23,7 @@ Closed on 2026-09-02. Everything below assumes these; change them here first.
 | AssemblyAI path | **Path B: Universal-Streaming (Realtime STT)** + pre-recorded API post-call for Speech Understanding | 333 free hours; we own the pipeline; none of the reviewed competitors uses it (section 5). |
 | LLM | **Latest Gemini Flash** via the Google AI Studio key (`google-genai` SDK), same model for conversation and extraction | One provider, one key already in hand, fast enough for a voice turn. Verify the exact model ID with `models.list` on day 1. |
 | Embeddings | `gemini-embedding-001` with `output_dimensionality=1536`, L2-normalized | Same key as the LLM; `vector(1536)` in the schema stays unchanged. |
-| Memory store | **Supabase Postgres + pgvector** | Free tier covers hackathon volume. |
+| Memory store | **Postgres + pgvector** | Free tier covers hackathon volume. Shipped on Render's managed Postgres, not Supabase. |
 | TTS | Any streaming TTS that outputs `ulaw_8000` directly (ElevenLabs does) | Avoids transcoding on the Twilio leg. |
 | Memory strategy | **Recall at call start, not per turn** | A patient has fewer than 50 current facts. Load them all into the system prompt; no synchronous vector read inside the turn loop. |
 | Red flags | **Deterministic guard in code**, LLM only phrases | Escalation to the professional is a rule in the vertical pack, never a model judgment. |
@@ -122,6 +127,10 @@ summarize → render the professional's weekly summary from the fact set
 
 `memory=off` on a call disables `recall` and `store`. Everything else runs identically. That is the A/B in the demo.
 
+> **Built differently.** `recall` runs **before** `greet`, not after — that is deviation 7 in
+> [`PLAN.md`](PLAN.md), and it is what lets the agent open on the knee. The six phases as shipped are
+> in [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
 ### 6.2 Memory: never delete, invalidate
 
 Reference pattern: [Auto Interview AI — Persistent Memory for Voice AI Agents](https://www.autointerviewai.com/blog/persistent-memory-voice-ai-agents-vector-database-architecture-2026), adapted with what worked in `recall` (temporal invalidation) and `ringdown` (span-grounded extraction).
@@ -160,44 +169,14 @@ Why recall at call start instead of a per-turn vector read: a patient in follow-
 
 **Data model — vertical-agnostic (`program_type` is the only thing that changes):**
 
-```sql
-create table patients (
-  id uuid primary key default gen_random_uuid(),
-  professional_id uuid not null,
-  program_type text not null,            -- 'rehab' | 'postpartum' | 'chronic'
-  name text not null,
-  phone_e164 text not null,
-  started_at timestamptz not null default now()
-);
+> **Superseded.** The shipped schema is [`../schema.sql`](../schema.sql), which is the only copy
+> worth reading — a second one here would age on its own. It grew five columns this section does not
+> have: `patient_memories.term` (the short key term, deviation 6) and `.value numeric` (the number
+> that feeds the chart, deviation 3), and `calls.summary`, `.escalated` and `.analysis jsonb`
+> (deviations 2 and 9). Everything else it specified still holds: three tables, `program_type` as the only
+> vertical-specific column, `superseded_by` + `valid_until` for retirement, and `vector(1536)` with no
+> vector index.
 
-create table calls (
-  id uuid primary key default gen_random_uuid(),
-  patient_id uuid not null references patients(id),
-  started_at timestamptz not null,
-  ended_at timestamptz,
-  twilio_sid text,
-  recording_url text,
-  transcript jsonb,                      -- [{turn_id, speaker, text, at}]
-  memory_enabled boolean not null default true
-);
-
-create table patient_memories (
-  id uuid primary key default gen_random_uuid(),
-  patient_id uuid not null references patients(id),
-  call_id uuid not null references calls(id),
-  fact text not null,                    -- "right knee pain 7/10 climbing stairs"
-  category text not null,               -- symptom | adherence | mood | clinical_value | red_flag
-  quote text not null,                   -- verbatim patient utterance
-  turn_id int not null,                  -- must point at a patient turn
-  confidence numeric(3,2),               -- 0.00–1.00
-  reported_at timestamptz not null,
-  valid_until timestamptz,               -- null = current
-  superseded_by uuid references patient_memories(id),
-  embedding vector(1536)                 -- gemini-embedding-001 at 1536 dims, L2-normalized
-);
-create index on patient_memories (patient_id, reported_at);
--- ponytail: no vector index. Exact search is fine below ~10k rows; add HNSW when it isn't.
-```
 
 Rules that matter for the demo:
 
@@ -212,6 +191,13 @@ Rules that matter for the demo:
 ### 6.3 Structured extraction
 
 Pydantic models: `Fact { fact, category, quote, turn_id, confidence, supersedes: UUID | None, valid_until: date | None }` and `FactSet { facts: list[Fact] }`. `complete_structured(system, transcript, FactSet)` calls Gemini with `response_mime_type="application/json"` and `response_schema=FactSet`, validates the reply with Pydantic, and on `ValidationError` feeds the error text back and retries, up to 3 attempts. Gemini's JSON Schema support has quirks (no `$ref`, limited `anyOf`); `hindsight/backend/tests/test_gemini_schema.py` covers the ones already hit. Grounding check in code: `quote` must appear in the turn with that `turn_id`, and that turn must be the patient's. The model returns `supersedes`; the code calls `supersede()`. The model never writes the database.
+
+> **Built differently.** The extractor receives **every current fact with its id**, not a top-5 from
+> pgvector (deviation 1), and `Fact` gained a short `term` (deviation 6) and a numeric `value`
+> (deviation 3). The SDK converts the Pydantic model on its own, so no schema cleaning was needed
+> (deviation 8) and the file this paragraph cites belongs to another project. Speech Understanding
+> does **not** feed the extractor: it runs on the recording after hangup and lands in
+> `calls.analysis` (deviation 2). What ships is in [`BACKEND.md`](BACKEND.md).
 
 ### 6.4 Vertical packs and the red-flag guard
 
@@ -284,6 +270,13 @@ Total: 280 s, under the 300 s cap. If it runs long, cut beat 4 to 25 s first, th
 
 Before recording: `video/reset.sh --check` must be all green (seeded patient exists, week-1 facts present, no call in flight, no facts from previous takes). The shot list marks money shots and includes a "what can come out differently" section: the agent is non-deterministic, so film what it actually said and rewrite the narration line rather than re-shooting for a prettier sentence.
 
+> **Built differently.** Beats 1 and 2 are filmed on the **public landing**, not on slides: it exists,
+> it says the same thing and it would otherwise be a second copy to keep in sync. Beat 6 shows a red
+> flag **happening** — the panel's *call with a red flag* button runs the `alarm` script and the guard
+> cuts the call on camera — instead of pointing at one in the seed. The shot list as written is
+> [`video-script.md`](video-script.md), the narration is [`../video/narration.tsv`](../video/narration.tsv),
+> and the track measures 3:12 against the 5:00 cap.
+
 ## 10. Project name
 
 **constancia**. Spanish for adherence, consistency, keeping at it. Works as a proper name, is honest about what the product solves, and speaks to the general pattern (follow-up + memory) rather than one specialty. It follows the shelf: `recall`, `hindsight`, `ringdown` — short, lowercase, a little evocative. Constancia is ringdown's clinical counterpart: an agent that phones a human and proves what happened.
@@ -294,11 +287,16 @@ Before recording: `video/reset.sh --check` must be all green (seeded patient exi
 - **STT:** AssemblyAI Streaming v3 (`wss://streaming.assemblyai.com/v3/ws`), µ-law 8 kHz. Pre-recorded API post-call for entity detection and sentiment.
 - **LLM:** latest Gemini Flash via `google-genai` for conversation and extraction.
 - **TTS:** streaming, `ulaw_8000` output (ElevenLabs or equivalent).
-- **Memory:** Supabase Postgres + pgvector, `gemini-embedding-001` at 1536 dims.
+- **Memory:** Postgres + pgvector, `gemini-embedding-001` at 1536 dims.
 - **Telephony:** Twilio Programmable Voice, Media Streams.
 - **Panel:** React + Vite + TypeScript, no charting library, no UI framework. SSE for live events.
-- **Deploy:** Render container for the backend (Twilio webhooks + WebSocket), Vercel or Render for the panel. Public `/health` endpoint.
+- **Deploy:** one Render container — FastAPI serves the pages too, so there is no separate front-end host (deviation 4). Public `/health` endpoint.
 - **Tooling:** `Makefile` (`make dev / test / demo / deploy`), pinned exact versions.
+
+> **Built differently.** There is no `make deploy`: Render deploys from the repo, and the sixteen
+> targets that do exist are listed in [`WORKING.md`](WORKING.md). The panel is a Vite multi-page
+> project under `web/`, not `panel/` (deviation 17), and it is bilingual with a light default theme
+> (deviations 19 and 20), not English-only and dark.
 
 ## 12. MVP scope and out of scope
 
@@ -313,6 +311,10 @@ Before recording: `video/reset.sh --check` must be all green (seeded patient exi
 - Professional's panel: live transcript, activity rail, weekly evolution, superseded chain.
 - Deterministic seed with relative dates (`age_days`), no randomness, committed JSON. The seed plants the contradiction pair (7/10 → 4/10) and one red flag.
 - Day-one files: `HACKATHON.md` (rules transcribed), `SUBMISSION.md` (`criterion | how we show it | where the judge sees it | status`), `docs/video-script.md`, `CLAUDE.md` (hard rules: all repo output in English, pin exact versions, no secrets in git).
+
+> **Built differently.** Those files live in `docs/` now, and the hard rules moved to
+> [`../AGENTS.md`](../AGENTS.md), which every coding agent reads on its own; the `CLAUDE.md` files
+> are one-line pointers at it. [`README.md`](README.md) is the index.
 - README with a "The 30-second version" block, a judging-criteria table, an "Honest limits" section written as the build goes, and a `[!WARNING]` about the panel having no real authentication.
 
 ### Out of scope
