@@ -2,8 +2,17 @@ import { useEffect, useRef, useState } from "react"
 
 import ActivityRail from "./ActivityRail"
 import { subscribe, type Event } from "./api"
+import type { Copy } from "./copy"
 
-export default function LiveCall({ callId, onEnded }: { callId: string; onEnded: () => void }) {
+export default function LiveCall({
+  callId,
+  onEnded,
+  copy: c,
+}: {
+  callId: string
+  onEnded: () => void
+  copy: Copy
+}) {
   const [events, setEvents] = useState<Event[]>([])
   const [live, setLive] = useState(true)
   const since = useRef(0)
@@ -29,20 +38,20 @@ export default function LiveCall({ callId, onEnded }: { callId: string; onEnded:
   return (
     <section className="card live">
       <div className="chart-head">
-        <h2>Llamada en curso</h2>
-        <span className={live ? "dot live-dot" : "dot"}>{live ? "en vivo" : "terminada"}</span>
+        <h2>{c.liveTitle}</h2>
+        <span className={live ? "dot live-dot" : "dot"}>{live ? c.liveNow : c.liveEnded}</span>
       </div>
       <div className="live-body">
         <div className="transcript">
-          {turns.length === 0 && <p className="empty">Marcando…</p>}
+          {turns.length === 0 && <p className="empty">{c.liveDialling}</p>}
           {turns.map((turn) => (
             <div className={`turn ${turn.type === "agent_turn" ? "agent" : "patient"}`} key={turn.seq}>
-              <span className="who">{turn.type === "agent_turn" ? "agente" : "paciente"}</span>
+              <span className="who">{turn.type === "agent_turn" ? c.agent : c.patient}</span>
               <p>{String(turn.text)}</p>
             </div>
           ))}
         </div>
-        <ActivityRail events={events} since={since.current} />
+        <ActivityRail events={events} since={since.current} copy={c} />
       </div>
     </section>
   )

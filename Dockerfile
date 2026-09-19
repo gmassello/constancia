@@ -1,10 +1,10 @@
-FROM node:24-slim AS panel
+FROM node:24-slim AS web
 
-WORKDIR /panel
+WORKDIR /web
 RUN corepack enable
-COPY panel/package.json panel/pnpm-lock.yaml ./
+COPY web/package.json web/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
-COPY panel ./
+COPY web ./
 RUN pnpm build
 
 
@@ -21,7 +21,7 @@ RUN useradd --create-home appuser && chown appuser /app
 COPY app ./app
 COPY schema.sql ./
 COPY seed ./seed
-COPY --from=panel /panel/dist ./panel/dist
+COPY --from=web /web/dist ./web/dist
 
 USER appuser
 

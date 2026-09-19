@@ -44,8 +44,22 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
 14. **Replay fixtures come from `mode=scripted`** (`make fixtures`, deterministic, no keys) until C2 allows
     re-recording them from real calls into the same file names.
 15. **No `Accept: text/html` variant of `/calls/{id}/trace`** (stage 3 asked for one): the panel is the HTML view.
-16. **No test runner in the panel**: `pnpm build` runs `tsc` and that is the check. Two presentational components
-    do not earn vitest.
+16. **No test runner in the front end**: `pnpm build` runs `tsc` and that is the check. Presentational
+    components do not earn vitest; the copy matrix is checked by its types instead.
+17. **`panel/` is now `web/`**, a Vite multi-page project: `/` is the public landing and `/panel` the
+    professional's tool. No router and no SPA fallback — two real HTML entries, so the landing never loads the
+    panel's bundle.
+18. **Nocturne extended, not departed from**: the system ships dark only, so the light theme is derived from
+    its own OKLCH ramps. The inversion is not symmetric — the light ground sits closer to mid-grey than the
+    dark one, so muted text needs `neutral-700` where the mirror would say 600, and the accent base needs
+    `accent-700` where the readme's pressed-state line says 600. Every ramp step and text opacity the design
+    wrote inline became a semantic alias; a `grep` for ramp steps outside `tokens.css` must return nothing.
+19. **Three reader preferences** the design does not have — theme, language and register — persisted in
+    `localStorage` and applied before first paint. English and dark are the defaults: English because the
+    judges read it, dark because it is the ground the design chose and light is our derivation of it.
+20. **The panel is bilingual, not English-only.** This replaces the earlier plan to simply translate it:
+    English is the annotated, authoritative set and Spanish the translation. `CLAUDE.md` gained its second
+    language exception for the two `copy.ts` files.
 
 ## Checkpoints (need a human)
 
@@ -329,6 +343,7 @@ Then **C3**.
   docs/video-script.md    numbered shot list, money shots 🎯 (beats 3 and 5), exact patient lines
                           per call, "what can come out differently", opening and closing URLs
   docs/deck.md            slides (problem, product, demo, architecture, business, Law 25.326, team)
+  web/index.html          the public landing (done — see docs/LANDING.md)
   video/out/endcard.png   name, URL, repo, MIT via ffmpeg drawtext
   SUBMISSION.md           evidence on every row (path, URL or video timestamp)
   README.md               final: 30-second version, criteria table, Honest limits, how to run, video
@@ -336,6 +351,7 @@ Then **C3**.
 
 ### Steps
 
+0. ~~Public landing on the Nocturne design system, with theme, language and register toggles.~~ done — `docs/LANDING.md`.
 1. Multi-stage Dockerfile, `make deploy` (push + Render auto-deploy), Supabase `DATABASE_URL` on Render, `PUBLIC_BASE_URL` = Render URL, `make seed` against Supabase.
 2. `video/reset.sh`, `docs/video-script.md`, `video/narration.tsv`; `build-audio.sh` and listen to the narration.
 3. Recording session with the `personal-record-video` skill (1280x800 window, mic off, phone off camera); `fit-to-audio.py`, `build-video.sh`, `MAX_SECONDS=300`.

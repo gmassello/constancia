@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>constancia — the follow-up call nobody makes</title>
+    <script>
+      try {
+        var q = new URLSearchParams(location.search).get("lang")
+        document.documentElement.dataset.theme =
+          localStorage.getItem("constancia.theme") === "dark" ? "dark" : "light"
+        document.documentElement.lang =
+          q === "es" || q === "en" ? q : localStorage.getItem("constancia.lang") === "es" ? "es" : "en"
+      } catch (e) {
+        document.documentElement.dataset.theme = "light"
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/landing/main.tsx"></script>
+  </body>
+</html>

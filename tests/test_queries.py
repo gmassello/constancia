@@ -1,5 +1,5 @@
 from app import queries
-from app.memory import load_seed
+from app.memory import days_ago, load_seed
 from app.packs import get_pack
 
 PATIENT = "8c9d0e1f-2a3b-4c5d-6e7f-8091a2b3c4d5"
@@ -83,7 +83,8 @@ async def test_keyterms_at_ignores_facts_the_call_itself_produced() -> None:
 
 async def test_keyterms_at_carries_the_previous_week_into_the_next_call() -> None:
     store = load_seed()
+    next_call = days_ago(0)
 
-    terms = queries.keyterms_at(await store.chain(PATIENT), WEEK_2, get_pack("rehab"))
+    terms = queries.keyterms_at(await store.chain(PATIENT), next_call, get_pack("rehab"))
 
     assert terms == ["rodilla derecha", "ejercicios en casa", "rigidez", "caída en el baño"]

@@ -5,6 +5,14 @@ const api = { target: "http://localhost:8000", changeOrigin: false }
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: {
+        landing: "index.html",
+        panel: "panel/index.html",
+      },
+    },
+  },
   server: {
     port: 5173,
     proxy: { "/patients": api, "/calls": api, "/health": api, "/reset": api, "/search": api },

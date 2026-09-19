@@ -1,64 +1,75 @@
 import { useEffect, useRef } from "react"
 
 import type { Event } from "./api"
+import { label, type Copy } from "./copy"
 
 const NEAR_BOTTOM = 40
 
 type Line = { key: number; tone: string; label: string; text: string; detail?: string }
 
-function describe(event: Event): Line | null {
+function describe(event: Event, c: Copy): Line | null {
   const key = event.seq
   switch (event.type) {
     case "recall":
       return {
         key,
         tone: "recall",
-        label: "recall",
-        text: `${event.facts} hechos en ficha`,
+        label: c.railRecall,
+        text: c.railRecallText(Number(event.facts)),
         detail: (event.keyterms as string[]).join(" · "),
       }
     case "fact_stored":
       return {
         key,
         tone: "stored",
-        label: "hecho nuevo",
+        label: c.railStored,
         text: String(event.fact),
-        detail: `«${event.quote}» · turno ${event.turn_id}`,
+        detail: c.railQuote(String(event.quote), Number(event.turn_id)),
       }
     case "fact_superseded":
-      return {
-        key,
-        tone: "superseded",
-        label: "hecho retirado",
-        text: "el dato anterior queda tachado en la ficha",
-      }
+      return { key, tone: "superseded", label: c.railSuperseded, text: c.railSupersededText }
     case "fact_rejected":
       return {
         key,
         tone: "rejected",
-        label: "descartado",
+        label: c.railRejected,
         text: String(event.fact),
-        detail: String(event.reason),
+        detail: label(c.reason, event.reason),
       }
     case "guard_hit":
-      return { key, tone: "alarm", label: "señal de alarma", text: String(event.rule) }
+      return { key, tone: "alarm", label: c.railAlarm, text: label(c.rule, event.rule) }
     case "memory_off":
-      return { key, tone: "muted", label: "memoria off", text: `fase ${event.phase} salteada` }
+      return {
+        key,
+        tone: "muted",
+        label: c.railMemoryOff,
+        text: c.railMemoryOffText(label(c.phase, event.phase)),
+      }
     case "summary":
-      return { key, tone: "summary", label: "resumen", text: String(event.text) }
+      return { key, tone: "summary", label: c.railSummary, text: String(event.text) }
     case "analysis_ready":
-      return { key, tone: "stored", label: "análisis", text: `${event.entities} entidades` }
+      return {
+        key,
+        tone: "stored",
+        label: c.railAnalysis,
+        text: c.railAnalysisText(Number(event.entities)),
+      }
     case "facts_extracted":
-      return { key, tone: "muted", label: "extracción", text: `${event.count} hechos del transcript` }
+      return {
+        key,
+        tone: "muted",
+        label: c.railExtracted,
+        text: c.railExtractedText(Number(event.count)),
+      }
     case "call_started":
       return {
         key,
         tone: "muted",
-        label: "llamada",
-        text: `empezó · memoria ${event.memory ? "on" : "off"}`,
+        label: c.railCall,
+        text: c.railCallStarted(Boolean(event.memory)),
       }
     case "call_ended":
-      return { key, tone: "muted", label: "llamada", text: "terminó" }
+      return { key, tone: "muted", label: c.railCall, text: c.railCallEnded }
     case "agent_turn":
     case "patient_turn":
     case "llm":
@@ -66,11 +77,19 @@ function describe(event: Event): Line | null {
     case "phase_done":
       return null
     default:
-      return { key, tone: "muted", label: event.type, text: "" }
+      return { key, tone: "muted", label: event.type.replace(/_/g, " "), text: "" }
   }
 }
 
-export default function ActivityRail({ events, since }: { events: Event[]; since: number }) {
+export default function ActivityRail({
+  events,
+  since,
+  copy: c,
+}: {
+  events: Event[]
+  since: number
+  copy: Copy
+}) {
   const box = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -80,12 +99,12 @@ export default function ActivityRail({ events, since }: { events: Event[]; since
     if (atBottom) node.scrollTop = node.scrollHeight
   }, [events])
 
-  const lines = events.map(describe).filter((line): line is Line => line !== null)
+  const lines = events.map((event) => describe(event, c)).filter((line): line is Line => line !== null)
 
   return (
     <div className="rail" ref={box}>
-      <h3>Actividad</h3>
-      {lines.length === 0 && <p className="empty">Esperando la llamada…</p>}
+      <h3>{c.activity}</h3>
+      {lines.length === 0 && <p className="empty">{c.waitingForCall}</p>}
       {lines.map((line) => (
         <div className={`event ${line.tone}${line.key > since ? " fresh" : ""}`} key={line.key}>
           <span className="event-label">{line.label}</span>

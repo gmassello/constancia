@@ -1,11 +1,12 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 
-import App from "./App"
-import "./styles.css"
+import Landing from "./Landing"
+import "../tokens.css"
+import "./landing.css"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <Landing />
   </StrictMode>,
 )

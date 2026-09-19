@@ -7,7 +7,7 @@ from typing import Annotated, Literal
 from uuid import UUID
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, Response, WebSocket
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.datastructures import FormData
@@ -27,7 +27,7 @@ STORE = None
 KEEPALIVE_S = 15.0
 SSE_HEADERS = {"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"}
 DEFAULT_FIXTURE = "week2-on"
-PANEL_DIST = Path(__file__).resolve().parent.parent / "panel" / "dist"
+WEB_DIST = Path(__file__).resolve().parent.parent / "web" / "dist"
 
 
 @asynccontextmanager
@@ -279,5 +279,10 @@ async def media(websocket: WebSocket, call_id: str) -> None:
         await channel.close()
 
 
-if PANEL_DIST.is_dir():
-    app.mount("/", StaticFiles(directory=PANEL_DIST, html=True), name="panel")
+if WEB_DIST.is_dir():
+
+    @app.get("/panel", include_in_schema=False)
+    async def panel() -> FileResponse:
+        return FileResponse(WEB_DIST / "panel" / "index.html")
+
+    app.mount("/", StaticFiles(directory=WEB_DIST, html=True), name="web")

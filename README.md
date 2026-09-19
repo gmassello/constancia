@@ -12,7 +12,7 @@ Built for the [lablab.ai × AssemblyAI Voice Agent Hackathon](HACKATHON.md) on *
 
 ## Where the build is
 
-Stage 3 of four (see `docs/PLAN.md`): **the voice loop, longitudinal memory and the professional's panel**. What works today:
+Stage 3 of four plus the public landing (see `docs/PLAN.md` and `docs/LANDING.md`): **the voice loop, longitudinal memory, the professional's panel and the page that explains them**. What works today:
 
 - Outbound Twilio call with a bidirectional `<Connect><Stream>`.
 - Live µ-law audio to AssemblyAI Universal-Streaming v3 in Spanish, end-of-turn driven.
@@ -25,9 +25,14 @@ Stage 3 of four (see `docs/PLAN.md`): **the voice loop, longitudinal memory and 
   verbatim patient quote and its turn id; a fact that contradicts an old one retires it (`superseded_by` +
   `valid_until`) instead of deleting it. `memory=false` on a call disables recall and store, nothing else.
 - `GET /patients/{id}/facts` returns the whole chain, current and retired.
-- **The professional's panel** at `/`: patient list, weekly chart, the supersession chain with the verbatim
-  quote and turn id behind every fact, the key terms that fed the STT, and the live call — transcript and
-  activity rail over SSE, with the new facts highlighted as they land.
+- **A public landing** at `/`, built on the Nocturne design system, with three reader preferences: light or
+  dark theme, English or Spanish, and a technical or plain register — the same page written for a judge and
+  for the physiotherapist who would pay for it. It opens light and in English; `?lang=es` opens it in Spanish
+  directly, and every choice is remembered.
+- **The professional's panel** at `/panel`: patient list, weekly chart, the supersession chain with the
+  verbatim quote and turn id behind every fact, the key terms that fed the STT, and the live call —
+  transcript and activity rail over SSE, with the new facts highlighted as they land. It reads the same
+  theme and language the visitor chose on the landing.
 - **Three call modes.** `live` dials a real phone. `scripted` runs the whole pipeline against a scripted
   patient, with no phone and no keys. `replay` replays a recorded call at its original pace. The last two are
   what make the demo survive an outage.
@@ -47,17 +52,17 @@ No keys needed for the offline path:
 ```bash
 uv sync
 make test          # 89 tests, no network and no database
-make panel         # builds panel/dist (needs node 24 and pnpm)
-make dev           # http://localhost:8000 — the panel, on the seed
+make web           # builds web/dist (needs node 24 and pnpm)
+make dev           # http://localhost:8000 — the landing; the panel is at /panel
 ```
 
-In the panel, **Llamar ahora** in mode *simulada* runs a whole call with no phone and no keys: the transcript
+In the panel, **Call now** in *scripted* mode runs a whole call with no phone and no keys: the transcript
 appears turn by turn, the rail lights up as facts land, and the 7/10 knee is struck through by the 4/10.
-Uncheck *memoria* and the same call starts from scratch — that is the honest A/B.
+Uncheck *memory* and the same call starts from scratch — that is the honest A/B.
 
 `POST /reset` puts the in-memory seed back where it started, which is what a second take needs.
 
-Without the panel built, the same thing from the terminal:
+Without the front end built, the same thing from the terminal:
 
 ```bash
 make demo            # week 1: a full call against a scripted patient, trace printed
@@ -94,7 +99,7 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
 
 ## Honest limits
 
-- **No authentication anywhere.** Anything that can reach the URL can place a call. The panel in stage 3 will not fix this: it is out of scope for the hackathon.
+- **No authentication anywhere.** Anything that can reach the URL can read every patient's history and place a call. Out of scope for the hackathon, and the landing's footer says so.
 - **One worker.** Calls live in an in-process dict. Two instances would not see each other's calls.
 - **Extraction runs after hangup**, never during the call: a synchronous write would put dead air on the line.
   The facts land seconds after the patient hangs up, not while they are still talking.
@@ -106,6 +111,13 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
   recording has to be downloaded and re-uploaded instead of passed by URL.
 - **Calls live in memory.** After a restart the panel loses the live trace of past calls; the history comes
   from the database instead.
+- **In English the panel shows English chrome over Spanish data.** The summary is written by the agent and the
+  facts, quotes and transcript are the patient's own words. The patient is not the visitor, so they do not
+  translate.
+- **The landing's hero card is a scripted loop**, not a live call: ten canned beats with the real copy. The
+  panel is where a real call is watched. Its dialogue stays in Spanish in both languages, because that is what
+  the agent actually speaks; in English a translation is shown under each line, and the verbatim quote is never
+  translated.
 - Twilio trial accounts only call verified numbers and prepend their own message.
 - Spanish only (Rioplatense). The packs are content, not code, so another language is a translation, not a rewrite.
 
@@ -124,7 +136,9 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
 | `app/queries.py` | the single reducer module: the chain, the weekly series, the key terms of a past call |
 | `app/replay.py` | the two modes that need no phone: scripted and recorded |
 | `app/analysis.py` | post-call entity detection and sentiment on the recording |
-| `panel/` | the professional's panel: React 19 + Vite, no UI or charting library |
+| `web/` | both pages: React 19 + Vite multi-page, no UI, routing or charting library |
+| `web/src/tokens.css` | the Nocturne tokens, the derived light theme and the semantic aliases |
+| `web/src/*/copy.ts` | every interface string, English base and Spanish translation |
 | `schema.sql` | the whole data model, applied with `make schema` |
 
 MIT licensed.

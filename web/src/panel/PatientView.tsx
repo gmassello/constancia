@@ -5,12 +5,21 @@ import Keyterms from "./Keyterms"
 import LiveCall from "./LiveCall"
 import WeeklyChart from "./WeeklyChart"
 import { get, post, type CallRow, type Fact, type Patient, type Week } from "./api"
+import { label, type Copy } from "./copy"
 
 type Mode = "scripted" | "replay" | "live"
 
 const day = (value: string) => value.slice(0, 10)
 
-export default function PatientView({ patient, live }: { patient: Patient; live: boolean }) {
+export default function PatientView({
+  patient,
+  live,
+  copy: c,
+}: {
+  patient: Patient
+  live: boolean
+  copy: Copy
+}) {
   const [facts, setFacts] = useState<Fact[]>([])
   const [weeks, setWeeks] = useState<Week[]>([])
   const [calls, setCalls] = useState<CallRow[]>([])
@@ -55,7 +64,7 @@ export default function PatientView({ patient, live }: { patient: Patient; live:
           <div>
             <h1>{patient.name}</h1>
             <div className="label">
-              {patient.program_type} · en seguimiento desde {day(patient.started_at)}
+              {label(c.program, patient.program_type)} · {c.followedSince(day(patient.started_at))}
             </div>
           </div>
           <div className="controls">
@@ -65,40 +74,40 @@ export default function PatientView({ patient, live }: { patient: Patient; live:
                 checked={memory}
                 onChange={(e) => setMemory(e.target.checked)}
               />
-              memoria
+              {c.memory}
             </label>
             <select value={mode} onChange={(e) => setMode(e.target.value as Mode)}>
-              <option value="scripted">simulada</option>
-              <option value="replay">grabada</option>
+              <option value="scripted">{c.modeScripted}</option>
+              <option value="replay">{c.modeReplay}</option>
               <option value="live" disabled={!live}>
-                real{live ? "" : " (sin claves)"}
+                {live ? c.modeLive : c.modeLiveDisabled}
               </option>
             </select>
-            <button onClick={call}>Llamar ahora</button>
+            <button className="btn btn-primary" onClick={call}>
+              {c.callNow}
+            </button>
           </div>
         </div>
         {error && <p className="error">{error}</p>}
       </header>
 
-      {callId && <LiveCall callId={callId} onEnded={reload} />}
+      {callId && <LiveCall callId={callId} onEnded={reload} copy={c} />}
 
       <section className="card">
-        <WeeklyChart weeks={weeks} />
+        <WeeklyChart weeks={weeks} copy={c} />
       </section>
 
       <section className="card">
-        <FactChain facts={facts} />
+        <FactChain facts={facts} copy={c} />
       </section>
 
       <section className="card">
-        <Keyterms terms={terms} />
-        <h3>Llamadas</h3>
-        {calls.length === 0 && <p className="empty">Todavía no hubo ninguna llamada.</p>}
+        <Keyterms terms={terms} copy={c} />
+        <h3>{c.callsTitle}</h3>
+        {calls.length === 0 && <p className="empty">{c.noCalls}</p>}
         {calls.map((row) => (
           <div className="call-row" key={row.id}>
-            <div className="label">
-              {day(row.started_at)} · memoria {row.memory_enabled ? "on" : "off"}
-            </div>
+            <div className="label">{c.callMeta(day(row.started_at), row.memory_enabled)}</div>
             {row.summary && <p>{row.summary}</p>}
           </div>
         ))}
