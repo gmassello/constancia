@@ -186,6 +186,20 @@ async def test_words_spoken_over_the_agent_still_barge_in(speech) -> None:
     await channel.close()
 
 
+async def test_a_turn_that_lands_mid_question_is_not_served_as_its_answer(speech) -> None:
+    channel, _, stt = await started_channel()
+
+    async def tail_of_the_previous_answer() -> None:
+        await asyncio.sleep(0.03)
+        await stt.queue.put(turn("because I had a lot of work", words=1, start_ms=0))
+
+    await asyncio.gather(channel.say("Any new discomfort?"), tail_of_the_previous_answer())
+
+    assert channel.call.trace[-1]["interrupted"] is False
+    assert await channel.listen(0.05) is None
+    await channel.close()
+
+
 async def test_partial_turns_do_not_reach_listen(speech) -> None:
     channel, _, stt = await started_channel()
     await stt.queue.put(turn("partial", words=1, final=False))

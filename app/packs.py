@@ -212,6 +212,11 @@ def get_pack(key: str) -> VerticalPack:
     return PACKS[key]
 
 
+GREET_RECALL = (
+    "You have spoken to this patient before. Open by quoting back the most recent thing on file, "
+    "with the number or detail they gave you, saying it was last week, and then ask how it is now. "
+    "Quote what is on file, never a number you did not read there."
+)
 NO_MEMORY = "You have nothing on file for this patient: this is the first time you speak."
 MEMORY_HEADER = (
     "This is what the patient told you in earlier calls, newest first. "

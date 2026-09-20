@@ -50,6 +50,17 @@ async def test_red_flag_ends_the_protocol_early() -> None:
     assert call.pack.goodbye not in channel.said
 
 
+async def test_a_red_flag_in_the_greeting_escalates_before_any_question() -> None:
+    call, channel, llm = build(["Not great, I fell coming down the stairs on Tuesday."])
+    await orchestrator.run_call(call, channel, llm, silence_s=0.01)
+
+    assert call.escalated["rule"] == "fall"
+    assert "guard_hit" in types_of(call)
+    assert call.answers == {}
+    assert call.pack.goodbye not in channel.said
+    assert not any(ASK_MARKER in prompt for prompt in llm.prompts)
+
+
 async def test_silence_reprompts_once_then_closes() -> None:
     call, channel, llm = build([HELLO, None, None])
     await orchestrator.run_call(call, channel, llm, silence_s=0.01)
@@ -149,6 +160,21 @@ async def test_memory_on_puts_the_previous_facts_in_the_prompt() -> None:
     assert [e["type"] for e in call.trace if e["type"] == "fact_superseded"] == ["fact_superseded"]
     current = await store.current_facts(PATIENT)
     assert [f["value"] for f in current if f["term"] == "right knee"] == [4]
+
+
+async def test_the_greeting_is_told_to_quote_last_week_only_when_there_is_memory() -> None:
+    from app.packs import GREET_RECALL
+
+    on, channel, llm, store = build_week_2(memory=True)
+    await orchestrator.run_call(on, channel, llm, store, silence_s=0.01)
+    greeting = next(p for p in llm.prompts if on.pack.greet in p)
+    assert GREET_RECALL in greeting
+    assert "right knee pain 7/10 climbing stairs" in greeting
+
+    off, channel, llm, store = build_week_2(memory=False)
+    await orchestrator.run_call(off, channel, llm, store, silence_s=0.01)
+    greeting = next(p for p in llm.prompts if off.pack.greet in p)
+    assert GREET_RECALL not in greeting
 
 
 async def test_the_summary_reaches_the_stored_call() -> None:

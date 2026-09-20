@@ -95,7 +95,7 @@ pages, still runs `scripted` and `replay` calls and still answers every read end
 | `DATABASE_URL` | *(empty)* | **The persistence switch** — but only with the eight required variables also set, because the store is chosen from `settings_or_none()`, which returns `None` without them. With it, the store is Postgres and the schema is applied at boot; without it, the store is the JSON seed. |
 | `GEMINI_MODEL` | `gemini-3.8-flash` | |
 | `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-001` | |
-| `ASSEMBLYAI_SPEECH_MODEL` | `universal-streaming-english` | The streaming API rejects an unknown value and lists the ones it takes in the error, which is how this one was pinned. |
+| `ASSEMBLYAI_SPEECH_MODEL` | `universal-3-6-pro` | A model offered *by* Universal-Streaming, not a different product: same `wss://streaming.assemblyai.com/v3/ws`, same API version. It was picked by measurement, not preference — on a real 8 kHz call it transcribed the patient's line verbatim where `universal-streaming-english` returned "My hair is 7 out of 10". The API rejects an unknown value and lists the ones it takes in the error, which is how the name was pinned. |
 | `ELEVENLABS_MODEL` | `eleven_flash_v2_5` | |
 | `VALIDATE_TWILIO_SIGNATURE` | `true` | Turn it off only against a local tunnel you control. |
 

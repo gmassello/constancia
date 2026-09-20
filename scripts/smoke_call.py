@@ -47,6 +47,14 @@ async def take(script: str, memory: bool) -> list[str]:
     await run_scripted(call, load_seed(), script, delay_s=0.0)
 
     problems = []
+    if memory:
+        opening = next(t["text"] for t in call.transcript if t["speaker"] == "agent")
+        print(f"  {script:10} opening   {opening[:92]}")
+        if not any(w in opening.lower() for w in ("seven", "7/10", "7 out of ten")):
+            problems.append(
+                f"{script}: the greeting did not quote last week's 7/10, which is beat 5's "
+                f"whole point: {opening!r}"
+            )
     for event in call.trace:
         if event["type"] == "phase_failed":
             problems.append(f"{script}: phase {event['phase']} failed: {event['error']}")
@@ -65,11 +73,40 @@ async def take(script: str, memory: bool) -> list[str]:
     return problems
 
 
+FAREWELLS = ("goodbye", "take care", "wonderful day", "thank you for your time", "talk next week")
+
+
+async def silent_patient() -> list[str]:
+    from app.channel import ScriptedPatient
+    from app.llm import GeminiLLM
+    from app.orchestrator import converse, greet
+
+    call = Call(
+        patient_id=PATIENT_ID, patient_name="Ana", pack=get_pack("rehab"), memory=False
+    )
+    channel = ScriptedPatient(call, [None] * 9)
+    llm = GeminiLLM()
+    await greet(call, channel, llm, None, 0.0)
+    await converse(call, channel, llm, None, 0.0)
+
+    asked = [t["text"] for t in call.transcript[1:] if t["speaker"] == "agent"]
+    said = [t for t in asked if t != call.pack.reprompt]
+    for text in said[:-1]:
+        print(f"  silent     {text[:88]}")
+    problems = [
+        f"silent patient: the agent said goodbye instead of asking: {text!r}"
+        for text in said[:-1]
+        if any(word in text.lower() for word in FAREWELLS)
+    ]
+    return problems
+
+
 async def main() -> None:
     print(f"budgets: {BUDGETS}")
     problems = []
     for script, memory in TAKES:
         problems += await take(script, memory)
+    problems += await silent_patient()
     if problems:
         print("\n".join(f"FAIL {p}" for p in problems))
         raise SystemExit(1)

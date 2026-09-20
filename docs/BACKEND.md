@@ -10,14 +10,14 @@ each one is for.
 |---|---:|---|
 | [`app/main.py`](../app/main.py) | 303 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
 | [`app/memory.py`](../app/memory.py) | 321 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader and the `keyterms` computation. |
-| [`app/channel.py`](../app/channel.py) | 241 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
-| [`app/packs.py`](../app/packs.py) | 238 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
-| [`app/orchestrator.py`](../app/orchestrator.py) | 131 | The phase machine. Decides what is said, what is stored and when a call escalates. |
-| [`app/llm.py`](../app/llm.py) | 128 | `GeminiLLM` with exponential retry, and `ScriptedLLM`, its deterministic double. |
+| [`app/channel.py`](../app/channel.py) | 245 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
+| [`app/packs.py`](../app/packs.py) | 243 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
+| [`app/orchestrator.py`](../app/orchestrator.py) | 144 | The phase machine. Decides what is said, what is stored and when a call escalates. |
+| [`app/llm.py`](../app/llm.py) | 132 | `GeminiLLM` with exponential retry, and `ScriptedLLM`, its deterministic double. |
 | [`app/replay.py`](../app/replay.py) | 109 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
 | [`app/extract.py`](../app/extract.py) | 103 | Structured extraction and the grounding check. |
 | [`app/queries.py`](../app/queries.py) | 82 | Pure reducers over fact rows: the chain, the weekly series, the key terms of a past call. |
-| [`app/analysis.py`](../app/analysis.py) | 75 | Post-call entity detection and sentiment on the recording. |
+| [`app/analysis.py`](../app/analysis.py) | 95 | Post-call entity detection and sentiment on the recording. |
 | [`app/calls.py`](../app/calls.py) | 74 | The `Call` dataclass, the `emit`/`subscribe` event bus, and the global `CALLS` registry. |
 | [`app/stt.py`](../app/stt.py) | 65 | AssemblyAI Universal-Streaming v3 over WebSocket, with hot key-term updates. |
 | [`app/db.py`](../app/db.py) | 59 | The psycopg async pool, the query helpers and `init_schema()`. |
@@ -34,6 +34,13 @@ each one is for.
 `PHASES` (`app/orchestrator.py:101`) is a tuple of `(name, function, critical)`. Every phase has the
 same signature — `(call, channel, llm, store, silence_s)` — so adding one is adding a row.
 
+`greet` opens generically with nothing on file, and with facts on file it is additionally told to
+quote the most recent one back — `GREET_RECALL` in `app/packs.py`, appended only when `call.facts`
+is non-empty. That asymmetry is the demo's whole argument, so it is structural rather than left to
+the model noticing the memory block: with memory off `recall` returns early, `facts` stays empty,
+and the same code path produces the generic opening. The instruction also forbids quoting a number
+that is not on file, because a model told it has memory will otherwise invent one.
+
 `converse` (`:47`) is the protocol: one pass over `pack.questions`, in declaration order, no planner.
 `phrase()` (`:10`) hands the LLM the system prompt plus a fragment naming the goal; the model writes
 the sentence, it does not pick the question. Silence gets exactly one re-prompt (`ask`, `:15`), then
@@ -44,9 +51,11 @@ live-call failures before they were documented. First, `MAX_OUTPUT_TOKENS` is **
 limiter: Gemini 3 always thinks and the thinking comes out of that same budget, so a tight value
 buys an empty reply rather than a short one, and `ThinkingConfig(thinking_budget=0)` does not turn
 it off. Two sentences per turn is enforced by `SYSTEM_RULES` in `app/packs.py`. Second, the API
-rejects a request whose last turn is the model's, which is exactly where `summarize` arrives since
-`converse` ends on the goodbye; `reply()` appends a closing user turn so every phase can hand it the
-raw history. `make smoke-call` exercises both and prints the token headroom it measured.
+rejects a request whose last turn is the model's. `summarize` always arrives there because `converse`
+ends on the goodbye, and `converse` itself arrives there whenever the patient answered nothing, so
+`reply()` appends `SILENT_TURN`. That placeholder has to stay **empty of meaning**: it is read as a
+patient turn, and anything that reads as a fact about the call gets acted on. `"(end of the call)"`
+made the agent say goodbye in place of its first question, on a real call. `make smoke-call` exercises both and prints the token headroom it measured.
 
 Barge-in is not just "did the caller say something while the agent talked". AssemblyAI keeps
 emitting `Turn` messages for audio the caller spoke *before* the agent started, so the cutoff is the
@@ -59,6 +68,12 @@ completes.
 
 Thirty-two lines, and the rule that governs it is in [`../AGENTS.md`](../AGENTS.md): **the guard is
 deterministic code; the LLM phrases the escalation, it never decides on one.**
+
+It runs on **every** patient turn, through `escalated()` — the greeting's included. That is not
+symmetry for its own sake: the greeting asks the most open question in the call ("how has your
+recovery been going?"), which makes it the likeliest place for an unprompted red flag, and it used
+to be the one turn nobody checked. An escalation there ends the call before any question is asked,
+because `converse` returns early when `call.escalated` is already set.
 
 `check` (`app/guard.py:20`) normalises the turn (lowercase, NFD, diacritics dropped — so accents and
 capitals do not matter), walks `pack.red_flags` in declaration order and returns the first unnegated

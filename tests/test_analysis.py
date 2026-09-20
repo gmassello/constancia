@@ -8,6 +8,16 @@ from app.packs import get_pack
 
 PAYLOAD = json.loads((Path(__file__).parent / "fixtures" / "aai_transcript.json").read_text())
 RECORDING = "https://api.twilio.com/2010-04-01/Accounts/AC/Recordings/RE"
+ENV = {
+    "GEMINI_API_KEY": "x",
+    "ASSEMBLYAI_API_KEY": "x",
+    "ELEVENLABS_API_KEY": "x",
+    "ELEVENLABS_VOICE_ID": "x",
+    "TWILIO_ACCOUNT_SID": "AC",
+    "TWILIO_AUTH_TOKEN": "tok",
+    "TWILIO_NUMBER": "+541199999999",
+    "PUBLIC_BASE_URL": "https://constancia.example.com",
+}
 
 
 def build() -> Call:
@@ -39,6 +49,46 @@ def test_summarize_survives_a_transcript_with_no_entities() -> None:
     assert summary["entities"] == []
     assert summary["sentiment"] == {}
     assert summary["negative"] == []
+
+
+async def test_a_twilio_recording_is_relayed_instead_of_handed_over(monkeypatch) -> None:
+    import httpx
+
+    from app.config import get_settings
+
+    for key, value in ENV.items():
+        monkeypatch.setenv(key, value)
+    get_settings.cache_clear()
+    seen = {}
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.host == "api.twilio.com":
+            seen["auth"] = request.headers.get("authorization", "")
+            seen["path"] = request.url.path
+            return httpx.Response(200, content=b"ID3fake-mp3")
+        seen["uploaded"] = request.content
+        return httpx.Response(200, json={"upload_url": "https://cdn.assemblyai.com/u/1"})
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        url = await analysis.hosted(client, RECORDING, {"authorization": "k"})
+
+    assert url == "https://cdn.assemblyai.com/u/1"
+    assert seen["path"].endswith(".mp3")
+    assert seen["auth"].startswith("Basic ")
+    assert seen["uploaded"] == b"ID3fake-mp3"
+    get_settings.cache_clear()
+
+
+async def test_a_url_that_is_not_twilios_is_passed_straight_through() -> None:
+    import httpx
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("nothing should be fetched")
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        url = await analysis.hosted(client, "https://example.com/a.mp3", {})
+
+    assert url == "https://example.com/a.mp3"
 
 
 async def test_run_emits_the_event_and_writes_the_analysis() -> None:

@@ -186,9 +186,11 @@ class LiveChannel:
         self._drain_turns()
         self.barge.clear()
         self.mark_event.clear()
-        # ponytail: transcripts of audio the caller spoke before this turn keep arriving while the
-        # agent talks, and taking them as an interruption derails every later answer. Word `start`
-        # is milliseconds of caller audio, so the cutoff is how much we have fed so far.
+        # ponytail: the caller's earlier audio keeps finalising while the agent talks. Two defences,
+        # because it arrives by two routes: word `start` (milliseconds of caller audio, against how
+        # much we have fed) keeps it from counting as an interruption, and the drain below keeps a
+        # turn that landed mid-question from being served as the answer to it. An interrupted turn
+        # is not drained: there the queued words are the interruption.
         self.speech_from_ms = self.fed_ms
         self.speaking = True
         self.tts_task = asyncio.create_task(self._stream_tts(text))
@@ -204,6 +206,8 @@ class LiveChannel:
             task.cancel()
         await asyncio.gather(*pending, return_exceptions=True)
         self.speaking = False
+        if not interrupted:
+            self._drain_turns()
         if interrupted:
             await self._send({"event": "clear", "streamSid": self.stream_sid})
         elif self.tts_task in done and self.tts_task.exception():

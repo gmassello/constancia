@@ -16,6 +16,11 @@ RATE_LIMIT_FACTOR = 5.0
 MAX_OUTPUT_TOKENS = 2048
 MAX_STRUCTURED_TOKENS = 4096
 TEMPERATURE = 0.4
+# ponytail: Gemini rejects a request whose last turn is the model's, which is where `summarize`
+# arrives and where `converse` arrives when the patient answered nothing. This placeholder only
+# satisfies that rule, so it has to stay empty of meaning: anything that reads as a fact about the
+# call gets acted on. "(end of the call)" made the agent say goodbye instead of asking its question.
+SILENT_TURN = "..."
 
 
 class LLMError(RuntimeError):
@@ -105,8 +110,7 @@ class GeminiLLM:
             for turn in history
         ] or [types.Content(role="user", parts=[types.Part(text="(start of the call)")])]
         if contents[-1].role == "model":
-            ended = types.Part(text="(end of the call)")
-            contents.append(types.Content(role="user", parts=[ended]))
+            contents.append(types.Content(role="user", parts=[types.Part(text=SILENT_TURN)]))
         config = types.GenerateContentConfig(
             system_instruction=system,
             max_output_tokens=MAX_OUTPUT_TOKENS,

@@ -3,11 +3,15 @@ from collections import Counter
 
 import httpx
 
-from app.config import get_settings
+from app.config import get_settings, is_twilio_recording
 
 API = "https://api.assemblyai.com/v2/transcript"
+UPLOAD = "https://api.assemblyai.com/v2/upload"
 POLL_S = 3.0
 TIMEOUT_S = 180.0
+# ponytail: a Twilio recording is behind Basic auth, so AssemblyAI cannot fetch it and answers 401.
+# The mp3 is about a quarter of the wav, small enough to relay through one request each way.
+UPLOAD_TIMEOUT_S = 120.0
 MAX_NEGATIVE = 5
 
 
@@ -38,12 +42,28 @@ def summarize(payload: dict) -> dict:
     }
 
 
+async def hosted(client: httpx.AsyncClient, url: str, headers: dict) -> str:
+    settings = get_settings()
+    if not is_twilio_recording(url):
+        return url
+    media = await client.get(
+        f"{url}.mp3",
+        auth=(settings.twilio_account_sid, settings.twilio_auth_token),
+        follow_redirects=True,
+    )
+    media.raise_for_status()
+    uploaded = await client.post(UPLOAD, headers=headers, content=media.content)
+    uploaded.raise_for_status()
+    return uploaded.json()["upload_url"]
+
+
 async def transcribe(url: str) -> dict:
     settings = get_settings()
     headers = {"authorization": settings.assemblyai_api_key}
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(timeout=UPLOAD_TIMEOUT_S) as client:
+        audio_url = await hosted(client, url, headers)
         started = await client.post(
-            API, headers=headers, json=request_body(url, settings.language)
+            API, headers=headers, json=request_body(audio_url, settings.language)
         )
         started.raise_for_status()
         transcript_id = started.json()["id"]

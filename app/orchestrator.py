@@ -2,7 +2,7 @@ from app import extract, guard
 from app.calls import Call
 from app.channel import CallEnded
 from app.memory import keyterms
-from app.packs import ASK_MARKER, memory_block, system_prompt
+from app.packs import ASK_MARKER, GREET_RECALL, memory_block, system_prompt
 
 SILENCE_S = 8.0
 
@@ -19,6 +19,17 @@ async def ask(call: Call, channel, llm, text: str, silence_s: float) -> str | No
         await channel.say(call.pack.reprompt)
         answer = await channel.listen(silence_s)
     return answer
+
+
+async def escalated(call: Call, channel, llm, answer: str | None) -> bool:
+    hit = answer and guard.check(call.pack, answer)
+    if not hit:
+        return False
+    call.escalated = hit
+    call.emit("guard_hit", **hit)
+    message = next(f.message for f in call.pack.red_flags if f.rule == hit["rule"])
+    await channel.say(await phrase(call, llm, call.pack.escalation.format(message=message)))
+    return True
 
 
 def _memory_off(call: Call, phase: str, store) -> bool:
@@ -40,11 +51,18 @@ async def recall(call: Call, channel, llm, store, silence_s: float) -> None:
 
 
 async def greet(call: Call, channel, llm, store, silence_s: float) -> None:
-    await channel.say(await phrase(call, llm, call.pack.greet))
-    await channel.listen(silence_s)
+    fragment = call.pack.greet
+    if call.facts:
+        fragment = f"{fragment} {GREET_RECALL}"
+    await channel.say(await phrase(call, llm, fragment))
+    # ponytail: the greeting asks the most open question of the call, so it is the likeliest
+    # place for an unprompted red flag. Every patient turn is checked, not just the answers.
+    await escalated(call, channel, llm, await channel.listen(silence_s))
 
 
 async def converse(call: Call, channel, llm, store, silence_s: float) -> None:
+    if call.escalated:
+        return
     pack = call.pack
     for question in pack.questions:
         text = await phrase(call, llm, f"{pack.converse} {ASK_MARKER}{question.goal}")
@@ -52,12 +70,7 @@ async def converse(call: Call, channel, llm, store, silence_s: float) -> None:
         if answer is None:
             await channel.say(pack.goodbye_silent)
             return
-        hit = guard.check(pack, answer)
-        if hit:
-            call.escalated = hit
-            call.emit("guard_hit", **hit)
-            message = next(f.message for f in pack.red_flags if f.rule == hit["rule"])
-            await channel.say(await phrase(call, llm, pack.escalation.format(message=message)))
+        if await escalated(call, channel, llm, answer):
             return
         call.answers[question.key] = answer
     await channel.say(pack.goodbye)
