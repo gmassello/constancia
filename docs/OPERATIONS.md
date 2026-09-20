@@ -128,8 +128,8 @@ A multi-stage [`../Dockerfile`](../Dockerfile): a `node:24-slim` stage builds `w
 stage installs the Python deps, copies `app/`, `schema.sql`, `seed/` and the built front end, and runs
 as a non-root user. One image, one service, one public URL — the API serves the pages.
 
-[`../render.yaml`](../render.yaml) declares the Render service — Docker runtime, free plan,
-`healthCheckPath: /health` — **and the database**: `constancia-db`, free plan, Postgres 17, the same
+[`../render.yaml`](../render.yaml) declares the Render service — `constancia-voice`, Docker runtime,
+free plan, `healthCheckPath: /health` — **and the database**: `constancia-db`, free plan, Postgres 17, the same
 major as `make db`. `DATABASE_URL` comes from it with `fromDatabase`, so there is no connection
 string to copy. The nine credentials stay `sync: false` and are typed into the dashboard; none of
 them is in the repo.
@@ -151,8 +151,18 @@ git push                      # 1. the Blueprint builds from the repo
                               # 3. type the nine credentials into the service's Environment tab
                               # 4. PUBLIC_BASE_URL = the URL Render just assigned, then redeploy
 make seed                     # 5. from your laptop, with .env pointing at the managed database
-curl https://<url>/health     # 6. from another network: {"store":"postgres","live":true}
+curl https://constancia-voice.onrender.com/health    # 6. from another network: {"store":"postgres","live":true}
 ```
+
+The service is named `constancia-voice`, not `constancia`: the plain subdomain is held by an
+unrelated application, and Render would have answered by appending a random suffix to the hostname —
+which the endcard burns into the last frame of the video. Confirm in step 4 that the URL Render
+assigned is the expected one before rendering the card.
+
+**Leave `DEMO_PHONE` unset on Render.** The nine credentials make `/health` report `live: true`, so
+the deployed panel renders the two live buttons; with no demo phone they answer `400` instead of
+dialling. That is the intended outcome for a public URL — the alternative is a stranger ringing your
+phone. The scripted pair above them is the primary one and works with no phone at all.
 
 Step 5 is the one that surprises people: `scripts/seed.py` needs **a full `.env`, not just
 `DATABASE_URL`** — `MemoryStore()` builds `Settings`, which requires all eight credentials, and

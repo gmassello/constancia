@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # endcard.sh — the last frame of the video: name, URL, repo, licence.
 #
-#   PUBLIC_URL=constancia.onrender.com bash video/endcard.sh
+#   PUBLIC_URL=constancia-voice.onrender.com bash video/endcard.sh
 #
-# No scheme: the card shows a bare domain. Render it AFTER the Render deploy —
-# the hostname is a guess until the service exists.
+# No scheme: the card shows a bare domain. The default is the hostname
+# render.yaml claims; `constancia` itself belongs to an unrelated app.
 #
 # Renders video/endcard.html at 1280x800 with headless Chrome, so the card uses
 # the project's own tokens instead of a second palette written in ffmpeg.
@@ -12,7 +12,7 @@
 set -euo pipefail
 
 VIDEO_DIR="${VIDEO_DIR:-$PWD/video}"
-PUBLIC_URL="${PUBLIC_URL:-constancia.onrender.com}"
+PUBLIC_URL="${PUBLIC_URL:-constancia-voice.onrender.com}"
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 OUT="$VIDEO_DIR/out/endcard.png"
 

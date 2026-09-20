@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: constancia
+    name: constancia-voice
     runtime: docker
     plan: free
     healthCheckPath: /health

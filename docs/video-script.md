@@ -213,12 +213,13 @@ Cut the key-terms card second if the track needs to lose more time.
 **Screen:** the landing's business band, to the end of the take. **The endcard is not on camera** —
 it is a still appended at assembly, so nothing opens a `file://` URL in the address bar on screen.
 
-Render it **after the Render deploy**, never before: the hostname in it is a guess until the service
-exists, and Render only grants `constancia.onrender.com` if that name is free. It costs one command,
-and the still is spliced in after the take, so it is not a reason to delay recording.
+The hostname is `constancia-voice.onrender.com`, which is what `render.yaml` claims — plain
+`constancia.onrender.com` belongs to an unrelated app, so Render would have appended a random suffix
+and the card would have pointed at somebody else's form. Re-render the card if the deploy ever lands
+on a different hostname; it is spliced in after the take, so it never delays recording.
 
 ```bash
-PUBLIC_URL=constancia.onrender.com bash video/endcard.sh   # no scheme: the card shows a bare domain
+PUBLIC_URL=constancia-voice.onrender.com bash video/endcard.sh   # no scheme: a bare domain on the card
 ```
 
 The endcard covers the last spoken line, so "constancia. Thanks for watching" is heard *and* burned

@@ -366,7 +366,7 @@ Then **C3**.
    was built and booted locally against an empty Postgres to prove it. Runbook in
    [`OPERATIONS.md`](OPERATIONS.md).
 2. ~~`video/reset.sh`, `docs/video-script.md`, `video/narration.tsv`~~ done — the track measures
-   3:12 against the 5:00 cap; what is left of this step is listening to `video/out/narration.wav`
+   3:39.5 against the 5:00 cap; what is left of this step is listening to `video/out/narration.wav`
    end to end.
 3. Recording session with the `personal-record-video` skill (1280x800 window, mic off, phone off camera); `fit-to-audio.py`, `build-video.sh`, `MAX_SECONDS=300`.
 4. ~~`docs/deck.md`, endcard, `SUBMISSION.md`~~ done — the deck is also published as slides, and
@@ -378,7 +378,7 @@ Then **C3**.
 ### Verification
 
 ```bash
-curl https://<render-url>/health                 # from another network
+curl https://constancia-voice.onrender.com/health          # from another network
 bash video/reset.sh --check                      # all green
 VIDEO_DIR=$PWD/video MAX_SECONDS=300 OUTRO="video/out/endcard.png:5" OUTRO_REPLACE=2.4 \
   bash .../build-video.sh video/out/raw-fitted.mov            # demo.mp4, 3:42.1 under the 5:00 cap
