@@ -22,11 +22,20 @@ ENV = {
 START = json.dumps({"event": "start", "start": {"streamSid": "MZ1"}})
 
 
-def turn(transcript: str, words: int, final: bool = True) -> dict:
+def media(audio: bytes) -> str:
+    import base64
+
+    return json.dumps({"event": "media", "media": {"payload": base64.b64encode(audio).decode()}})
+
+
+def turn(transcript: str, words: int, final: bool = True, start_ms: int = 0) -> dict:
     return {
         "type": "Turn",
         "transcript": transcript,
-        "words": [{"text": "w"}] * words,
+        "words": [
+            {"text": "w", "start": start_ms + i * 80, "end": start_ms + i * 80 + 80}
+            for i in range(words)
+        ],
         "end_of_turn": final,
         "turn_is_formatted": final,
     }
@@ -137,6 +146,43 @@ async def test_barge_in_cancels_playback_and_clears_the_queue(speech) -> None:
     assert len(ws.events("media")) < 10
     assert channel.call.trace[-1]["interrupted"] is True
     assert await channel.listen(0.5) == "Wait, let me interrupt"
+    await channel.close()
+
+
+async def test_words_spoken_before_the_agent_started_are_not_a_barge_in(speech) -> None:
+    channel, ws, stt = await started_channel()
+    for _ in range(20):
+        await ws.inbox.put(media(b"\xff" * 800))
+    while channel.fed_ms < 2000:
+        await asyncio.sleep(0.01)
+
+    async def late_transcript() -> None:
+        await asyncio.sleep(0.03)
+        await stt.queue.put(turn("this is Ana", words=3, start_ms=500))
+
+    await asyncio.gather(channel.say("A really long question"), late_transcript())
+
+    assert channel.call.trace[-1]["interrupted"] is False
+    assert ws.events("clear") == []
+    assert len(ws.events("media")) == 10
+    await channel.close()
+
+
+async def test_words_spoken_over_the_agent_still_barge_in(speech) -> None:
+    channel, ws, stt = await started_channel()
+    for _ in range(20):
+        await ws.inbox.put(media(b"\xff" * 800))
+    while channel.fed_ms < 2000:
+        await asyncio.sleep(0.01)
+
+    async def interrupt() -> None:
+        await asyncio.sleep(0.03)
+        await stt.queue.put(turn("wait, stop", words=3, start_ms=channel.fed_ms))
+
+    await asyncio.gather(channel.say("A really long question"), interrupt())
+
+    assert channel.call.trace[-1]["interrupted"] is True
+    assert ws.events("clear")
     await channel.close()
 
 

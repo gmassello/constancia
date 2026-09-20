@@ -47,70 +47,70 @@
       "scripted": true
     },
     {
-      "t": 1.201,
+      "t": 1.202,
       "type": "agent_turn",
       "turn_id": 1,
       "text": "Hi Ana, I am your physio's follow-up assistant. Last week you told me your knee hurt seven out of ten climbing stairs, so I am calling to see how it has been this week.",
       "interrupted": false
     },
     {
-      "t": 2.402,
+      "t": 2.404,
       "type": "patient_turn",
       "turn_id": 2,
       "text": "Hello, yes, this is Ana."
     },
     {
-      "t": 2.402,
+      "t": 2.405,
       "type": "phase_done",
       "phase": "greet"
     },
     {
-      "t": 2.402,
+      "t": 2.405,
       "type": "phase_started",
       "phase": "converse"
     },
     {
-      "t": 2.403,
+      "t": 2.405,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 3.604,
+      "t": 3.606,
       "type": "agent_turn",
       "turn_id": 3,
       "text": "Tell me, how much does it hurt today from one to ten climbing stairs?",
       "interrupted": false
     },
     {
-      "t": 4.805,
+      "t": 4.807,
       "type": "patient_turn",
       "turn_id": 4,
       "text": "The knee is about the same, five out of ten climbing stairs."
     },
     {
-      "t": 4.805,
+      "t": 4.807,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 6.007,
+      "t": 6.01,
       "type": "agent_turn",
       "turn_id": 5,
       "text": "Last week you did the exercises three times. How many times did you manage this week?",
       "interrupted": false
     },
     {
-      "t": 7.208,
+      "t": 7.212,
       "type": "patient_turn",
       "turn_id": 6,
       "text": "I only did them twice, because on Tuesday I fell coming down the stairs and I was left sore."
     },
     {
-      "t": 7.208,
+      "t": 7.212,
       "type": "guard_hit",
       "input": "I only did them twice, because on Tuesday I fell coming down the stairs and I was left sore.",
       "value": "fell",
@@ -118,48 +118,48 @@
       "branch": "escalate"
     },
     {
-      "t": 7.208,
+      "t": 7.212,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 8.409,
+      "t": 8.414,
       "type": "agent_turn",
       "turn_id": 7,
       "text": "Ana, a fall is something that has to be looked at today. Please contact your physio now and tell them what you told me; I am flagging this call so they see it. Take good care.",
       "interrupted": false
     },
     {
-      "t": 8.409,
+      "t": 8.414,
       "type": "phase_done",
       "phase": "converse"
     },
     {
-      "t": 8.409,
+      "t": 8.414,
       "type": "phase_started",
       "phase": "extract"
     },
     {
-      "t": 8.409,
+      "t": 8.415,
       "type": "facts_extracted",
       "count": 3
     },
     {
-      "t": 8.409,
+      "t": 8.415,
       "type": "phase_done",
       "phase": "extract"
     },
     {
-      "t": 8.409,
+      "t": 8.415,
       "type": "phase_started",
       "phase": "store"
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "fact_stored",
-      "id": "bbb4340c-8001-4efd-bc1f-da9a58e4508e",
+      "id": "6f2d5271-914e-4ef1-8b6b-ab9cc7354a42",
       "fact": "right knee pain 5/10 climbing stairs",
       "term": "right knee",
       "category": "symptom",
@@ -168,15 +168,15 @@
       "turn_id": 4
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "fact_superseded",
       "old_id": "1e5ed3db-6c84-5c04-8974-8ada6ec868d4",
-      "new_id": "bbb4340c-8001-4efd-bc1f-da9a58e4508e"
+      "new_id": "6f2d5271-914e-4ef1-8b6b-ab9cc7354a42"
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "fact_stored",
-      "id": "e16db5bf-a2ff-4308-8fa3-2fb01c91886e",
+      "id": "f023dffd-b0a0-4cf9-b39d-479624d00981",
       "fact": "did the exercises twice this week",
       "term": "home exercises",
       "category": "adherence",
@@ -185,15 +185,15 @@
       "turn_id": 6
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "fact_superseded",
       "old_id": "57ee6aa9-40ed-554f-9642-00aa15a92cc3",
-      "new_id": "e16db5bf-a2ff-4308-8fa3-2fb01c91886e"
+      "new_id": "f023dffd-b0a0-4cf9-b39d-479624d00981"
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "fact_stored",
-      "id": "9b48ac3e-bc82-4433-9255-2b59947bae84",
+      "id": "3932bfb2-3971-4a98-860f-8ded45c95f14",
       "fact": "fell coming down the stairs on Tuesday",
       "term": "stairs fall",
       "category": "red_flag",
@@ -202,34 +202,34 @@
       "turn_id": 6
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "phase_done",
       "phase": "store"
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "phase_started",
       "phase": "summarize"
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "summary",
       "text": "Follow-up call cut short by a red flag. Right knee pain 5/10 climbing stairs. Did the exercises twice. Reports a fall coming down the stairs on Tuesday: she was asked to contact her physio today and the call was flagged."
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "phase_done",
       "phase": "summarize"
     },
     {
-      "t": 8.41,
+      "t": 8.415,
       "type": "call_ended",
       "escalated": true,
       "answers": {

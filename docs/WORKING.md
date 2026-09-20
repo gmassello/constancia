@@ -58,6 +58,7 @@ Postgres integration tests and skip themselves.
 
 | File | Covers |
 |---|---|
+| `tests/conftest.py` | Not a test: one autouse fixture blanks `GEMINI_API_KEY` and `DATABASE_URL` so the suite cannot reach the network or a database through a filled `.env`. `build_llm` (`app/replay.py:38`) picks the real model the moment a key is readable, so without this `make test` means something different for each person who runs it. |
 | `tests/test_orchestrator.py` | The protocol: question order, the red-flag cut, the silence re-prompt, a non-critical phase failing soft, a hangup that still reaches `summarize`, all three packs end to end |
 | `tests/test_queries.py` | Multi-step supersession chains, the weekly series per measure, `keyterms_at` as a point-in-time view |
 | `tests/test_twilio_routes.py` | The webhooks: TwiML, bad signature, unknown call, a recording URL that is not Twilio's, and the phone fallback down to `DEMO_PHONE` |

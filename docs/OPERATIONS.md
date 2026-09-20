@@ -55,6 +55,7 @@ ngrok http 8001                       # PUBLIC_BASE_URL is the https URL it prin
 make dev
 make smoke PHONE=+54911...            # geographic permissions; spends no LLM or TTS credit
 make smoke-stt && make smoke-tts      # the two failure modes that cost the most time
+make smoke-call                       # the six phases against the real LLM, no phone
 make call                             # dials DEMO_PHONE; make call PHONE=+54911... overrides it
 make smoke-analysis URL=<recording url>
 ```
@@ -94,7 +95,7 @@ pages, still runs `scripted` and `replay` calls and still answers every read end
 | `DATABASE_URL` | *(empty)* | **The persistence switch** — but only with the eight required variables also set, because the store is chosen from `settings_or_none()`, which returns `None` without them. With it, the store is Postgres and the schema is applied at boot; without it, the store is the JSON seed. |
 | `GEMINI_MODEL` | `gemini-3.8-flash` | |
 | `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-001` | |
-| `ASSEMBLYAI_SPEECH_MODEL` | `universal-streaming-multilingual` | |
+| `ASSEMBLYAI_SPEECH_MODEL` | `universal-streaming-english` | The streaming API rejects an unknown value and lists the ones it takes in the error, which is how this one was pinned. |
 | `ELEVENLABS_MODEL` | `eleven_flash_v2_5` | |
 | `VALIDATE_TWILIO_SIGNATURE` | `true` | Turn it off only against a local tunnel you control. |
 

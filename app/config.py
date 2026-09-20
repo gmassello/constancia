@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     embedding_dims: int = 1536
 
     assemblyai_api_key: str
-    assemblyai_speech_model: str = "universal-streaming"
+    assemblyai_speech_model: str = "universal-streaming-english"
 
     elevenlabs_api_key: str
     elevenlabs_voice_id: str

@@ -1,9 +1,14 @@
 import asyncio
 import json
+import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+# ponytail: recorded takes must be byte-identical every run, so the key that would make
+# build_llm pick Gemini is blanked here. The mirror of scripts/demo.py, which fills keys in.
+os.environ["GEMINI_API_KEY"] = ""
 
 from app import replay  # noqa: E402
 from app.calls import Call  # noqa: E402

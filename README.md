@@ -117,6 +117,7 @@ ngrok http 8001                       # PUBLIC_BASE_URL is the https URL it prin
 make dev
 make smoke PHONE=+54911...            # geographic permissions, no LLM or TTS credit spent
 make smoke-stt && make smoke-tts      # the two failure modes that cost the most time
+make smoke-call                       # the six phases against the real LLM, no phone
 make call                             # dials DEMO_PHONE; make call PHONE=+54911... overrides it
 make smoke-analysis URL=<recording url>   # entity detection and sentiment on a real recording
 ```

@@ -1,4 +1,4 @@
-.PHONY: dev test lint demo call smoke smoke-stt smoke-tts smoke-analysis models db schema seed web web-dev fixtures
+.PHONY: dev test lint demo call smoke smoke-stt smoke-tts smoke-call smoke-analysis models db schema seed web web-dev fixtures
 
 dev:
 	uv run uvicorn app.main:app --reload --port 8001
@@ -23,6 +23,9 @@ smoke-stt:
 
 smoke-tts:
 	uv run python scripts/smoke_tts.py
+
+smoke-call:
+	uv run python scripts/smoke_call.py
 
 smoke-analysis:
 	uv run python scripts/smoke_analysis.py $(URL)

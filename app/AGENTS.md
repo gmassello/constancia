@@ -16,8 +16,9 @@ In addition to [`../AGENTS.md`](../AGENTS.md), which applies everywhere.
 - **Everything the agent says lives in `app/packs.py`** — prompt fragments, questions, escalation
   and goodbye lines, plus `ASK_MARKER`, which `app/llm.py` parses back out. The call is in English;
   no other module here carries spoken text.
-- **Tests never touch the network.** `make test` must pass with no environment variable set. Anything
-  needing a key goes in `scripts/smoke_*.py`.
+- **Tests never touch the network**, and give the same answer with a filled `.env`:
+  `tests/conftest.py` blanks the keys that would switch a real client in. Anything needing a
+  key goes in `scripts/smoke_*.py`.
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.
 - `MemoryStore` is the **Postgres** store. `FakeStore` is the in-process one.
 

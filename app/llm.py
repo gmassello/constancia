@@ -8,8 +8,13 @@ from app.packs import ASK_MARKER
 MAX_ATTEMPTS = 4
 BASE_DELAY_S = 1.0
 RATE_LIMIT_FACTOR = 5.0
-MAX_OUTPUT_TOKENS = 120
-MAX_STRUCTURED_TOKENS = 2048
+# ponytail: the budget covers thinking too, and Gemini 3 always thinks, so it cannot double as a
+# length limiter; two sentences per turn is enforced by SYSTEM_RULES. Thinking is noisy rather than
+# proportional to the budget: `make smoke-call` measured 262-874 per reply and 1043-1519 per
+# extraction across three takes, so these sit at roughly 2x the worst case. Re-run it after any
+# prompt change; it fails loudly on MAX_TOKENS, which is otherwise a silent empty reply.
+MAX_OUTPUT_TOKENS = 2048
+MAX_STRUCTURED_TOKENS = 4096
 TEMPERATURE = 0.4
 
 
@@ -99,6 +104,9 @@ class GeminiLLM:
             types.Content(role=turn["role"], parts=[types.Part(text=turn["text"])])
             for turn in history
         ] or [types.Content(role="user", parts=[types.Part(text="(start of the call)")])]
+        if contents[-1].role == "model":
+            ended = types.Part(text="(end of the call)")
+            contents.append(types.Content(role="user", parts=[ended]))
         config = types.GenerateContentConfig(
             system_instruction=system,
             max_output_tokens=MAX_OUTPUT_TOKENS,

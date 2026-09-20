@@ -10,6 +10,7 @@ from app.stt import StreamingSTT
 
 FRAME_BYTES = 800
 BYTES_PER_SECOND = 8000
+FRAME_MS = FRAME_BYTES * 1000 // BYTES_PER_SECOND
 MARK_GRACE_S = 2.0
 START_TIMEOUT_S = 10.0
 LOGGED_FRAMES = 3
@@ -70,6 +71,8 @@ class LiveChannel:
         self.barge = asyncio.Event()
         self.mark_event = asyncio.Event()
         self.speaking = False
+        self.fed_ms = 0
+        self.speech_from_ms = 0
         self.tts_task: asyncio.Task | None = None
         self.tasks: list[asyncio.Task] = []
         self.closed = False
@@ -113,6 +116,7 @@ class LiveChannel:
                     while len(buffer) >= FRAME_BYTES:
                         await self.stt.feed(bytes(buffer[:FRAME_BYTES]))
                         del buffer[:FRAME_BYTES]
+                        self.fed_ms += FRAME_MS
                 elif event == "mark":
                     self.mark_event.set()
                 elif event == "stop":
@@ -133,7 +137,13 @@ class LiveChannel:
                 if not transcript:
                     continue
                 words = message.get("words") or []
-                if self.speaking and self.barge_min_words and len(words) >= self.barge_min_words:
+                spoken_over_agent = words and words[0].get("start", 0) >= self.speech_from_ms
+                if (
+                    self.speaking
+                    and spoken_over_agent
+                    and self.barge_min_words
+                    and len(words) >= self.barge_min_words
+                ):
                     self.barge.set()
                 if message.get("end_of_turn") and message.get("turn_is_formatted"):
                     self.turns.put_nowait(transcript)
@@ -176,6 +186,10 @@ class LiveChannel:
         self._drain_turns()
         self.barge.clear()
         self.mark_event.clear()
+        # ponytail: transcripts of audio the caller spoke before this turn keep arriving while the
+        # agent talks, and taking them as an interruption derails every later answer. Word `start`
+        # is milliseconds of caller audio, so the cutoff is how much we have fed so far.
+        self.speech_from_ms = self.fed_ms
         self.speaking = True
         self.tts_task = asyncio.create_task(self._stream_tts(text))
         watchers = [

@@ -8,20 +8,20 @@ each one is for.
 
 | Module | Lines | What it is |
 |---|---:|---|
-| [`app/main.py`](../app/main.py) | 297 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
+| [`app/main.py`](../app/main.py) | 303 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
 | [`app/memory.py`](../app/memory.py) | 321 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader and the `keyterms` computation. |
-| [`app/channel.py`](../app/channel.py) | 227 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
-| [`app/packs.py`](../app/packs.py) | 215 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
-| [`app/orchestrator.py`](../app/orchestrator.py) | 129 | The phase machine. Decides what is said, what is stored and when a call escalates. |
-| [`app/llm.py`](../app/llm.py) | 119 | `GeminiLLM` with exponential retry, and `ScriptedLLM`, its deterministic double. |
-| [`app/replay.py`](../app/replay.py) | 107 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
+| [`app/channel.py`](../app/channel.py) | 241 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
+| [`app/packs.py`](../app/packs.py) | 238 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
+| [`app/orchestrator.py`](../app/orchestrator.py) | 131 | The phase machine. Decides what is said, what is stored and when a call escalates. |
+| [`app/llm.py`](../app/llm.py) | 128 | `GeminiLLM` with exponential retry, and `ScriptedLLM`, its deterministic double. |
+| [`app/replay.py`](../app/replay.py) | 109 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
 | [`app/extract.py`](../app/extract.py) | 103 | Structured extraction and the grounding check. |
 | [`app/queries.py`](../app/queries.py) | 82 | Pure reducers over fact rows: the chain, the weekly series, the key terms of a past call. |
 | [`app/analysis.py`](../app/analysis.py) | 75 | Post-call entity detection and sentiment on the recording. |
 | [`app/calls.py`](../app/calls.py) | 74 | The `Call` dataclass, the `emit`/`subscribe` event bus, and the global `CALLS` registry. |
 | [`app/stt.py`](../app/stt.py) | 65 | AssemblyAI Universal-Streaming v3 over WebSocket, with hot key-term updates. |
 | [`app/db.py`](../app/db.py) | 59 | The psycopg async pool, the query helpers and `init_schema()`. |
-| [`app/config.py`](../app/config.py) | 52 | `Settings`, `get_settings()`, `settings_or_none()`. |
+| [`app/config.py`](../app/config.py) | 53 | `Settings`, `get_settings()`, `settings_or_none()`. |
 | [`app/telephony.py`](../app/telephony.py) | 33 | The TwiML and the outbound Twilio call. |
 | [`app/guard.py`](../app/guard.py) | 32 | The deterministic red-flag guard. |
 | [`app/tts.py`](../app/tts.py) | 30 | ElevenLabs streaming in `ulaw_8000`. |
@@ -38,6 +38,22 @@ same signature — `(call, channel, llm, store, silence_s)` — so adding one is
 `phrase()` (`:10`) hands the LLM the system prompt plus a fragment naming the goal; the model writes
 the sentence, it does not pick the question. Silence gets exactly one re-prompt (`ask`, `:15`), then
 the call says goodbye.
+
+Two things about `GeminiLLM` are counter-intuitive enough to be worth stating, because both were
+live-call failures before they were documented. First, `MAX_OUTPUT_TOKENS` is **not** a length
+limiter: Gemini 3 always thinks and the thinking comes out of that same budget, so a tight value
+buys an empty reply rather than a short one, and `ThinkingConfig(thinking_budget=0)` does not turn
+it off. Two sentences per turn is enforced by `SYSTEM_RULES` in `app/packs.py`. Second, the API
+rejects a request whose last turn is the model's, which is exactly where `summarize` arrives since
+`converse` ends on the goodbye; `reply()` appends a closing user turn so every phase can hand it the
+raw history. `make smoke-call` exercises both and prints the token headroom it measured.
+
+Barge-in is not just "did the caller say something while the agent talked". AssemblyAI keeps
+emitting `Turn` messages for audio the caller spoke *before* the agent started, so the cutoff is the
+`start` of the first word, in milliseconds of caller audio, against how much `LiveChannel` had fed
+when it began speaking (`app/channel.py`). Without that comparison the tail of one answer cuts off
+the next question and every later answer lands one question late — silently, since the call still
+completes.
 
 ### The guard
 
