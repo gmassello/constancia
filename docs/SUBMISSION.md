@@ -8,7 +8,7 @@ Every row needs evidence: a file path, a public URL or a video timestamp. A row 
 |---|---|---|
 | Public repo, MIT license | **done** | <https://github.com/gmassello/constancia> — public, MIT, [`LICENSE`](../LICENSE) at the root |
 | Deployed app, public URL | todo | Waits on the Render deploy ([`PLAN.md`](PLAN.md) stage 4, step 1). The hostname `render.yaml` claims is `constancia-voice.onrender.com`; plain `constancia` is an unrelated app |
-| Demo video under 5 min | in progress | Written, not shot: shot list [`video-script.md`](video-script.md), narration [`../video/narration.tsv`](../video/narration.tsv) (3:39.5 measured against the 5:00 cap), state check `bash video/reset.sh --check` |
+| Demo video under 5 min | in progress | Written, not shot: shot list [`video-script.md`](video-script.md), narration [`../video/narration.tsv`](../video/narration.tsv) (3:34.6 measured against the 5:00 cap), state check `bash video/reset.sh --check` |
 | Deck | **done** | [`deck.md`](deck.md) is the source; the slides are at <https://claude.ai/artifact/CiJaArPDziaaLZR6JWUMb1> and **have to be shared before submitting** |
 
 ## Judging criteria

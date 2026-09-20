@@ -25,15 +25,15 @@ async def test_scripted_week_2_supersedes_the_week_1_knee() -> None:
 
     assert types_of(call).count("fact_superseded") == 2
     current = await store.current_facts(PATIENT)
-    assert [f["value"] for f in current if f["term"] == "rodilla derecha"] == [4]
+    assert [f["value"] for f in current if f["term"] == "right knee"] == [4]
 
 
 async def test_scripted_picks_week_1_for_a_patient_with_no_history() -> None:
     call = build(memory=False)
     await replay.run_scripted(call, None, delay_s=0.0)
 
-    assert "rodilla" not in call.transcript[1]["text"]
-    assert call.transcript[3]["text"].startswith("La rodilla derecha me duele siete")
+    assert "knee" not in call.transcript[1]["text"]
+    assert call.transcript[3]["text"].startswith("My right knee hurts seven")
 
 
 async def test_the_week_2_off_script_never_quotes_last_week() -> None:
@@ -41,12 +41,12 @@ async def test_the_week_2_off_script_never_quotes_last_week() -> None:
     call = build(memory=False)
     await replay.run_scripted(call, store, "week2-off", delay_s=0.0)
 
-    assert call.transcript[3]["text"].startswith("La rodilla mejoró bastante")
+    assert call.transcript[3]["text"].startswith("My knee is a lot better")
     spoken = " ".join(t["text"] for t in call.transcript if t["speaker"] == "agent")
-    assert "semana pasada" not in spoken
+    assert "Last week" not in spoken
 
     current = await store.current_facts(PATIENT)
-    assert [f["value"] for f in current if f["term"] == "rodilla derecha"] == [7]
+    assert [f["value"] for f in current if f["term"] == "right knee"] == [7]
 
 
 async def test_the_alarm_script_escalates_and_stops_asking() -> None:
@@ -56,14 +56,14 @@ async def test_the_alarm_script_escalates_and_stops_asking() -> None:
 
     assert call.escalated["rule"] == "fall"
     spoken = " ".join(t["text"] for t in call.transcript if t["speaker"] == "agent")
-    assert "molestia" not in spoken and "asustado" not in spoken
+    assert "discomfort" not in spoken and "scared" not in spoken
 
     saved = await store.call(call.id)
     assert saved["escalated"]["rule"] == "fall"
     assert saved["summary"]
 
     flags = [f for f in await store.current_facts(PATIENT) if f["category"] == "red_flag"]
-    assert "me caí bajando la escalera" in [f["quote"] for f in flags]
+    assert "I fell coming down the stairs" in [f["quote"] for f in flags]
 
 
 async def test_export_starts_at_zero_and_never_goes_back() -> None:

@@ -12,7 +12,7 @@ async def rows() -> list[dict]:
 
 
 def knee(value: float, reported_at: str, fact_id: str) -> dict:
-    return fact("rodilla derecha", "symptom", value, reported_at, fact_id)
+    return fact("right knee", "symptom", value, reported_at, fact_id)
 
 
 def fact(term: str, category: str, value, reported_at: str, fact_id: str) -> dict:
@@ -30,10 +30,10 @@ async def test_chain_returns_every_seed_fact_with_no_history() -> None:
     facts = queries.chain(await rows())
 
     assert [f["term"] for f in facts] == [
-        "rodilla derecha",
-        "ejercicios en casa",
-        "rigidez",
-        "caída en el baño",
+        "right knee",
+        "home exercises",
+        "stiffness",
+        "bathroom fall",
     ]
     assert all(fact["superseded"] == [] for fact in facts)
 
@@ -67,7 +67,7 @@ async def test_chain_walks_a_supersession_longer_than_one_step() -> None:
 async def test_weekly_follows_one_term_and_takes_the_newest_value_per_week() -> None:
     [series] = queries.weekly([knee(7, WEEK_1, "a"), knee(4, WEEK_2, "b")], get_pack("rehab"))
 
-    assert series["term"] == "rodilla derecha"
+    assert series["term"] == "right knee"
     assert [p["week"] for p in series["points"]] == ["2026-W36", "2026-W37"]
     assert [p["value"] for p in series["points"]] == [7.0, 4.0]
 
@@ -77,8 +77,8 @@ async def test_weekly_keeps_each_category_in_its_own_series() -> None:
         [
             knee(7, WEEK_1, "a"),
             knee(4, WEEK_2, "b"),
-            fact("ejercicios en casa", "adherence", 3, WEEK_1, "c"),
-            fact("ejercicios en casa", "adherence", 5, WEEK_2, "d"),
+            fact("home exercises", "adherence", 3, WEEK_1, "c"),
+            fact("home exercises", "adherence", 5, WEEK_2, "d"),
         ],
         get_pack("rehab"),
     )
@@ -121,4 +121,4 @@ async def test_keyterms_at_carries_the_previous_week_into_the_next_call() -> Non
 
     terms = queries.keyterms_at(await store.chain(PATIENT), next_call, get_pack("rehab"))
 
-    assert terms == ["rodilla derecha", "ejercicios en casa", "rigidez", "caída en el baño"]
+    assert terms == ["right knee", "home exercises", "stiffness", "bathroom fall"]

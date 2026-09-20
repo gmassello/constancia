@@ -13,8 +13,9 @@ In addition to [`../AGENTS.md`](../AGENTS.md), which applies everywhere.
   literal span of a *patient* turn. A fact that fails is rejected, never stored anyway.
 - **Contradictions retire, they never delete**: `superseded_by` + `valid_until`. No `DELETE` on
   `patient_memories`.
-- **Spanish lives in `app/packs.py` only** — prompt fragments, questions, escalation and goodbye
-  lines. Everything else here is English.
+- **Everything the agent says lives in `app/packs.py`** — prompt fragments, questions, escalation
+  and goodbye lines, plus `ASK_MARKER`, which `app/llm.py` parses back out. The call is in English;
+  no other module here carries spoken text.
 - **Tests never touch the network.** `make test` must pass with no environment variable set. Anything
   needing a key goes in `scripts/smoke_*.py`.
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.

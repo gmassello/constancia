@@ -6,16 +6,16 @@ from app.extract import Fact
 from app.packs import get_pack
 
 TRANSCRIPT = [
-    {"turn_id": 1, "speaker": "agent", "text": "¿Cuánto te duele del uno al diez?"},
-    {"turn_id": 2, "speaker": "patient", "text": "La rodilla derecha me duele siete de diez."},
+    {"turn_id": 1, "speaker": "agent", "text": "How much does it hurt from one to ten?"},
+    {"turn_id": 2, "speaker": "patient", "text": "My right knee hurts seven out of ten."},
 ]
 
 VALID = {
-    "fact": "dolor en la rodilla derecha 7/10",
-    "term": "rodilla derecha",
+    "fact": "right knee pain 7/10",
+    "term": "right knee",
     "category": "symptom",
     "value": 7,
-    "quote": "me duele siete de diez",
+    "quote": "hurts seven out of ten",
     "turn_id": 2,
     "confidence": 0.9,
     "supersedes": None,
@@ -47,20 +47,20 @@ def test_a_quote_from_a_patient_turn_is_grounded() -> None:
 
 
 def test_a_quote_from_an_agent_turn_is_rejected() -> None:
-    fact = Fact(**{**VALID, "quote": "Cuánto te duele del uno al diez", "turn_id": 1})
+    fact = Fact(**{**VALID, "quote": "How much does it hurt from one to ten", "turn_id": 1})
     assert not extract.ground(fact, TRANSCRIPT)
 
 
 def test_a_quote_that_is_not_in_the_turn_is_rejected() -> None:
-    assert not extract.ground(Fact(**{**VALID, "quote": "me caí en el baño"}), TRANSCRIPT)
+    assert not extract.ground(Fact(**{**VALID, "quote": "I fell in the bathroom"}), TRANSCRIPT)
 
 
 def test_grounding_ignores_accents_and_case() -> None:
-    assert extract.ground(Fact(**{**VALID, "quote": "ME DUELE SIETE DE DIEZ"}), TRANSCRIPT)
+    assert extract.ground(Fact(**{**VALID, "quote": "HURTS SEVEN OUT OF TEN"}), TRANSCRIPT)
 
 
 async def test_run_keeps_grounded_facts_and_drops_the_rest() -> None:
-    invented = {**VALID, "fact": "se cayó", "quote": "me caí en el baño"}
+    invented = {**VALID, "fact": "fell over", "quote": "I fell in the bathroom"}
     call, llm = build([json.dumps({"facts": [VALID, invented]})])
 
     facts = await extract.run(call, llm, [])
@@ -70,7 +70,7 @@ async def test_run_keeps_grounded_facts_and_drops_the_rest() -> None:
 
 
 async def test_run_retries_when_the_reply_does_not_validate() -> None:
-    call, llm = build(['{"facts": [{"fact": "sin cita"}]}', json.dumps({"facts": [VALID]})])
+    call, llm = build(['{"facts": [{"fact": "no quote"}]}', json.dumps({"facts": [VALID]})])
 
     facts = await extract.run(call, llm, [])
 
@@ -99,10 +99,10 @@ def test_the_prompt_carries_the_existing_facts_with_their_ids() -> None:
     call = Call(patient_id="test", patient_name="Ana", pack=get_pack("rehab"))
     call.transcript = list(TRANSCRIPT)
     facts = [
-        {"id": "abc", "category": "symptom", "fact": "dolor 7/10", "reported_at": "2026-01-01"}
+        {"id": "abc", "category": "symptom", "fact": "pain 7/10", "reported_at": "2026-01-01"}
     ]
 
     text = extract.prompt(call, facts)
 
-    assert "abc" in text and "dolor 7/10" in text
-    assert "2 patient: La rodilla derecha me duele siete de diez." in text
+    assert "abc" in text and "pain 7/10" in text
+    assert "2 patient: My right knee hurts seven out of ten." in text

@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     embedding_dims: int = 1536
 
     assemblyai_api_key: str
-    assemblyai_speech_model: str = "universal-streaming-multilingual"
+    assemblyai_speech_model: str = "universal-streaming"
 
     elevenlabs_api_key: str
     elevenlabs_voice_id: str
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     database_url: str = ""
     demo_phone: str = ""
 
-    language: str = "es"
+    language: str = "en"
     silence_s: float = 8.0
     barge_min_words: int = 2
 

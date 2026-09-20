@@ -74,7 +74,7 @@ chain=$(get "/patients/$PATIENT/chain")
 report=$(printf '%s' "$chain" | python3 -c '
 import json, sys
 facts = json.load(sys.stdin)
-want = ["rodilla derecha", "ejercicios en casa", "rigidez", "caída en el baño"]
+want = ["right knee", "home exercises", "stiffness", "bathroom fall"]
 got = [f["term"] for f in facts]
 retired = [f["term"] for f in facts if f["superseded"]]
 print("COUNT", len(facts))

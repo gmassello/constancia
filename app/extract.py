@@ -15,9 +15,9 @@ Return only facts that stay true after the call ends. Skip pleasantries, the age
 questions and anything you would not want read back to the patient next week.
 
 Every field:
-- fact: one sentence in Rioplatense Spanish, e.g.
-  "dolor en la rodilla derecha 7/10 al subir escaleras".
-- term: 2 to 4 words in Spanish naming what the fact is about, e.g. "rodilla derecha". No numbers.
+- fact: one short sentence in English, e.g.
+  "right knee pain 7/10 climbing stairs".
+- term: 2 to 4 words naming what the fact is about, e.g. "right knee". No numbers.
 - category: one of {", ".join(CATEGORIES)}.
 - value: the number the fact carries (pain 7 out of 10 is 7.0), or null when it carries none.
 - quote: copied verbatim from a patient turn, never from an agent turn.
@@ -44,7 +44,7 @@ class FactSet(BaseModel):
 
 def render_facts(current_facts: list[dict]) -> str:
     if not current_facts:
-        return "No hay hechos previos para este paciente."
+        return "There are no previous facts for this patient."
     return "\n".join(
         f"{fact['id']} [{fact['category']}] {fact['fact']} ({fact['reported_at']})"
         for fact in current_facts

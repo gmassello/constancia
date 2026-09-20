@@ -141,7 +141,7 @@ Two consequences visible throughout the code, and both are deliberate:
 - **Exact versions** (`==`) in `pyproject.toml`; `uv.lock` is committed.
 - **The transcript is data, never instructions.** Nothing the patient says is executed or treated as
   a directive to the model.
-- **Spanish lives in `app/packs.py` only** — prompt fragments, questions, escalation and goodbye
+- **Everything the agent says lives in `app/packs.py`** — prompt fragments, questions, escalation and goodbye
   lines. Everything else in the repo is English.
 
 See [`WORKING.md`](WORKING.md) for the commands and the verification gates.

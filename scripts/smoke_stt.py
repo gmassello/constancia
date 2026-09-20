@@ -9,7 +9,7 @@ from app.stt import StreamingSTT  # noqa: E402
 
 
 async def main() -> None:
-    stt = StreamingSTT(keyterms=["rodilla", "kinesiologia"])
+    stt = StreamingSTT(keyterms=["knee", "physiotherapy"])
     await stt.connect()
     print("connected")
     async for message in stt.messages():

@@ -3,6 +3,7 @@ import time
 from collections.abc import Callable
 
 from app.config import get_settings
+from app.packs import ASK_MARKER
 
 MAX_ATTEMPTS = 4
 BASE_DELAY_S = 1.0
@@ -18,7 +19,7 @@ class LLMError(RuntimeError):
 
 def _instruction_of(system: str) -> str:
     _, _, tail = system.rpartition("\n\n")
-    _, marker, goal = tail.partition("Preguntá sobre: ")
+    _, marker, goal = tail.partition(ASK_MARKER)
     return (goal if marker else tail).strip()
 
 
@@ -97,7 +98,7 @@ class GeminiLLM:
         contents = [
             types.Content(role=turn["role"], parts=[types.Part(text=turn["text"])])
             for turn in history
-        ] or [types.Content(role="user", parts=[types.Part(text="(inicio de la llamada)")])]
+        ] or [types.Content(role="user", parts=[types.Part(text="(start of the call)")])]
         config = types.GenerateContentConfig(
             system_instruction=system,
             max_output_tokens=MAX_OUTPUT_TOKENS,

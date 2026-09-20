@@ -14,7 +14,7 @@ Stages 1 to 3 are done: the agent phones, remembers, and the panel shows the sup
 
 The gap is presentation, not product. The public URL opens straight into the panel: a judge lands on a working tool with no explanation. `INTENT.md` §5 counts *Presentation* and *Business Value* as half the score, and today nothing on screen defends either.
 
-But the landing has two readers who do not want the same page. A hackathon judge needs "Universal-Streaming v3 over Twilio Media Streams, µ-law at 8 kHz" — that is the *Application of Technology* evidence. The buyer in `INTENT.md` §4 is an independent physiotherapist, and that sentence means nothing to them. One page cannot be written for both at once, so it is written twice and the reader picks. Same for the language: the judges read English, the market speaks Spanish.
+But the landing has two readers who do not want the same page. A hackathon judge needs "Universal-Streaming v3 over Twilio Media Streams, µ-law at 8 kHz" — that is the *Application of Technology* evidence. The buyer in `INTENT.md` §4 is an independent physiotherapist, and that sentence means nothing to them. One page cannot be written for both at once, so it is written twice and the reader picks. Same for the language: the judges read English, the market this was drawn from speaks Spanish.
 
 When this lands: `/` is the landing, `/panel` is the panel, both in Nocturne, both reading the visitor's theme, language and register, all of it with no keys and no database.
 
@@ -220,23 +220,22 @@ The panel gets its own `copy.ts` with its own type and **one register**. The two
    abandon what was arriving.
    Under `prefers-reduced-motion` the button is not rendered at all: that path never animates, so there is
    nothing to pause.
-5. **The call content is translated, and each language renders alone.** The agent really does speak Rioplatense
-   Spanish, so the card shows a call that happened in Spanish. An earlier pass kept that Spanish on screen in
-   both languages and hung a dimmed italic translation beneath every line, which left the English reader — the
-   one who needs the translation — reading the money shot twice. Now every turn, every extracted fact, the
-   key-term list and the quotes carry an `{ es, en }` pair and the card renders one side of it: English is
-   English throughout, Spanish is Spanish throughout, and nothing is subtitled.
-   The cost is that the quote travels with the rest. A translated quote is no longer verbatim, so in English the
+5. **The call content is translated, and each language renders alone.** The call happens in English, so the
+   card shows an English call and the Spanish side is the translation. An earlier pass kept one language on
+   screen in both and hung a dimmed italic translation beneath every line, which left the reader who needs the
+   translation reading the money shot twice. Now every turn, every extracted fact, the key-term list and the
+   quotes carry an `{ es, en }` pair and the card renders one side of it: English is English throughout,
+   Spanish is Spanish throughout, and nothing is subtitled.
+   The cost is that the quote travels with the rest. A translated quote is no longer verbatim, so in Spanish the
    grounding claim narrows from *these are the syllables she said* to *this fact comes from turn 4* — which is
    what the turn number beside it already asserted, and what the panel can still prove against the real
-   transcript. Each English quote is written as a literal substring of the English turn above it, so the card
+   transcript. Each quote is written as a literal substring of the turn above it on its own side, so the card
    stays internally consistent. The pairs live beside their source in `SCRIPT` and `CHAIN`, not in `copy.ts`,
    because they translate that datum rather than the interface.
-   The card header carried an `es-AR` tag, which was what named the call's real language and marked the English
-   rendering as a translation. It was removed on request, so nothing on the card says so any more and the
-   English reader has no reason to think the call was not in English. The claim survives in the prose — the
-   `Stack` section still says the transcription runs in Spanish, in both registers — but not beside the
-   transcript. Put a locale back in the header if that ever has to be legible at a glance.
+   The card header once carried an `es-AR` tag, back when the call was in Rioplatense Spanish and the English
+   rendering was the translation. It was removed on request, and the switch to an English call made it wrong
+   anyway: the English side is no longer a translation of anything. Put a locale back in the header only if the
+   call's language ever has to be legible at a glance again.
 6. **Three toggles the design does not have, and a light theme the system does not ship.** Both are extensions of Nocturne — derived from its ramps, built from its `.seg` — not departures from it.
 7. **Ramp steps and text opacities become semantic aliases.** A step that reads on one ground does not read on the other, so the indirection is what makes two themes possible at all.
 8. **The six looping animations respect `prefers-reduced-motion`.** The design loops them unconditionally.
@@ -277,7 +276,7 @@ By eye in a browser, both pages, both themes, both languages, with no `.env` and
 
 - Wiring the landing card to the real SSE replay. The design's script stands.
 - A third language, and any i18n library: two languages and one merge function do not earn a dependency.
-- Translating `app/packs.py`. The agent speaks Rioplatense Spanish on the phone whatever the visitor picked on the website — the patient is not the visitor.
+- A second spoken language. The agent speaks English on the phone whatever the visitor picked on the website — the patient is not the visitor. `app/packs.py` is content and would translate; `app/guard.py`'s red-flag patterns encode English negation and would have to be re-derived.
 - `@media print`. Browsers drop backgrounds by default, so light text lands on white paper; nobody prints a landing page.
 - Authentication. There still is none, and the landing's footer says so.
 - Render deploy, video and deck (the rest of stage 4).

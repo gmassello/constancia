@@ -4,15 +4,15 @@ from app import orchestrator
 from app.calls import Call
 from app.channel import ScriptedPatient
 from app.llm import ScriptedLLM
-from app.packs import get_pack
+from app.packs import ASK_MARKER, get_pack
 
-HELLO = "Hola, sí, soy Ana."
+HELLO = "Hello, yes, this is Ana."
 WEEK_1 = [
     HELLO,
-    "La rodilla derecha me duele siete de diez cuando subo escaleras.",
-    "Los ejercicios los hice tres veces.",
-    "Me queda un poco rígida, nada raro.",
-    "No, nada de eso.",
+    "My right knee hurts seven out of ten when I climb stairs.",
+    "I did the exercises three times.",
+    "It stays a little stiff, nothing strange.",
+    "No, nothing like that.",
 ]
 
 
@@ -41,7 +41,7 @@ async def test_full_protocol_asks_every_question_in_order() -> None:
 
 
 async def test_red_flag_ends_the_protocol_early() -> None:
-    call, channel, llm = build([HELLO, "Ayer me caí bajando la escalera."])
+    call, channel, llm = build([HELLO, "Yesterday I fell coming down the stairs."])
     await orchestrator.run_call(call, channel, llm, silence_s=0.01)
 
     assert call.escalated["rule"] == "fall"
@@ -80,11 +80,11 @@ async def test_non_critical_phase_fails_soft() -> None:
 
 
 async def test_hangup_mid_call_still_reaches_summarize() -> None:
-    call, channel, llm = build([HELLO, "Me duele tres de diez."])
+    call, channel, llm = build([HELLO, "It hurts three out of ten."])
     await orchestrator.run_call(call, channel, llm, silence_s=0.01)
 
     assert "patient_hung_up" in types_of(call)
-    assert call.answers == {"pain": "Me duele tres de diez."}
+    assert call.answers == {"pain": "It hurts three out of ten."}
     assert "summarize" in phases_done(call)
     assert call.summary
 
@@ -93,7 +93,7 @@ async def test_the_llm_is_told_which_question_to_ask() -> None:
     call, channel, llm = build(WEEK_1)
     await orchestrator.run_call(call, channel, llm, silence_s=0.01)
 
-    asked = [p for p in llm.prompts if "Preguntá sobre:" in p]
+    asked = [p for p in llm.prompts if ASK_MARKER in p]
     goals = [q.goal for q in call.pack.questions]
     assert [g for g in goals if any(g in p for p in asked)] == goals
 
@@ -101,7 +101,7 @@ async def test_the_llm_is_told_which_question_to_ask() -> None:
 @pytest.mark.parametrize("pack_key", ["rehab", "postpartum", "chronic"])
 async def test_every_pack_runs_end_to_end(pack_key: str) -> None:
     call = Call(patient_id="test", patient_name="Ana", pack=get_pack(pack_key))
-    channel = ScriptedPatient(call, [HELLO] + ["Todo bien, sin novedades."] * 4)
+    channel = ScriptedPatient(call, [HELLO] + ["All good, nothing new."] * 4)
     await orchestrator.run_call(call, channel, ScriptedLLM(), silence_s=0.01)
 
     assert len(call.answers) == len(call.pack.questions)
@@ -111,17 +111,17 @@ async def test_every_pack_runs_end_to_end(pack_key: str) -> None:
 PATIENT = "8c9d0e1f-2a3b-4c5d-6e7f-8091a2b3c4d5"
 WEEK_2 = [
     HELLO,
-    "La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras.",
-    "Esta semana los hice cinco veces.",
-    "No, ninguna molestia nueva.",
-    "No, nada de eso.",
+    "My knee is a lot better, it is four out of ten on the stairs now.",
+    "I did them five times this week.",
+    "No, no new discomfort.",
+    "No, nothing like that.",
 ]
 SUPERSEDING = {
-    "fact": "dolor en la rodilla derecha 4/10 al subir escaleras",
-    "term": "rodilla derecha",
+    "fact": "right knee pain 4/10 climbing stairs",
+    "term": "right knee",
     "category": "symptom",
     "value": 4,
-    "quote": "me duele cuatro de diez",
+    "quote": "it is four out of ten",
     "turn_id": 4,
     "confidence": 0.9,
 }
@@ -144,11 +144,11 @@ async def test_memory_on_puts_the_previous_facts_in_the_prompt() -> None:
     call, channel, llm, store = build_week_2(memory=True)
     await orchestrator.run_call(call, channel, llm, store, silence_s=0.01)
 
-    assert "rodilla derecha" in llm.prompts[0]
-    assert channel.keyterms[0] == "rodilla derecha"
+    assert "right knee" in llm.prompts[0]
+    assert channel.keyterms[0] == "right knee"
     assert [e["type"] for e in call.trace if e["type"] == "fact_superseded"] == ["fact_superseded"]
     current = await store.current_facts(PATIENT)
-    assert [f["value"] for f in current if f["term"] == "rodilla derecha"] == [4]
+    assert [f["value"] for f in current if f["term"] == "right knee"] == [4]
 
 
 async def test_the_summary_reaches_the_stored_call() -> None:
@@ -164,8 +164,8 @@ async def test_memory_off_never_mentions_the_knee() -> None:
     call, channel, llm, store = build_week_2(memory=False)
     await orchestrator.run_call(call, channel, llm, store, silence_s=0.01)
 
-    spoken = [p for p in llm.prompts if "Preguntá sobre:" in p or call.pack.greet in p]
-    assert spoken and not any("rodilla" in prompt for prompt in spoken)
+    spoken = [p for p in llm.prompts if ASK_MARKER in p or call.pack.greet in p]
+    assert spoken and not any("knee" in prompt for prompt in spoken)
     assert channel.keyterms == []
     assert store.saved_calls == []
     assert "memory_off" in types_of(call)

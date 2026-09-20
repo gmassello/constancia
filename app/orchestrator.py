@@ -2,7 +2,7 @@ from app import extract, guard
 from app.calls import Call
 from app.channel import CallEnded
 from app.memory import keyterms
-from app.packs import memory_block, system_prompt
+from app.packs import ASK_MARKER, memory_block, system_prompt
 
 SILENCE_S = 8.0
 
@@ -47,7 +47,7 @@ async def greet(call: Call, channel, llm, store, silence_s: float) -> None:
 async def converse(call: Call, channel, llm, store, silence_s: float) -> None:
     pack = call.pack
     for question in pack.questions:
-        text = await phrase(call, llm, f"{pack.converse} Preguntá sobre: {question.goal}")
+        text = await phrase(call, llm, f"{pack.converse} {ASK_MARKER}{question.goal}")
         answer = await ask(call, channel, llm, text, silence_s)
         if answer is None:
             await channel.say(pack.goodbye_silent)
@@ -93,7 +93,7 @@ async def summarize(call: Call, channel, llm, store, silence_s: float) -> None:
     found = ". ".join(fact.fact for fact in call.new_facts)
     fragment = call.pack.summarize
     if found:
-        fragment = f"{fragment} Lo que quedó registrado: {found}"
+        fragment = f"{fragment} What was recorded: {found}"
     call.summary = await phrase(call, llm, fragment)
     call.emit("summary", text=call.summary)
     if call.memory and store is not None:

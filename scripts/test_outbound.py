@@ -7,8 +7,8 @@ from twilio.rest import Client  # noqa: E402
 
 from app.config import get_settings  # noqa: E402
 
-SAY = "Prueba de constancia. Permisos geograficos ok."
-TWIML = f"<Response><Say language='es-MX'>{SAY}</Say></Response>"
+SAY = "Constancia test call. Geographic permissions are fine."
+TWIML = f"<Response><Say language='en-US'>{SAY}</Say></Response>"
 
 
 def main() -> None:

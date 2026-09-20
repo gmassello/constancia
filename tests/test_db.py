@@ -20,7 +20,7 @@ PROFESSIONAL = "3f1b0e4a-7c2d-4a51-9f8e-1d2c3b4a5e60"
 def fact(text: str, value: float) -> Fact:
     return Fact(
         fact=text,
-        term="rodilla derecha",
+        term="right knee",
         category="symptom",
         value=value,
         quote=text,
@@ -43,16 +43,16 @@ async def test_a_fact_survives_a_round_trip_and_is_retired_by_supersession() -> 
     )
     try:
         await store.save_call(call)
-        old_id = await store.insert_fact(call, fact("dolor 7/10", 7), embedding)
+        old_id = await store.insert_fact(call, fact("pain 7/10", 7), embedding)
 
         current = await store.current_facts(patient_id)
-        assert [row["fact"] for row in current] == ["dolor 7/10"]
+        assert [row["fact"] for row in current] == ["pain 7/10"]
         assert float(current[0]["value"]) == 7.0
 
-        new_id = await store.insert_fact(call, fact("dolor 4/10", 4), embedding)
+        new_id = await store.insert_fact(call, fact("pain 4/10", 4), embedding)
         await store.supersede(old_id, new_id)
 
-        assert [row["fact"] for row in await store.current_facts(patient_id)] == ["dolor 4/10"]
+        assert [row["fact"] for row in await store.current_facts(patient_id)] == ["pain 4/10"]
         retired = next(r for r in await store.chain(patient_id) if str(r["id"]) == old_id)
         assert str(retired["superseded_by"]) == new_id
         assert retired["valid_until"] is not None

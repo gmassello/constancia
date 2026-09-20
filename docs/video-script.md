@@ -56,7 +56,7 @@ them. So the extraction, the supersession and the key terms behave identically e
 |---|---|---|---|
 | 1 | `1:problem` | 21 s | The landing at `/`, the opening claim |
 | 2 | `2:product` | 24 s | The landing: one sentence, then the three packs |
-| 3 | `3:call-one` | 61 s | 🎯 Week 1 live. Nothing recalled, four questions, two facts extracted |
+| 3 | `3:call-one` | 56 s | 🎯 Week 1 live. Nothing recalled, four questions, two facts extracted |
 | 4 | `4:memory-off` | 24 s | Week 2 live with memory off: the generic protocol |
 | 5 | `5:memory-on` | 42 s | 🎯 Week 2 live with memory on: the knee, and the 7/10 retired |
 | 6 | `6:panel` | 31 s | The chart, the file, the key terms, a red flag |
@@ -97,11 +97,11 @@ pressed on screen. Answer the phone and read, one line per question, waiting for
 
 | | You say |
 |---|---|
-| greeting | «Hola, sí, soy Ana.» |
-| pain | «La rodilla derecha me duele siete de diez, sobre todo cuando subo escaleras.» |
-| adherence | «Los ejercicios los hice tres veces, me salté dos días porque estuve con mucho trabajo.» |
-| side effects | «Después de los ejercicios me queda un poco rígida, nada raro.» |
-| red flags | «No, caídas no tuve, nada de eso.» |
+| greeting | «Hello, yes, this is Ana.» |
+| pain | «My right knee hurts seven out of ten, especially when I climb stairs.» |
+| adherence | «I did the exercises three times, I skipped two days because I had a lot of work.» |
+| side effects | «After the exercises it stays a little stiff, nothing strange.» |
+| red flags | «No, no falls, nothing like that.» |
 
 With memory off the `recall` phase is skipped, so the agent genuinely has nothing in its prompt —
 that is what makes it week one on a seeded patient. It also means **no `keyterms_prompt` is sent**:
@@ -130,11 +130,11 @@ with the week-2 lines:
 
 | | You say |
 |---|---|
-| greeting | «Hola, sí, soy Ana.» |
-| pain | «La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras.» |
-| adherence | «Esta semana los hice cinco veces, me organicé mejor.» |
-| side effects | «No, ninguna molestia nueva.» |
-| red flags | «No, nada de eso.» |
+| greeting | «Hello, yes, this is Ana.» |
+| pain | «My knee is a lot better, it is four out of ten on the stairs now.» |
+| adherence | «I did them five times this week, I got myself better organised.» |
+| side effects | «No, no new discomfort.» |
+| red flags | «No, nothing like that.» |
 
 **keyless:** the panel's **the same call without memory** link. It runs the `week2-off` script: the
 week-2 answers with the generic agent lines, because an agent with no memory block cannot open on the
@@ -163,11 +163,11 @@ best-transcribed of the three. Answer:
 
 | | You say |
 |---|---|
-| greeting | «Hola, sí, soy Ana.» |
-| pain | «La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras.» |
-| adherence | «Esta semana los hice cinco veces, me organicé mejor.» |
-| side effects | «No, ninguna molestia nueva.» |
-| red flags | «No, nada de eso.» |
+| greeting | «Hello, yes, this is Ana.» |
+| pain | «My knee is a lot better, it is four out of ten on the stairs now.» |
+| adherence | «I did them five times this week, I got myself better organised.» |
+| side effects | «No, no new discomfort.» |
+| red flags | «No, nothing like that.» |
 
 **keyless:** **Call with memory**. With Ana's file populated, `run_scripted` picks the week-2 script
 on its own (`app/replay.py:49`) and the scripted patient says exactly those lines. This one runs the
@@ -175,8 +175,8 @@ real pipeline, not a recording: the supersession happens on camera.
 
 **What the camera must catch,** in this order:
 
-1. The agent's **first sentence**, which quotes last week: "la semana pasada me contaste que la
-   rodilla te dolía siete de diez al subir escaleras".
+1. The agent's **first sentence**, which quotes last week: "last week you told me your knee hurt
+   seven out of ten climbing stairs".
 2. In the file, the 7/10 going **struck through** under the new 4/10, with `RETIRED` beside it.
 3. The rail line `FACT RETIRED`.
 
@@ -237,7 +237,7 @@ print(f"OUTRO_REPLACE={float(end) - start:.1f}")
 EOF
 ```
 
-At 3:39.5 of narration that is `2.4`. Assemble with:
+At 3:34.6 of narration that is `2.4`. Assemble with:
 
 ```bash
 VIDEO_DIR=$PWD/video MAX_SECONDS=300 \
@@ -245,11 +245,11 @@ VIDEO_DIR=$PWD/video MAX_SECONDS=300 \
   bash ~/.claude/skills/personal-record-video/scripts/build-video.sh video/out/raw-fitted.mov
 ```
 
-Verified end to end against a synthetic recording: 1920x1080, **222.1 s = 3:42.1**, under the cap,
-the card up from 3:37.1 with the final caption on it and 2.6 s of quiet after.
+Verified end to end against a synthetic recording: 1920x1080, **217.2 s = 3:37.2**, under the cap,
+the card up from 3:32.2 with the final caption on it and 2.6 s of quiet after.
 
 **One constraint this puts on the take:** `build-video.sh` refuses a recording that is not within
-0.75x–1.30x of `narration − OUTRO_REPLACE`, which is 217.1 s. Anywhere between about 2:43 and 4:42
+0.75x–1.30x of `narration − OUTRO_REPLACE`, which is 212.2 s. Anywhere between about 2:39 and 4:36
 of raw screen time is fine; `fit-to-audio.py` lands it far closer than that.
 
 ## What can come out differently

@@ -17,10 +17,10 @@ def build() -> Call:
 
 
 def test_the_request_asks_for_every_feature_the_panel_shows() -> None:
-    body = analysis.request_body(RECORDING, "es")
+    body = analysis.request_body(RECORDING, "en")
 
     assert body["audio_url"] == RECORDING
-    assert body["language_code"] == "es"
+    assert body["language_code"] == "en"
     assert body["punctuate"] and body["entity_detection"] and body["sentiment_analysis"]
 
 
@@ -28,7 +28,7 @@ def test_summarize_keeps_entities_and_counts_sentiment() -> None:
     summary = analysis.summarize(PAYLOAD)
 
     assert summary["transcript_id"] == "t-abc123"
-    assert [e["text"] for e in summary["entities"]] == ["rodilla derecha", "siete de diez"]
+    assert [e["text"] for e in summary["entities"]] == ["right knee", "seven out of ten"]
     assert summary["sentiment"] == {"NEGATIVE": 2, "NEUTRAL": 1}
     assert [n["confidence"] for n in summary["negative"]] == [0.91, 0.64]
 

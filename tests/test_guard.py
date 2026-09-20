@@ -6,25 +6,41 @@ from app.packs import get_pack
 REHAB = get_pack("rehab")
 
 POSITIVES = [
-    ("Ayer me caí en el baño", "fall"),
-    ("Se me dobló la rodilla bajando la escalera", "fall"),
-    ("Sentí un dolor repentino y fuerte en la rodilla", "sudden_sharp_pain"),
-    ("Tuve una punzada insoportable el martes", "sudden_sharp_pain"),
-    ("Tengo la rodilla hinchada y anoche tuve fiebre", "swelling_with_fever"),
-    ("Me quedó el pie con hormigueo todo el día", "numbness"),
-    ("TENGO LA PIERNA ENTUMECIDA", "numbness"),
-    ("me cai el jueves", "fall"),
+    ("I fell in the bathroom yesterday", "fall"),
+    ("I slipped and fell getting out of the shower", "fall"),
+    ("My knee gave out coming down the stairs", "fall"),
+    ("I twisted my ankle on the step", "fall"),
+    ("I've fallen twice this week", "fall"),
+    ("I felt a sudden sharp pain in my knee", "sudden_sharp_pain"),
+    ("The pain came on out of nowhere and it was unbearable", "sudden_sharp_pain"),
+    ("I had a twinge that was excruciating on Tuesday", "sudden_sharp_pain"),
+    ("My knee is swollen and I ran a fever last night", "swelling_with_fever"),
+    ("I got a temperature last night and the knee is puffy", "swelling_with_fever"),
+    ("My foot has been tingling all day", "numbness"),
+    ("MY LEG IS COMPLETELY NUMB", "numbness"),
+    ("I can't feel my toes", "numbness"),
+    ("There's no feeling in my foot", "numbness"),
 ]
 
 NEGATIVES = [
-    "No, caídas no tuve, nada de eso",
-    "La rodilla me duele siete de diez cuando subo escaleras",
-    "Hice los ejercicios tres veces, me salté dos días",
-    "Después de los ejercicios me queda un poco rígida",
-    "Tengo la rodilla un poco hinchada pero sin fiebre ni nada",
-    "No me caí ni nada, todo tranquilo",
-    "No tuve hormigueo esta semana",
-    "Nunca sentí un dolor repentino",
+    "No, no falls, nothing like that",
+    "I haven't fallen at all this week",
+    "I have not fallen",
+    "I didn't have any tingling this week",
+    "I've never had a sudden pain like that",
+    "I wasn't numb at any point",
+    "There was no numbness or tingling",
+    "I'm not in any sudden pain",
+    "nothing sudden, just the usual ache",
+    "My knee is a little swollen but no fever at all",
+    "It's swollen but I don't have a fever",
+    "The swelling is down and I've had no temperature",
+    "My knee hurts about a seven out of ten on the stairs",
+    "I can feel my toes fine now",
+    "It feels a bit stiff after the exercises",
+    "I fell asleep with the ice pack on",
+    "I fell behind on the exercises this week",
+    "I did the exercises three times and skipped two days",
 ]
 
 
@@ -43,13 +59,32 @@ def test_ordinary_turns_do_not_fire(turn: str) -> None:
     assert guard.check(REHAB, turn) is None
 
 
-def test_accents_and_case_do_not_matter() -> None:
-    accented = guard.check(REHAB, "ME CAÍ")
-    plain = guard.check(REHAB, "me cai")
-    assert accented["rule"] == plain["rule"] == "fall"
+def test_case_and_apostrophes_do_not_matter() -> None:
+    curly = guard.check(REHAB, "I CAN’T FEEL MY TOES")
+    straight = guard.check(REHAB, "i can't feel my toes")
+    assert curly["rule"] == straight["rule"] == "numbness"
+
+
+def test_a_rule_that_starts_at_its_own_negator_still_fires() -> None:
+    assert guard.check(REHAB, "I can't feel my foot")["rule"] == "numbness"
+    assert guard.check(REHAB, "I don't feel any tingling") is None
 
 
 def test_other_packs_have_their_own_rules() -> None:
-    assert guard.check(get_pack("chronic"), "Tengo dolor en el pecho")["rule"] == "chest_pain"
-    bleeding = guard.check(get_pack("postpartum"), "Estoy sangrando muchísimo")
-    assert bleeding["rule"] == "heavy_bleeding"
+    chronic = get_pack("chronic")
+    assert guard.check(chronic, "I have pain in my chest")["rule"] == "chest_pain"
+    assert guard.check(chronic, "Chest pain since Tuesday")["rule"] == "chest_pain"
+    assert guard.check(chronic, "I can't catch my breath on the stairs")["rule"] == "chest_pain"
+    assert guard.check(chronic, "I don't have any chest pain") is None
+
+    postpartum = get_pack("postpartum")
+    bleeding = [
+        "I'm bleeding a lot more than last week",
+        "I'm soaking through a pad an hour",
+        "The bleeding just won't stop",
+        "I'm passing clots",
+    ]
+    for turn in bleeding:
+        assert guard.check(postpartum, turn)["rule"] == "heavy_bleeding"
+    assert guard.check(postpartum, "I haven't had any clots") is None
+    assert guard.check(postpartum, "I'm not bleeding heavily at all") is None

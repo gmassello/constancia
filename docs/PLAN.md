@@ -9,14 +9,14 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
 
 ## Context
 
-`INTENT.md` fixes the build order: **stage 1 is the voice loop end to end with a fixed prompt and no memory**, then memory, then the panel, then deploy and deliverables. The agent speaks Rioplatense Spanish to the patient; everything that lives in the repo (code, docs, commits) is in English; prompts and patient lines are content and stay in Spanish.
+`INTENT.md` fixes the build order: **stage 1 is the voice loop end to end with a fixed prompt and no memory**, then memory, then the panel, then deploy and deliverables. The agent speaks English to the patient, and everything that lives in the repo (code, docs, commits) is in English too; prompts and patient lines are content.
 
 ## Assumptions
 
 - **No credentials exist locally** at the time of writing. Everything is developed and tested with no network (`ScriptedPatient` + scripted LLM + in-memory store). Live paths are exercised at each checkpoint once `.env` is filled.
 - Tooling: `uv` with Python 3.12 (`uv venv -p 3.12`), no poetry. Node 24 + pnpm for the panel. Docker for a local Postgres.
 - Models as of 2026-09-02: latest stable Flash is `gemini-3.8-flash`; `google-genai` 2.22.0, `client.models.generate_content` still works (docs lead with the Interactions API; `generate_content` is simpler). Embeddings: `gemini-embedding-001` at 1536 dims with L2 normalization per the spec; `gemini-embedding-2` normalizes by itself, decide with `models.list` on day 1 (the code always normalizes, which is harmless).
-- STT in Spanish: `speech_model=universal-streaming-multilingual`, `language_codes=["es"]`, `encoding=pcm_mulaw`, `sample_rate=8000`. Audio goes from Twilio to AssemblyAI with a single `base64.b64decode`; no resampling. Raw `websockets` instead of the `assemblyai` SDK (simple JSON protocol, full asyncio control). Post-call: pre-recorded API with `entity_detection` + `sentiment_analysis` (`punctuate=true`), Spanish supported.
+- STT in English: `speech_model=universal-streaming`, `language_codes=["en"]`, `encoding=pcm_mulaw`, `sample_rate=8000`. Audio goes from Twilio to AssemblyAI with a single `base64.b64decode`; no resampling. Raw `websockets` instead of the `assemblyai` SDK (simple JSON protocol, full asyncio control). Post-call: pre-recorded API with `entity_detection` + `sentiment_analysis` (`punctuate=true`).
 - TTS: ElevenLabs REST streaming `POST /v1/text-to-speech/{voice_id}/stream?output_format=ulaw_8000`, `model_id=eleven_flash_v2_5` (Spanish), via `httpx`; no SDK. `ulaw_8000` has no tier restriction.
 - Local webhooks via **ngrok** (installed, needs `ngrok config add-authtoken`). Render in stage 4. Render free sleeps after 15 min: paid instance or external ping on judging day.
 - A Twilio trial account is enough for the checkpoints (calls verified numbers only, prepends a trial message).
@@ -198,7 +198,7 @@ say(pack.goodbye)
 
 1. `pyproject.toml`, `uv.lock`, `Makefile`, `.gitignore`, `.env.example`, `CLAUDE.md` — scaffold; `uv venv -p 3.12`, `uv add` with exact versions.
 2. `app/config.py` — `Settings`: `gemini_api_key`, `gemini_model`, `assemblyai_api_key`, `assemblyai_speech_model`, `elevenlabs_api_key`, `elevenlabs_voice_id`, `twilio_account_sid/auth_token/number`, `public_base_url`, `validate_twilio_signature`, `language`, `silence_s`, `barge_min_words`, `phase_timeout_s`. Cached `get_settings()`, called in lifespan, not at import.
-3. `app/packs.py` + `app/guard.py` — three packs; `rehab` complete in Spanish (sudden sharp pain, fall, swelling with fever, numbness/tingling); `postpartum` and `chronic` with questions and one rule each. System prompt with the block of rules that override anything said on the call, "no precedent is a correct answer", and "never claim it was saved until `store` confirms".
+3. `app/packs.py` + `app/guard.py` — three packs; `rehab` complete (sudden sharp pain, fall, swelling with fever, numbness/tingling); `postpartum` and `chronic` with questions and one rule each. System prompt with the block of rules that override anything said on the call, "no precedent is a correct answer", and "never claim it was saved until `store` confirms".
 4. `app/calls.py` — `Call`, `emit`, `subscribe`, `CALLS`.
 5. `app/llm.py` — `GeminiLLM.reply()` and `ScriptedLLM.reply()`; typed retry; tokens and elapsed trace.
 6. `app/channel.py` — `CallEnded`, `ScriptedPatient`, `LiveChannel`.
@@ -254,7 +254,7 @@ Then **C1**.
                           test_gemini_schema), retry on ValidationError with a fake LLM
   tests/test_memory.py    FakeStore: supersede retires the old one, current_facts no longer returns it, keyterms
                           by category; tests against real Postgres marked integration (skipped without DATABASE_URL)
-  tests/test_orchestrator.py  + memory=off vs on: call 2's prompt contains "rodilla" only with memory
+  tests/test_orchestrator.py  + memory=off vs on: call 2's prompt contains "knee" only with memory
   docker-compose.yml      pgvector/pgvector:pg17 for local `make db`
 ```
 
@@ -366,7 +366,7 @@ Then **C3**.
    was built and booted locally against an empty Postgres to prove it. Runbook in
    [`OPERATIONS.md`](OPERATIONS.md).
 2. ~~`video/reset.sh`, `docs/video-script.md`, `video/narration.tsv`~~ done — the track measures
-   3:39.5 against the 5:00 cap; what is left of this step is listening to `video/out/narration.wav`
+   3:34.6 against the 5:00 cap; what is left of this step is listening to `video/out/narration.wav`
    end to end.
 3. Recording session with the `personal-record-video` skill (1280x800 window, mic off, phone off camera); `fit-to-audio.py`, `build-video.sh`, `MAX_SECONDS=300`.
 4. ~~`docs/deck.md`, endcard, `SUBMISSION.md`~~ done — the deck is also published as slides, and
@@ -381,7 +381,7 @@ Then **C3**.
 curl https://constancia-voice.onrender.com/health          # from another network
 bash video/reset.sh --check                      # all green
 VIDEO_DIR=$PWD/video MAX_SECONDS=300 OUTRO="video/out/endcard.png:5" OUTRO_REPLACE=2.4 \
-  bash .../build-video.sh video/out/raw-fitted.mov            # demo.mp4, 3:42.1 under the 5:00 cap
+  bash .../build-video.sh video/out/raw-fitted.mov            # demo.mp4, 3:37.2 under the 5:00 cap
 ```
 
 Then **C4** and submission on lablab (human).

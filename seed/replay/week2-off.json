@@ -45,67 +45,67 @@
       "t": 1.201,
       "type": "agent_turn",
       "turn_id": 1,
-      "text": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. Te llamo para ver cómo venís con la recuperación esta semana.",
+      "text": "Hi Ana, I am your physio's follow-up assistant. I am calling to see how you are doing with your recovery this week.",
       "interrupted": false
     },
     {
-      "t": 2.403,
+      "t": 2.404,
       "type": "patient_turn",
       "turn_id": 2,
-      "text": "Hola, sí, soy Ana."
+      "text": "Hello, yes, this is Ana."
     },
     {
-      "t": 2.403,
+      "t": 2.404,
       "type": "phase_done",
       "phase": "greet"
     },
     {
-      "t": 2.403,
+      "t": 2.404,
       "type": "phase_started",
       "phase": "converse"
     },
     {
-      "t": 2.403,
+      "t": 2.404,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 3.604,
+      "t": 3.605,
       "type": "agent_turn",
       "turn_id": 3,
-      "text": "Contame, ¿cuánto te duele hoy del uno al diez, y en qué momento o con qué movimiento lo notás más?",
+      "text": "Tell me, how much does it hurt today from one to ten, and at what moment or with what movement do you notice it most?",
       "interrupted": false
     },
     {
-      "t": 4.805,
+      "t": 4.806,
       "type": "patient_turn",
       "turn_id": 4,
-      "text": "La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras."
+      "text": "My knee is a lot better, it is four out of ten on the stairs now."
     },
     {
-      "t": 4.807,
+      "t": 4.806,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 6.008,
+      "t": 6.007,
       "type": "agent_turn",
       "turn_id": 5,
-      "text": "¿Cuántas veces pudiste hacer los ejercicios esta semana? ¿Te costó sostener la rutina?",
+      "text": "How many times did you manage the exercises this week? Was it hard to keep the routine up?",
       "interrupted": false
     },
     {
-      "t": 7.209,
+      "t": 7.208,
       "type": "patient_turn",
       "turn_id": 6,
-      "text": "Esta semana los hice cinco veces, me organicé mejor."
+      "text": "I did them five times this week, I got myself better organised."
     },
     {
-      "t": 7.209,
+      "t": 7.208,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
@@ -115,14 +115,14 @@
       "t": 8.409,
       "type": "agent_turn",
       "turn_id": 7,
-      "text": "¿Tuviste alguna molestia nueva después de los ejercicios, algo de hinchazón o rigidez?",
+      "text": "Did you have any new discomfort after the exercises, any swelling or stiffness?",
       "interrupted": false
     },
     {
       "t": 9.611,
       "type": "patient_turn",
       "turn_id": 8,
-      "text": "No, ninguna molestia nueva."
+      "text": "No, no new discomfort."
     },
     {
       "t": 9.611,
@@ -135,20 +135,20 @@
       "t": 10.812,
       "type": "agent_turn",
       "turn_id": 9,
-      "text": "Una última: ¿tuviste alguna caída, un dolor repentino y fuerte, o algo que te haya asustado?",
+      "text": "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?",
       "interrupted": false
     },
     {
       "t": 12.013,
       "type": "patient_turn",
       "turn_id": 10,
-      "text": "No, nada de eso."
+      "text": "No, nothing like that."
     },
     {
       "t": 13.214,
       "type": "agent_turn",
       "turn_id": 11,
-      "text": "Listo, eso era todo por hoy. Le paso el resumen a tu kinesiólogo. Cuidate, hablamos la semana que viene.",
+      "text": "That is everything for today. I will send the summary to your physio. Take care, we will talk next week.",
       "interrupted": false
     },
     {
@@ -162,28 +162,28 @@
       "phase": "extract"
     },
     {
-      "t": 13.215,
+      "t": 13.214,
       "type": "facts_extracted",
       "count": 2
     },
     {
-      "t": 13.215,
+      "t": 13.214,
       "type": "phase_done",
       "phase": "extract"
     },
     {
-      "t": 13.215,
+      "t": 13.214,
       "type": "phase_started",
       "phase": "store"
     },
     {
-      "t": 13.215,
+      "t": 13.214,
       "type": "memory_off",
       "phase": "store",
       "reason": "memory disabled for this call"
     },
     {
-      "t": 13.215,
+      "t": 13.214,
       "type": "phase_done",
       "phase": "store"
     },
@@ -202,7 +202,7 @@
     {
       "t": 13.215,
       "type": "summary",
-      "text": "Llamada de seguimiento. Refiere dolor en rodilla derecha 4/10 al subir escaleras. Hizo los ejercicios cinco veces. Sin molestias nuevas ni señales de alarma."
+      "text": "Follow-up call. Reports right knee pain 4/10 climbing stairs. Did the exercises five times. No new discomfort and no red flags."
     },
     {
       "t": 13.215,
@@ -214,10 +214,10 @@
       "type": "call_ended",
       "escalated": false,
       "answers": {
-        "pain": "La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras.",
-        "adherence": "Esta semana los hice cinco veces, me organicé mejor.",
-        "side_effects": "No, ninguna molestia nueva.",
-        "red_flags": "No, nada de eso."
+        "pain": "My knee is a lot better, it is four out of ten on the stairs now.",
+        "adherence": "I did them five times this week, I got myself better organised.",
+        "side_effects": "No, no new discomfort.",
+        "red_flags": "No, nothing like that."
       }
     }
   ]

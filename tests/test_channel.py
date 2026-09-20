@@ -114,12 +114,12 @@ async def started_channel() -> tuple[LiveChannel, FakeWS, FakeSTT]:
 
 async def test_say_streams_ulaw_and_waits_for_the_mark(speech) -> None:
     channel, ws, _ = await started_channel()
-    await channel.say("Hola Ana")
+    await channel.say("Hi Ana")
 
     assert len(ws.events("media")) == 10
     assert len(ws.events("mark")) == 1
     assert ws.events("clear") == []
-    assert channel.call.transcript[-1]["text"] == "Hola Ana"
+    assert channel.call.transcript[-1]["text"] == "Hi Ana"
     assert channel.call.trace[-1]["interrupted"] is False
     await channel.close()
 
@@ -129,20 +129,20 @@ async def test_barge_in_cancels_playback_and_clears_the_queue(speech) -> None:
 
     async def interrupt() -> None:
         await asyncio.sleep(0.03)
-        await stt.queue.put(turn("Pará, te interrumpo", words=3))
+        await stt.queue.put(turn("Wait, let me interrupt", words=3))
 
-    await asyncio.gather(channel.say("Una pregunta bien larga"), interrupt())
+    await asyncio.gather(channel.say("A really long question"), interrupt())
 
     assert ws.events("clear")
     assert len(ws.events("media")) < 10
     assert channel.call.trace[-1]["interrupted"] is True
-    assert await channel.listen(0.5) == "Pará, te interrumpo"
+    assert await channel.listen(0.5) == "Wait, let me interrupt"
     await channel.close()
 
 
 async def test_partial_turns_do_not_reach_listen(speech) -> None:
     channel, _, stt = await started_channel()
-    await stt.queue.put(turn("parcial", words=1, final=False))
+    await stt.queue.put(turn("partial", words=1, final=False))
 
     assert await channel.listen(0.05) is None
     await channel.close()

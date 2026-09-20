@@ -42,13 +42,13 @@ That last part is the whole product.
 ## 4 · Week one → week two
 
 **Week 1**
-> — ¿Cuánto te duele hoy del uno al diez?
-> — La rodilla derecha me duele **siete de diez**, sobre todo cuando subo escaleras.
+> — How much does it hurt today from one to ten?
+> — My right knee hurts **seven out of ten**, especially when I climb stairs.
 
 **Week 2, same patient, same questions**
-> — Hola Ana, la semana pasada me contaste que la rodilla te dolía siete de diez al subir escaleras,
->   así que te llamo para ver cómo viene esta semana.
-> — Ahora me duele **cuatro de diez**.
+> — Hi Ana, last week you told me your knee hurt seven out of ten climbing stairs, so I am calling
+>   to see how it has been this week.
+> — It is **four out of ten** now.
 
 The 7/10 is not overwritten. It is **retired**: it stays in the file, struck through, with the dates
 it was true for. The professional opens the panel and sees a chain, not a number.
@@ -130,7 +130,7 @@ before the first call — not a generic "I accept the terms".
 - **AssemblyAI in two places:** Universal-Streaming v3 live over the phone call, and Speech
   Understanding on the recording after hangup. Memory feeds `keyterms_prompt`, so the patient's own
   vocabulary from last week primes the recogniser this week.
-- **Honest limits:** no authentication, Spanish only, facts land seconds after the hangup rather
+- **Honest limits:** no authentication, English only, facts land seconds after the hangup rather
   than during the call, and the agent never diagnoses.
 
 ---

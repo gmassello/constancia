@@ -15,7 +15,7 @@ Built for the [lablab.ai × AssemblyAI Voice Agent Hackathon](docs/HACKATHON.md)
 Stage 3 of four plus the public landing (see [`docs/PLAN.md`](docs/PLAN.md) and [`docs/LANDING.md`](docs/LANDING.md)): **the voice loop, longitudinal memory, the professional's panel and the page that explains them**. What works today:
 
 - Outbound Twilio call with a bidirectional `<Connect><Stream>`.
-- Live µ-law audio to AssemblyAI Universal-Streaming v3 in Spanish, end-of-turn driven.
+- Live µ-law audio to AssemblyAI Universal-Streaming v3 in English, end-of-turn driven.
 - Gemini Flash phrases each turn; the orchestrator decides which question comes next and will not let one be skipped.
 - Barge-in: the patient interrupts, the agent stops and the queued audio is cleared.
 - Deterministic red-flag guard with negation handling. The LLM only phrases the escalation.
@@ -138,17 +138,17 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
 - **In English the panel translates the canned content, not live output.** Every fact, quote, transcript turn,
   key term and summary that ships in `seed/` has an English counterpart in `web/src/panel/content.ts`, keyed by
   the Spanish string, so the demo reads end to end in either language. A fact a real call extracts is not in
-  that table and falls through in Spanish — deliberately, since showing an invented translation of a verbatim
+  that table and falls through in English — deliberately, since showing an invented translation of a verbatim
   quote is worse than showing the quote. That path needs a Gemini key and a phone, and it is the one the demo
-  video shows: the calls in it are real, so the panel reads English around the patient's own Spanish.
+  video shows: the calls in it are real, so a Spanish reader sees English quotes inside a Spanish panel.
 - **The landing's hero card is a scripted loop**, not a live call: two canned scripts with the real copy — week
   one with memory off, week two with it on — behind a selector, with step, pause and replay controls under
   them, plus a reset that takes the whole sequence back to week one. The panel is where a real call is watched. The call itself happened in
   Spanish, and the card renders it whole in whichever language the visitor picked — turns, facts and quotes
   together — so in English the quote is a translation and the turn id beside it, not the wording, is what
-  anchors the fact. Nothing on the card itself says the call was in Spanish; only the `Stack` section does.
+  anchors the fact. The call itself happens in English; the card renders it in whichever language the visitor picked.
 - Twilio trial accounts only call verified numbers and prepend their own message.
-- Spanish only (Rioplatense). The packs are content, not code, so another language is a translation, not a rewrite.
+- English only. The packs are content, not code, so another language is a translation — except the red-flag patterns in `app/guard.py`, which encode English negation and have to be re-derived, not translated.
 
 ## Layout
 

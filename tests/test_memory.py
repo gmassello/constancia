@@ -12,11 +12,11 @@ class Stub:
 
 
 NEW = Fact(
-    fact="dolor en la rodilla derecha 4/10",
-    term="rodilla derecha",
+    fact="right knee pain 4/10",
+    term="right knee",
     category="symptom",
     value=4,
-    quote="cuatro de diez",
+    quote="four out of ten",
     turn_id=4,
 )
 
@@ -25,10 +25,10 @@ async def test_the_seed_loads_anas_week_one_facts() -> None:
     facts = await load_seed().current_facts(PATIENT)
 
     assert [fact["term"] for fact in facts] == [
-        "rodilla derecha",
-        "ejercicios en casa",
-        "rigidez",
-        "caída en el baño",
+        "right knee",
+        "home exercises",
+        "stiffness",
+        "bathroom fall",
     ]
     assert facts[0]["value"] == 7
 
@@ -42,7 +42,7 @@ async def test_supersede_retires_the_old_fact_but_keeps_it_in_the_chain() -> Non
 
     current = await store.current_facts(PATIENT)
     assert old["id"] not in [fact["id"] for fact in current]
-    assert [fact["value"] for fact in current if fact["term"] == "rodilla derecha"] == [4]
+    assert [fact["value"] for fact in current if fact["term"] == "right knee"] == [4]
     assert old["id"] in [fact["id"] for fact in await store.chain(PATIENT)]
 
 
@@ -61,24 +61,24 @@ async def test_keyterms_only_uses_the_categories_the_pack_asks_for() -> None:
     facts = await load_seed().current_facts(PATIENT)
 
     assert keyterms(facts, get_pack("rehab")) == [
-        "rodilla derecha",
-        "ejercicios en casa",
-        "rigidez",
-        "caída en el baño",
+        "right knee",
+        "home exercises",
+        "stiffness",
+        "bathroom fall",
     ]
-    without_adherence = ["rodilla derecha", "rigidez", "caída en el baño"]
+    without_adherence = ["right knee", "stiffness", "bathroom fall"]
     assert keyterms(facts, get_pack("postpartum")) == without_adherence
 
 
 def test_keyterms_deduplicates_and_skips_blanks() -> None:
     facts = [
-        {"term": "rodilla derecha", "category": "symptom"},
-        {"term": "rodilla derecha", "category": "symptom"},
+        {"term": "right knee", "category": "symptom"},
+        {"term": "right knee", "category": "symptom"},
         {"term": "  ", "category": "symptom"},
-        {"term": "sangrado", "category": "mood"},
+        {"term": "bleeding", "category": "mood"},
     ]
 
-    assert keyterms(facts, get_pack("rehab")) == ["rodilla derecha"]
+    assert keyterms(facts, get_pack("rehab")) == ["right knee"]
 
 
 async def test_an_empty_store_has_no_facts_and_no_keyterms() -> None:

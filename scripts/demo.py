@@ -42,7 +42,7 @@ async def main() -> None:
     await replay.run_scripted(call, store, delay_s=0.0)
 
     for turn in call.transcript:
-        who = "agente " if turn["speaker"] == "agent" else "paciente"
+        who = "agent  " if turn["speaker"] == "agent" else "patient"
         print(f"{turn['turn_id']:>2} {who}  {turn['text']}")
     print()
     for event in call.trace:

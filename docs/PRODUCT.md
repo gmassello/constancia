@@ -19,14 +19,14 @@ about what the patient said last time**.
 
 That last part is the whole product. Week one:
 
-> — ¿Cuánto te duele hoy del uno al diez?
-> — La rodilla derecha me duele siete de diez, sobre todo cuando subo escaleras.
+> — How much does it hurt today from one to ten?
+> — My right knee hurts seven out of ten, especially when I climb stairs.
 
 Week two, same patient, same questions:
 
-> — Hola Ana, la semana pasada me contaste que la rodilla te dolía siete de diez al subir escaleras,
->   así que te llamo para ver cómo viene esta semana.
-> — Ahora me duele cuatro de diez.
+> — Hi Ana, last week you told me your knee hurt seven out of ten climbing stairs, so I am calling
+>   to see how it has been this week.
+> — It is four out of ten now.
 
 The 7/10 does not get overwritten. It gets **retired**: it stays in the file, struck through, with
 the dates it was true for. The professional opens the panel and sees a chain, not a number.
@@ -53,7 +53,7 @@ Four questions, in this order, every week (`app/packs.py`, the `rehab` pack):
 | 3 | whether there were new complaints after the exercises, like swelling or stiffness |
 | 4 | whether they had a fall, a sudden sharp pain, or anything that frightened them |
 
-The agent speaks Rioplatense Spanish, two sentences per turn at most, one question at a time, and
+The agent speaks plain English, two sentences per turn at most, one question at a time, and
 never gives a diagnosis or changes a treatment. It interrupts itself when the patient starts talking.
 
 If an answer trips a red flag — a fall, a sudden sharp pain, swelling with fever, numbness — the call
@@ -99,7 +99,7 @@ Two rules make the memory claim inspectable rather than asserted:
 
 - No authentication anywhere. This is a hackathon demo with fictitious data, not a product.
 - The facts land seconds after the patient hangs up, not while they are still talking.
-- Spanish only.
+- English only.
 - The agent never diagnoses, never changes a treatment, and never decides on an escalation — it
   detects one deterministically and says so.
 

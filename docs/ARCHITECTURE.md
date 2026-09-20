@@ -70,11 +70,11 @@ else about the call changes — that is what makes the A/B honest.
 A fact is what the patient said, reduced to one sentence, plus the words they used:
 
 ```
-fact        "dolor en la rodilla derecha 7/10 al subir escaleras"
-term        "rodilla derecha"          ← short, feeds the STT's key terms
+fact        "right knee pain 7/10 climbing stairs"
+term        "right knee"               ← short, feeds the STT's key terms
 category    symptom | adherence | mood | clinical_value | red_flag
 value       7.0                        ← feeds the chart without parsing text
-quote       "me duele siete de diez"   ← must be a literal span of turn_id
+quote       "hurts seven out of ten"   ← must be a literal span of turn_id
 turn_id     4
 ```
 
@@ -160,7 +160,7 @@ These are limits of the current design, not bugs:
   Sentence-level streaming is the marked upgrade path.
 - **No authentication anywhere.** Anything that can reach the URL can read every patient's history
   and place a call.
-- **Spanish only** (Rioplatense). The packs are content, so another language is a translation rather
+- **English only.** The packs are content, so another language is a translation rather
   than a rewrite.
 
 ## Where to go next

@@ -13,8 +13,9 @@ In addition to [`../AGENTS.md`](../AGENTS.md), which applies everywhere.
 - **Every visible string comes from a `copy.ts`.** Add it to the type first; `tsc` then names every
   set that is missing it. A string that interpolates a value is typed as a **function**, never built
   by concatenation — word order moves in Spanish.
-- **English is the annotated base, Spanish the translation.** Patient data is different: it is keyed
-  by the Spanish string in `panel/content.ts` and falls through untranslated on purpose.
+- **English is the annotated base, Spanish the translation.** Patient data is different: the call
+  happens in English, so `panel/content.ts` is keyed by the English string and translates *into*
+  Spanish. Anything the extractor writes live is not in that table and falls through on purpose.
 - **`pnpm build` is the only check** — `tsc -b && vite build`. There is no test runner here and
   presentational components do not earn one.
 - **Measure contrast by compositing on a canvas**, not by parsing the CSS string: `getComputedStyle`

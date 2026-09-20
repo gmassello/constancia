@@ -196,7 +196,7 @@ const en: Copy = {
     "An outbound Twilio call opens a bidirectional media stream. µ-law at 8 kHz, both directions, one socket.",
   step2Title: "Listen",
   step2Body:
-    "Universal-Streaming v3 transcribes in Spanish, end-of-turn driven, primed with the patient's own key terms.",
+    "Universal-Streaming v3 transcribes in English, end-of-turn driven, primed with the patient's own key terms.",
   step3Title: "Decide",
   step3Body:
     "The orchestrator picks the next question. A deterministic guard catches red flags with negation handling and escalates.",
@@ -322,7 +322,7 @@ const es: Copy = {
     "Una llamada saliente de Twilio abre un media stream bidireccional. µ-law a 8 kHz, en los dos sentidos, un solo socket.",
   step2Title: "Escuchar",
   step2Body:
-    "Universal-Streaming v3 transcribe en español, disparado por fin de turno, cebado con los términos del propio paciente.",
+    "Universal-Streaming v3 transcribe en inglés, disparado por fin de turno, cebado con los términos del propio paciente.",
   step3Title: "Decidir",
   step3Body:
     "El orquestador elige la pregunta siguiente. Un guard determinista detecta señales de alarma, maneja las negaciones y escala.",
@@ -392,7 +392,7 @@ const enPlain = {
   step1Body: "The patient's phone rings, like any other call. Nothing to install, nothing to log into.",
   step2Title: "It listens",
   step2Body:
-    "It understands spoken Spanish and knows when the patient has finished talking, so it does not interrupt.",
+    "It understands the patient speaking and knows when they have finished, so it does not interrupt.",
   step3Title: "It asks",
   step3Body:
     "It works through your questions in order. If the patient mentions a fall or a sudden pain, it stops and tells them to contact you today.",
@@ -459,7 +459,7 @@ const esPlain: Record<PlainKey, string> = {
     "Al paciente le suena el teléfono, como cualquier llamada. Nada que instalar, ninguna cuenta que crear.",
   step2Title: "Escucha",
   step2Body:
-    "Entiende español hablado y se da cuenta de cuándo el paciente terminó de hablar, así que no lo interrumpe.",
+    "Entiende al paciente hablando y se da cuenta de cuándo terminó, así que no lo interrumpe.",
   step3Title: "Pregunta",
   step3Body:
     "Recorre tus preguntas en orden. Si el paciente menciona una caída o un dolor repentino, frena y le dice que te contacte hoy mismo.",

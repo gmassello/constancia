@@ -1,15 +1,37 @@
 {
   "id": "t-abc123",
   "status": "completed",
-  "language_code": "es",
-  "text": "La rodilla derecha me duele siete de diez cuando subo escaleras.",
+  "language_code": "en",
+  "text": "My right knee hurts seven out of ten when I climb stairs.",
   "entities": [
-    { "text": "rodilla derecha", "entity_type": "injury", "start": 3, "end": 18 },
-    { "text": "siete de diez", "entity_type": "medical_condition", "start": 28, "end": 41 }
+    {
+      "text": "right knee",
+      "entity_type": "injury",
+      "start": 3,
+      "end": 13
+    },
+    {
+      "text": "seven out of ten",
+      "entity_type": "medical_condition",
+      "start": 20,
+      "end": 36
+    }
   ],
   "sentiment_analysis_results": [
-    { "text": "La rodilla derecha me duele siete de diez.", "sentiment": "NEGATIVE", "confidence": 0.91 },
-    { "text": "Los ejercicios los hice tres veces.", "sentiment": "NEUTRAL", "confidence": 0.77 },
-    { "text": "Me cuesta sostener la rutina.", "sentiment": "NEGATIVE", "confidence": 0.64 }
+    {
+      "text": "My right knee hurts seven out of ten.",
+      "sentiment": "NEGATIVE",
+      "confidence": 0.91
+    },
+    {
+      "text": "I did the exercises three times.",
+      "sentiment": "NEUTRAL",
+      "confidence": 0.77
+    },
+    {
+      "text": "I find it hard to keep the routine up.",
+      "sentiment": "NEGATIVE",
+      "confidence": 0.64
+    }
   ]
 }

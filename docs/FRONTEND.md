@@ -142,13 +142,13 @@ surface nobody judges.
 | | What it is | Where it lives | If a translation is missing |
 |---|---|---|---|
 | **Chrome** | What the interface says: nav, headings, buttons, labels, verdicts, units | `copy.ts`, keyed, typed | Build error |
-| **Data** | What the patient said or the agent wrote: transcript turns, facts, quotes, key terms, summaries | Landing: `{es, en}` pairs beside their source in `DemoCard`. Panel: `content.ts`, keyed **by the Spanish string** | Landing: impossible, the type requires both. Panel: falls through to Spanish |
+| **Data** | What the patient said or the agent wrote: transcript turns, facts, quotes, key terms, summaries | Landing: `{es, en}` pairs beside their source in `DemoCard`. Panel: `content.ts`, keyed **by the English string** | Landing: impossible, the type requires both. Panel: falls through to English |
 | **Raw backend values** | `symptom`, `red_flag`, `sudden_sharp_pain`, `rehab`, `recall` — taxonomy, not the patient's words | The maps at the end of `panel/copy.ts`, resolved with `label()` | Degrades to `raw.replace(/_/g, " ")` |
 
-`speech()` ([`web/src/panel/content.ts`](../web/src/panel/content.ts)) is keyed by the Spanish string
-on purpose, and carries a `ponytail:` marker saying so: a fact a real call extracts is not in the
-table and shows in Spanish rather than in an invented translation. Making up the translation of a
-verbatim quote is worse than showing the quote.
+`speech()` ([`web/src/panel/content.ts`](../web/src/panel/content.ts)) is keyed by the English
+string — the one the call actually produces — and carries a `ponytail:` marker saying so: a fact a
+real call extracts is not in the table and shows in English rather than in an invented Spanish
+translation. Making up the translation of a verbatim quote is worse than showing the quote.
 
 Every interpolated string is typed as a **function**, not a `string` — `saidOn: (day, turn) => string`
 — because concatenation works in English and breaks in Spanish, where the word order moves.

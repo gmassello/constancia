@@ -23,10 +23,10 @@
       "type": "recall",
       "facts": 4,
       "keyterms": [
-        "rodilla derecha",
-        "ejercicios en casa",
-        "rigidez",
-        "caída en el baño"
+        "right knee",
+        "home exercises",
+        "stiffness",
+        "bathroom fall"
       ]
     },
     {
@@ -50,14 +50,14 @@
       "t": 1.201,
       "type": "agent_turn",
       "turn_id": 1,
-      "text": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. La semana pasada me contaste que la rodilla te dolía siete de diez al subir escaleras, así que te llamo para ver cómo viene esta semana.",
+      "text": "Hi Ana, I am your physio's follow-up assistant. Last week you told me your knee hurt seven out of ten climbing stairs, so I am calling to see how it has been this week.",
       "interrupted": false
     },
     {
       "t": 2.402,
       "type": "patient_turn",
       "turn_id": 2,
-      "text": "Hola, sí, soy Ana."
+      "text": "Hello, yes, this is Ana."
     },
     {
       "t": 2.402,
@@ -77,163 +77,163 @@
       "scripted": true
     },
     {
-      "t": 3.607,
+      "t": 3.604,
       "type": "agent_turn",
       "turn_id": 3,
-      "text": "Contame, ¿cuánto te duele hoy del uno al diez al subir escaleras?",
+      "text": "Tell me, how much does it hurt today from one to ten climbing stairs?",
       "interrupted": false
     },
     {
-      "t": 4.808,
+      "t": 4.805,
       "type": "patient_turn",
       "turn_id": 4,
-      "text": "La rodilla viene parecida, cinco de diez al subir escaleras."
+      "text": "The knee is about the same, five out of ten climbing stairs."
     },
     {
-      "t": 4.81,
+      "t": 4.805,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 6.011,
+      "t": 6.007,
       "type": "agent_turn",
       "turn_id": 5,
-      "text": "La semana pasada los ejercicios los hiciste tres veces. ¿Cuántas veces pudiste esta semana?",
+      "text": "Last week you did the exercises three times. How many times did you manage this week?",
       "interrupted": false
     },
     {
-      "t": 7.212,
+      "t": 7.208,
       "type": "patient_turn",
       "turn_id": 6,
-      "text": "Los hice dos veces nada más, porque el martes me caí bajando la escalera y quedé dolorida."
+      "text": "I only did them twice, because on Tuesday I fell coming down the stairs and I was left sore."
     },
     {
-      "t": 7.213,
+      "t": 7.208,
       "type": "guard_hit",
-      "input": "Los hice dos veces nada más, porque el martes me caí bajando la escalera y quedé dolorida.",
-      "value": "me cai",
+      "input": "I only did them twice, because on Tuesday I fell coming down the stairs and I was left sore.",
+      "value": "fell",
       "rule": "fall",
       "branch": "escalate"
     },
     {
-      "t": 7.213,
+      "t": 7.208,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 8.413,
+      "t": 8.409,
       "type": "agent_turn",
       "turn_id": 7,
-      "text": "Ana, una caída es algo que hay que ver hoy mismo. Por favor contactá ahora a tu kinesiólogo y contale lo que me dijiste; yo dejo esta llamada marcada para que la vea. Cuidate mucho.",
+      "text": "Ana, a fall is something that has to be looked at today. Please contact your physio now and tell them what you told me; I am flagging this call so they see it. Take good care.",
       "interrupted": false
     },
     {
-      "t": 8.413,
+      "t": 8.409,
       "type": "phase_done",
       "phase": "converse"
     },
     {
-      "t": 8.413,
+      "t": 8.409,
       "type": "phase_started",
       "phase": "extract"
     },
     {
-      "t": 8.414,
+      "t": 8.409,
       "type": "facts_extracted",
       "count": 3
     },
     {
-      "t": 8.414,
+      "t": 8.409,
       "type": "phase_done",
       "phase": "extract"
     },
     {
-      "t": 8.414,
+      "t": 8.409,
       "type": "phase_started",
       "phase": "store"
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "fact_stored",
-      "id": "5349b8a3-3945-403a-a10d-02ea292f411d",
-      "fact": "dolor en la rodilla derecha 5/10 al subir escaleras",
-      "term": "rodilla derecha",
+      "id": "bbb4340c-8001-4efd-bc1f-da9a58e4508e",
+      "fact": "right knee pain 5/10 climbing stairs",
+      "term": "right knee",
       "category": "symptom",
       "value": 5.0,
-      "quote": "cinco de diez",
+      "quote": "five out of ten",
       "turn_id": 4
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "fact_superseded",
       "old_id": "1e5ed3db-6c84-5c04-8974-8ada6ec868d4",
-      "new_id": "5349b8a3-3945-403a-a10d-02ea292f411d"
+      "new_id": "bbb4340c-8001-4efd-bc1f-da9a58e4508e"
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "fact_stored",
-      "id": "2bb4225d-fd3b-4817-b9a9-db0c51bb2b71",
-      "fact": "hizo los ejercicios dos veces en la semana",
-      "term": "ejercicios en casa",
+      "id": "e16db5bf-a2ff-4308-8fa3-2fb01c91886e",
+      "fact": "did the exercises twice this week",
+      "term": "home exercises",
       "category": "adherence",
       "value": 2.0,
-      "quote": "Los hice dos veces",
+      "quote": "did them twice",
       "turn_id": 6
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "fact_superseded",
       "old_id": "57ee6aa9-40ed-554f-9642-00aa15a92cc3",
-      "new_id": "2bb4225d-fd3b-4817-b9a9-db0c51bb2b71"
+      "new_id": "e16db5bf-a2ff-4308-8fa3-2fb01c91886e"
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "fact_stored",
-      "id": "f1fbda8d-376c-4698-8f2e-2c2c66f5fdbe",
-      "fact": "se cayó bajando la escalera el martes",
-      "term": "caída en escalera",
+      "id": "9b48ac3e-bc82-4433-9255-2b59947bae84",
+      "fact": "fell coming down the stairs on Tuesday",
+      "term": "stairs fall",
       "category": "red_flag",
       "value": null,
-      "quote": "me caí bajando la escalera",
+      "quote": "I fell coming down the stairs",
       "turn_id": 6
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "phase_done",
       "phase": "store"
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "phase_started",
       "phase": "summarize"
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "summary",
-      "text": "Llamada de seguimiento interrumpida por señal de alarma. Dolor de rodilla derecha 5/10 al subir escaleras. Hizo los ejercicios dos veces. Refiere una caída bajando la escalera el martes: se le pidió contactar al kinesiólogo hoy mismo y la llamada quedó marcada."
+      "text": "Follow-up call cut short by a red flag. Right knee pain 5/10 climbing stairs. Did the exercises twice. Reports a fall coming down the stairs on Tuesday: she was asked to contact her physio today and the call was flagged."
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "phase_done",
       "phase": "summarize"
     },
     {
-      "t": 8.415,
+      "t": 8.41,
       "type": "call_ended",
       "escalated": true,
       "answers": {
-        "pain": "La rodilla viene parecida, cinco de diez al subir escaleras."
+        "pain": "The knee is about the same, five out of ten climbing stairs."
       }
     }
   ]

@@ -45,44 +45,44 @@
       "t": 1.201,
       "type": "agent_turn",
       "turn_id": 1,
-      "text": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. Te llamo para ver cómo venís con la recuperación esta semana.",
+      "text": "Hi Ana, I am your physio's follow-up assistant. I am calling to see how you are doing with your recovery this week.",
       "interrupted": false
     },
     {
-      "t": 2.403,
+      "t": 2.402,
       "type": "patient_turn",
       "turn_id": 2,
-      "text": "Hola, sí, soy Ana."
+      "text": "Hello, yes, this is Ana."
     },
     {
-      "t": 2.403,
+      "t": 2.402,
       "type": "phase_done",
       "phase": "greet"
     },
     {
-      "t": 2.403,
+      "t": 2.402,
       "type": "phase_started",
       "phase": "converse"
     },
     {
-      "t": 2.403,
+      "t": 2.402,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 3.604,
+      "t": 3.603,
       "type": "agent_turn",
       "turn_id": 3,
-      "text": "Contame, ¿cuánto te duele hoy del uno al diez, y en qué momento o con qué movimiento lo notás más?",
+      "text": "Tell me, how much does it hurt today from one to ten, and at what moment or with what movement do you notice it most?",
       "interrupted": false
     },
     {
-      "t": 4.805,
+      "t": 4.804,
       "type": "patient_turn",
       "turn_id": 4,
-      "text": "La rodilla derecha me duele siete de diez, sobre todo cuando subo escaleras."
+      "text": "My right knee hurts seven out of ten, especially when I climb stairs."
     },
     {
       "t": 4.806,
@@ -95,14 +95,14 @@
       "t": 6.007,
       "type": "agent_turn",
       "turn_id": 5,
-      "text": "¿Cuántas veces pudiste hacer los ejercicios esta semana? ¿Te costó sostener la rutina?",
+      "text": "How many times did you manage the exercises this week? Was it hard to keep the routine up?",
       "interrupted": false
     },
     {
       "t": 7.208,
       "type": "patient_turn",
       "turn_id": 6,
-      "text": "Los ejercicios los hice tres veces, me salté dos días porque estuve con mucho trabajo."
+      "text": "I did the exercises three times, I skipped two days because I had a lot of work."
     },
     {
       "t": 7.208,
@@ -115,14 +115,14 @@
       "t": 8.409,
       "type": "agent_turn",
       "turn_id": 7,
-      "text": "¿Tuviste alguna molestia nueva después de los ejercicios, algo de hinchazón o rigidez?",
+      "text": "Did you have any new discomfort after the exercises, any swelling or stiffness?",
       "interrupted": false
     },
     {
       "t": 9.61,
       "type": "patient_turn",
       "turn_id": 8,
-      "text": "Después de los ejercicios me queda un poco rígida, nada raro."
+      "text": "After the exercises it stays a little stiff, nothing strange."
     },
     {
       "t": 9.61,
@@ -135,20 +135,20 @@
       "t": 10.811,
       "type": "agent_turn",
       "turn_id": 9,
-      "text": "Una última: ¿tuviste alguna caída, un dolor repentino y fuerte, o algo que te haya asustado?",
+      "text": "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?",
       "interrupted": false
     },
     {
       "t": 12.012,
       "type": "patient_turn",
       "turn_id": 10,
-      "text": "No, caídas no tuve, nada de eso."
+      "text": "No, no falls, nothing like that."
     },
     {
       "t": 13.213,
       "type": "agent_turn",
       "turn_id": 11,
-      "text": "Listo, eso era todo por hoy. Le paso el resumen a tu kinesiólogo. Cuidate, hablamos la semana que viene.",
+      "text": "That is everything for today. I will send the summary to your physio. Take care, we will talk next week.",
       "interrupted": false
     },
     {
@@ -162,62 +162,62 @@
       "phase": "extract"
     },
     {
-      "t": 13.214,
+      "t": 13.213,
       "type": "facts_extracted",
       "count": 2
     },
     {
-      "t": 13.214,
+      "t": 13.213,
       "type": "phase_done",
       "phase": "extract"
     },
     {
-      "t": 13.214,
+      "t": 13.213,
       "type": "phase_started",
       "phase": "store"
     },
     {
-      "t": 13.214,
+      "t": 13.213,
       "type": "memory_off",
       "phase": "store",
       "reason": "memory disabled for this call"
     },
     {
-      "t": 13.214,
+      "t": 13.213,
       "type": "phase_done",
       "phase": "store"
     },
     {
-      "t": 13.214,
+      "t": 13.213,
       "type": "phase_started",
       "phase": "summarize"
     },
     {
-      "t": 13.214,
+      "t": 13.213,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 13.214,
+      "t": 13.213,
       "type": "summary",
-      "text": "Primera llamada de seguimiento. Refiere dolor en rodilla derecha 7/10 al subir escaleras. Hizo los ejercicios tres veces y se salteó dos días por trabajo. Rigidez leve después de los ejercicios, sin señales de alarma."
+      "text": "First follow-up call. Reports right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Mild stiffness after the exercises, no red flags."
     },
     {
-      "t": 13.214,
+      "t": 13.213,
       "type": "phase_done",
       "phase": "summarize"
     },
     {
-      "t": 13.214,
+      "t": 13.213,
       "type": "call_ended",
       "escalated": false,
       "answers": {
-        "pain": "La rodilla derecha me duele siete de diez, sobre todo cuando subo escaleras.",
-        "adherence": "Los ejercicios los hice tres veces, me salté dos días porque estuve con mucho trabajo.",
-        "side_effects": "Después de los ejercicios me queda un poco rígida, nada raro.",
-        "red_flags": "No, caídas no tuve, nada de eso."
+        "pain": "My right knee hurts seven out of ten, especially when I climb stairs.",
+        "adherence": "I did the exercises three times, I skipped two days because I had a lot of work.",
+        "side_effects": "After the exercises it stays a little stiff, nothing strange.",
+        "red_flags": "No, no falls, nothing like that."
       }
     }
   ]

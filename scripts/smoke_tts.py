@@ -10,7 +10,7 @@ from app import tts  # noqa: E402
 async def main() -> None:
     total = 0
     first = b""
-    line = "Hola, soy el asistente de seguimiento. ¿Cómo venís esta semana?"
+    line = "Hi, I am the follow-up assistant. How are you doing this week?"
     async for chunk in tts.stream(line):
         first = first or chunk
         total += len(chunk)

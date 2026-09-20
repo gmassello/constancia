@@ -5,11 +5,11 @@ from app.packs import VerticalPack
 
 # ponytail: negation is looked for in the 20 characters before the match;
 # a real scope parser only if live calls show false positives.
-NEGATION = re.compile(r"\b(no|sin|nunca|tampoco)\b[^.,;]{0,20}$")
+NEGATION = re.compile(r"(?:n't|\b(?:no|not|none|nothing|never|without|nor|neither)\b)[^.,;]{0,20}$")
 
 
 def normalize(text: str) -> str:
-    stripped = unicodedata.normalize("NFD", text.lower())
+    stripped = unicodedata.normalize("NFD", text.lower().replace("\u2019", "'"))
     return "".join(c for c in stripped if unicodedata.category(c) != "Mn")
 
 
