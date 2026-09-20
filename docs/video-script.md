@@ -140,6 +140,20 @@ with the week-2 lines:
 week-2 answers with the generic agent lines, because an agent with no memory block cannot open on the
 knee.
 
+**Nothing the human reads may live in the captured window.** A window capture records whichever
+*tab* is in front, and Claude's screenshots do not: the extension photographs the tab it drives, so
+Claude sees the demo while the file records whatever the human switched to. It cost a full take —
+two files, seven beats, and the reading sheet on screen for all of it, with Claude reporting "going
+perfectly" the whole way. The patient's lines go on a phone, or at least in a **second Chrome
+window** (`Cmd+N`, never `Cmd+T`). Sweep the recording for it before assembling: the tab strip is in
+every frame, so one frame at the 30 s mark tells you which tab was in front.
+
+**Record against `make take`, not `make dev`.** `make dev` runs uvicorn with `--reload`: any save
+under the repo — an editor's autosave is enough — restarts it, the lifespan runs `load_seed()` again,
+and the take's calls vanish. The retired 7/10 comes back as current, mid-video. It cost one take.
+`make take` is the same server without the reloader, so the state cannot be swept out from under a
+recording.
+
 **No reset between beats 3, 4 and 5.** With memory off `store_facts` returns early *and* `summarize`
 skips its `save_call` (`app/orchestrator.py:70,89`), so beats 3 and 4 write nothing at all: last
 week's 7/10 is still on file and still current when beat 5 dials. A reset is only needed before

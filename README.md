@@ -73,6 +73,7 @@ uv sync
 make test          # 95 green, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
+make take          # the same server without --reload, for a recording session
 ```
 
 The panel offers the A/B as two buttons: **Call with memory** and **Call without memory**. Both run the whole

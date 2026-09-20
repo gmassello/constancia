@@ -72,6 +72,21 @@ async def test_weekly_follows_one_term_and_takes_the_newest_value_per_week() -> 
     assert [p["value"] for p in series["points"]] == [7.0, 4.0]
 
 
+async def test_weekly_follows_the_chain_when_the_model_renames_the_term() -> None:
+    # The live call named it "right knee pain" where the seed said "right knee". The
+    # supersession links them; matching on the term alone drew a chart with one point.
+    [series] = queries.weekly(
+        [
+            {**fact("right knee pain", "symptom", 4, WEEK_2, "b"), "superseded_by": None},
+            {**knee(7, WEEK_1, "a"), "superseded_by": "b"},
+        ],
+        get_pack("rehab"),
+    )
+
+    assert [p["value"] for p in series["points"]] == [7.0, 4.0]
+    assert series["term"] == "right knee pain"
+
+
 async def test_weekly_keeps_each_category_in_its_own_series() -> None:
     series = queries.weekly(
         [

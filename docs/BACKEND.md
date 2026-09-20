@@ -16,7 +16,7 @@ each one is for.
 | [`app/llm.py`](../app/llm.py) | 132 | `GeminiLLM` with exponential retry, and `ScriptedLLM`, its deterministic double. |
 | [`app/replay.py`](../app/replay.py) | 109 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
 | [`app/extract.py`](../app/extract.py) | 103 | Structured extraction and the grounding check. |
-| [`app/queries.py`](../app/queries.py) | 82 | Pure reducers over fact rows: the chain, the weekly series, the key terms of a past call. |
+| [`app/queries.py`](../app/queries.py) | 96 | Pure reducers over fact rows: the chain, the weekly series, the key terms of a past call. |
 | [`app/analysis.py`](../app/analysis.py) | 95 | Post-call entity detection and sentiment on the recording. |
 | [`app/calls.py`](../app/calls.py) | 74 | The `Call` dataclass, the `emit`/`subscribe` event bus, and the global `CALLS` registry. |
 | [`app/stt.py`](../app/stt.py) | 65 | AssemblyAI Universal-Streaming v3 over WebSocket, with hot key-term updates. |

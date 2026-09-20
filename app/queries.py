@@ -27,19 +27,32 @@ def chain(rows: list[dict]) -> list[dict]:
     return out
 
 
-def tracked_term(rows: list[dict], category: str) -> str | None:
-    counts: dict[str, int] = {}
-    for row in rows:
-        if row.get("value") is not None and row["category"] == category:
-            counts[row["term"]] = counts.get(row["term"], 0) + 1
-    return max(counts, key=lambda term: (counts[term], term)) if counts else None
+def followed(rows: list[dict], category: str, term: str | None = None) -> list[dict]:
+    # ponytail: a series is one supersession lineage, plus anything sharing a term with it.
+    # Grouping by term alone breaks the moment the model names a fact "right knee pain" where
+    # last week's was "right knee" — the chain still links them, so the chain is what decides.
+    measured = [r for r in rows if r["category"] == category and r.get("value") is not None]
+    if term is not None:
+        return [r for r in measured if r["term"] == term]
+    retired = {str(r["superseded_by"]): r for r in rows if r.get("superseded_by")}
+    groups = []
+    for head in measured:
+        if head.get("superseded_by"):
+            continue
+        lineage, cursor = [head], retired.get(str(head["id"]))
+        while cursor is not None:
+            lineage.append(cursor)
+            cursor = retired.get(str(cursor["id"]))
+        ids = {str(r["id"]) for r in lineage}
+        terms = {r["term"] for r in lineage}
+        groups.append([r for r in measured if str(r["id"]) in ids or r["term"] in terms])
+    return max(groups, key=lambda g: (len(g), g[0]["term"]), default=[])
 
 
-def _points(rows: list[dict], term: str) -> list[dict]:
+def _points(rows: list[dict]) -> list[dict]:
     latest: dict[str, dict] = {}
     for row in sorted(rows, key=lambda r: _at(r["reported_at"])):
-        if row["term"] == term and row.get("value") is not None:
-            latest[_week(row["reported_at"])] = row
+        latest[_week(row["reported_at"])] = row
     return [
         {
             "week": week,
@@ -53,16 +66,17 @@ def _points(rows: list[dict], term: str) -> list[dict]:
 def weekly(rows: list[dict], pack: VerticalPack, term: str | None = None) -> list[dict]:
     series = []
     for measure in pack.measures:
-        followed = term if term else tracked_term(rows, measure.category)
-        if followed is None:
+        tracked = followed(rows, measure.category, term)
+        if not tracked:
             continue
-        points = _points(rows, followed)
+        points = _points(tracked)
         if not points:
             continue
+        newest = max(tracked, key=lambda r: _at(r["reported_at"]))
         series.append(
             {
                 "category": measure.category,
-                "term": followed,
+                "term": newest["term"],
                 "scale_max": measure.scale_max,
                 "lower_is_better": measure.lower_is_better,
                 "points": points,
