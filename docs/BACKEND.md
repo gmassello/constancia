@@ -109,6 +109,11 @@ Two accessors, and the difference matters:
 The second one is the degraded mode: with no credentials the service still boots, serves the pages,
 runs `scripted` and `replay` calls and answers every read endpoint. Only `mode=live` is refused.
 
+`DEMO_PHONE` is the one optional setting that `POST /calls` reads on the request path: the number a
+seeded patient is dialled at, last in the chain after `request.phone` and the patient row
+(`app/main.py:80-82`). The seed ships with an empty `phone_e164`, so without it a live call on a
+seeded patient is a `400` rather than a call to a plausible-looking number that cannot exist.
+
 It is also why `DATABASE_URL` alone does not switch the store: the lifespan reads it off
 `settings_or_none()`, which is `None` until all eight required variables validate. When it is not
 `None` and carries a database, the lifespan applies `schema.sql` in a thread before building

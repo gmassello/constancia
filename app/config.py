@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     validate_twilio_signature: bool = True
 
     database_url: str = ""
+    demo_phone: str = ""
 
     language: str = "es"
     silence_s: float = 8.0

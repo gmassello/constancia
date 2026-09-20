@@ -112,6 +112,10 @@ from `seed/scripts.json`, keyed by the pack's question ids so that reordering a 
 `KeyError` instead of silently pairing the wrong sentence with the wrong question. A script that escalates
 speaks in a different order — the questions after the red flag are never asked — so it declares its own
 `order` list and that one wins (`agent_lines`, `app/replay.py:31`). `alarm` is the one that does.
+There are four: `week1`, `week2`, `week2-off` and `alarm`. `week2-off` exists because the script is
+otherwise picked from what the agent recalls, so a memory-off call would travel back to week one
+instead of showing the same week without the memory block.
+
 
 `replay` does not run the orchestrator at all: it re-emits a recorded event trace at its original
 pace, capped at 3 seconds between events. The fixtures in `seed/replay/` are produced from `scripted`
@@ -147,6 +151,9 @@ These are limits of the current design, not bugs:
 - **One worker.** Live calls live in an in-process dict (`CALLS`, `app/calls.py`). Two instances
   would not see each other's calls, and a restart loses the live trace of past calls — the history
   comes back from the database.
+- **The panel only follows a call it started itself.** It subscribes with the `call_id` that
+  `POST /calls` returned to it; there is no route that lists calls in flight, so a call placed from a
+  terminal runs to completion without ever appearing on the page.
 - **Extraction runs after hangup**, never during the call. Facts land seconds after the patient stops
   talking.
 - **~1 to 1.5 s of silence per turn**: the LLM writes the whole sentence before the TTS starts.

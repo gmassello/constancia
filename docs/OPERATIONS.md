@@ -21,6 +21,11 @@ transcript are canned: with no `GEMINI_API_KEY` the agent's lines come from `see
 Ana says she fell coming down the stairs, the guard cuts the remaining questions, and the call lands in
 the list marked as escalated. None of these buttons can place a real call.
 
+**Call without memory** runs the week-1 script, because the script is chosen by what the agent has in
+its prompt and memory off leaves it with nothing. That makes it week one, not the other side of the
+A/B: for that, *the same call without memory* runs `week2-off` — the week-2 answers with the generic
+agent lines — so the two calls differ in the memory and in nothing else.
+
 `POST /reset` puts the in-memory seed back where it started, which is what a second take needs.
 `bash video/reset.sh --check` is the same idea with a report: it reads the demo state through the API
 and says, invariant by invariant, whether it is the one the video expects.
@@ -50,7 +55,7 @@ ngrok http 8001                       # PUBLIC_BASE_URL is the https URL it prin
 make dev
 make smoke PHONE=+54911...            # geographic permissions; spends no LLM or TTS credit
 make smoke-stt && make smoke-tts      # the two failure modes that cost the most time
-make call PHONE=+54911...
+make call                             # dials DEMO_PHONE; make call PHONE=+54911... overrides it
 make smoke-analysis URL=<recording url>
 ```
 
@@ -85,6 +90,7 @@ pages, still runs `scripted` and `replay` calls and still answers every read end
 
 | Variable | Default | Effect |
 |---|---|---|
+| `DEMO_PHONE` | *(empty)* | The number a seeded patient is dialled at. The seed carries no phone, so without this a `mode=live` call on a seeded patient is a `400`. Resolution order is `request.phone`, then the patient row, then this. A real number is personal data: it never gets committed. |
 | `DATABASE_URL` | *(empty)* | **The persistence switch** — but only with the eight required variables also set, because the store is chosen from `settings_or_none()`, which returns `None` without them. With it, the store is Postgres and the schema is applied at boot; without it, the store is the JSON seed. |
 | `GEMINI_MODEL` | `gemini-3.8-flash` | |
 | `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-001` | |

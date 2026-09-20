@@ -45,7 +45,7 @@
       "t": 1.201,
       "type": "agent_turn",
       "turn_id": 1,
-      "text": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. La semana pasada me contaste que la rodilla te dolía siete de diez al subir escaleras, así que te llamo para ver cómo viene esta semana.",
+      "text": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. Te llamo para ver cómo venís con la recuperación esta semana.",
       "interrupted": false
     },
     {
@@ -75,7 +75,7 @@
       "t": 3.604,
       "type": "agent_turn",
       "turn_id": 3,
-      "text": "Contame, ¿cuánto te duele hoy del uno al diez al subir escaleras?",
+      "text": "Contame, ¿cuánto te duele hoy del uno al diez, y en qué momento o con qué movimiento lo notás más?",
       "interrupted": false
     },
     {
@@ -85,132 +85,132 @@
       "text": "La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras."
     },
     {
-      "t": 4.805,
+      "t": 4.807,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 6.006,
+      "t": 6.008,
       "type": "agent_turn",
       "turn_id": 5,
-      "text": "La semana pasada los ejercicios los hiciste tres veces. ¿Cuántas veces pudiste esta semana?",
+      "text": "¿Cuántas veces pudiste hacer los ejercicios esta semana? ¿Te costó sostener la rutina?",
       "interrupted": false
     },
     {
-      "t": 7.207,
+      "t": 7.209,
       "type": "patient_turn",
       "turn_id": 6,
       "text": "Esta semana los hice cinco veces, me organicé mejor."
     },
     {
-      "t": 7.207,
+      "t": 7.209,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 8.408,
+      "t": 8.409,
       "type": "agent_turn",
       "turn_id": 7,
       "text": "¿Tuviste alguna molestia nueva después de los ejercicios, algo de hinchazón o rigidez?",
       "interrupted": false
     },
     {
-      "t": 9.609,
+      "t": 9.611,
       "type": "patient_turn",
       "turn_id": 8,
       "text": "No, ninguna molestia nueva."
     },
     {
-      "t": 9.609,
+      "t": 9.611,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 10.81,
+      "t": 10.812,
       "type": "agent_turn",
       "turn_id": 9,
       "text": "Una última: ¿tuviste alguna caída, un dolor repentino y fuerte, o algo que te haya asustado?",
       "interrupted": false
     },
     {
-      "t": 12.012,
+      "t": 12.013,
       "type": "patient_turn",
       "turn_id": 10,
       "text": "No, nada de eso."
     },
     {
-      "t": 13.213,
+      "t": 13.214,
       "type": "agent_turn",
       "turn_id": 11,
       "text": "Listo, eso era todo por hoy. Le paso el resumen a tu kinesiólogo. Cuidate, hablamos la semana que viene.",
       "interrupted": false
     },
     {
-      "t": 13.213,
+      "t": 13.214,
       "type": "phase_done",
       "phase": "converse"
     },
     {
-      "t": 13.213,
+      "t": 13.214,
       "type": "phase_started",
       "phase": "extract"
     },
     {
-      "t": 13.213,
+      "t": 13.215,
       "type": "facts_extracted",
       "count": 2
     },
     {
-      "t": 13.213,
+      "t": 13.215,
       "type": "phase_done",
       "phase": "extract"
     },
     {
-      "t": 13.213,
+      "t": 13.215,
       "type": "phase_started",
       "phase": "store"
     },
     {
-      "t": 13.213,
+      "t": 13.215,
       "type": "memory_off",
       "phase": "store",
       "reason": "memory disabled for this call"
     },
     {
-      "t": 13.213,
+      "t": 13.215,
       "type": "phase_done",
       "phase": "store"
     },
     {
-      "t": 13.213,
+      "t": 13.215,
       "type": "phase_started",
       "phase": "summarize"
     },
     {
-      "t": 13.213,
+      "t": 13.215,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 13.213,
+      "t": 13.215,
       "type": "summary",
-      "text": "Segunda llamada de seguimiento. El dolor en rodilla derecha bajó de 7/10 a 4/10 al subir escaleras. Mejoró la adherencia: cinco sesiones esta semana contra tres la anterior. Sin molestias nuevas ni señales de alarma."
+      "text": "Llamada de seguimiento. Refiere dolor en rodilla derecha 4/10 al subir escaleras. Hizo los ejercicios cinco veces. Sin molestias nuevas ni señales de alarma."
     },
     {
-      "t": 13.213,
+      "t": 13.215,
       "type": "phase_done",
       "phase": "summarize"
     },
     {
-      "t": 13.213,
+      "t": 13.215,
       "type": "call_ended",
       "escalated": false,
       "answers": {

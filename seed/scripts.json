@@ -75,6 +75,44 @@
       "summary": "Segunda llamada de seguimiento. El dolor en rodilla derecha bajó de 7/10 a 4/10 al subir escaleras. Mejoró la adherencia: cinco sesiones esta semana contra tres la anterior. Sin molestias nuevas ni señales de alarma."
     }
   },
+  "week2-off": {
+    "memory": false,
+    "answers": [
+      "Hola, sí, soy Ana.",
+      "La rodilla mejoró bastante, ahora me duele cuatro de diez al subir escaleras.",
+      "Esta semana los hice cinco veces, me organicé mejor.",
+      "No, ninguna molestia nueva.",
+      "No, nada de eso."
+    ],
+    "facts": [
+      {
+        "fact": "dolor en la rodilla derecha 4/10 al subir escaleras",
+        "term": "rodilla derecha",
+        "category": "symptom",
+        "value": 4,
+        "quote": "me duele cuatro de diez",
+        "turn_id": 4,
+        "confidence": 0.95
+      },
+      {
+        "fact": "hizo los ejercicios cinco veces en la semana",
+        "term": "ejercicios en casa",
+        "category": "adherence",
+        "value": 5,
+        "quote": "los hice cinco veces",
+        "turn_id": 6,
+        "confidence": 0.9
+      }
+    ],
+    "agent": {
+      "greet": "Hola Ana, soy el asistente de seguimiento de tu kinesiólogo. Te llamo para ver cómo venís con la recuperación esta semana.",
+      "pain": "Contame, ¿cuánto te duele hoy del uno al diez, y en qué momento o con qué movimiento lo notás más?",
+      "adherence": "¿Cuántas veces pudiste hacer los ejercicios esta semana? ¿Te costó sostener la rutina?",
+      "side_effects": "¿Tuviste alguna molestia nueva después de los ejercicios, algo de hinchazón o rigidez?",
+      "red_flags": "Una última: ¿tuviste alguna caída, un dolor repentino y fuerte, o algo que te haya asustado?",
+      "summary": "Llamada de seguimiento. Refiere dolor en rodilla derecha 4/10 al subir escaleras. Hizo los ejercicios cinco veces. Sin molestias nuevas ni señales de alarma."
+    }
+  },
   "alarm": {
     "memory": true,
     "answers": [

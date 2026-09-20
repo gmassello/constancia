@@ -109,7 +109,13 @@ fi
 if [ "$live" = "True" ]; then
   green "credentials loaded: the live path is available"
 else
-  warn "no credentials: shoot the keyless path (docs/video-script.md)"
+  red "no credentials: beats 3, 4 and 5 are live (docs/video-script.md)"
+fi
+
+if grep -q '^DEMO_PHONE=+' .env 2>/dev/null; then
+  green "DEMO_PHONE is set (not printed)"
+else
+  red "DEMO_PHONE is empty in .env — the live buttons render and answer 400"
 fi
 
 echo

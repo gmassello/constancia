@@ -75,6 +75,12 @@ export default function PatientView({
             </div>
             <p className="controls-hint">{c.callHint}</p>
             <div className="controls-row">
+              <button
+                className="btn btn-ghost"
+                onClick={() => call(false, "scripted", "week2-off")}
+              >
+                {c.callSameWithoutMemory}
+              </button>
               <button className="btn btn-ghost" onClick={() => call(true, "replay")}>
                 {c.callReplay}
               </button>
@@ -84,9 +90,14 @@ export default function PatientView({
             </div>
             {live && (
               <div className="controls-live">
-                <button className="btn btn-secondary" onClick={() => call(true, "live")}>
-                  {c.callLive}
-                </button>
+                <div className="controls-row">
+                  <button className="btn btn-secondary" onClick={() => call(false, "live")}>
+                    {c.callLiveWithoutMemory}
+                  </button>
+                  <button className="btn btn-primary" onClick={() => call(true, "live")}>
+                    {c.callLiveWithMemory}
+                  </button>
+                </div>
                 <p className="controls-hint">{c.callLiveHint}</p>
               </div>
             )}

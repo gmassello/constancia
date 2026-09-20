@@ -13,7 +13,7 @@ from app.packs import get_pack  # noqa: E402
 PATIENT_ID = "8c9d0e1f-2a3b-4c5d-6e7f-8091a2b3c4d5"
 TAKES = (
     ("week1", "week1", False),
-    ("week2-off", "week2", False),
+    ("week2-off", "week2-off", False),
     ("week2-on", "week2", True),
     ("alarm", "alarm", True),
 )

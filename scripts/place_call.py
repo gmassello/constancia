@@ -3,15 +3,14 @@ import sys
 
 import httpx
 
-BASE = os.environ.get("CONSTANCIA_URL", "http://localhost:8000")
+BASE = os.environ.get("CONSTANCIA_URL", "http://localhost:8001")
+ANA = "8c9d0e1f-2a3b-4c5d-6e7f-8091a2b3c4d5"
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
-        raise SystemExit("usage: python scripts/place_call.py +54911...")
     payload = {
-        "patient_name": os.environ.get("PATIENT", "Ana"),
-        "phone": sys.argv[1],
+        "patient_id": os.environ.get("PATIENT_ID", ANA),
+        "phone": sys.argv[1] if len(sys.argv) > 1 else None,
         "pack": os.environ.get("PACK", "rehab"),
         "memory": os.environ.get("MEMORY", "on") != "off",
     }

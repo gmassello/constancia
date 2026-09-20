@@ -71,8 +71,8 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
 
 | # | After | What the human does | What must happen |
 |---|---|---|---|
-| C1 | Stage 1 | Fill `.env` (Gemini, AssemblyAI, Twilio SID/token/number, ElevenLabs key/voice), `ngrok config add-authtoken`, `ngrok http 8001`, answer the phone | `make smoke` rings; `make call PHONE=+54...`: greeting, 4 questions in order, barge-in, goodbye; `/calls/{id}/trace` shows both sides |
-| C2 | Stage 2 | Create a Supabase project (or use `make db` locally), set `DATABASE_URL`, answer two calls | Call 1 from scratch; call 2 opens on the knee; 7/10 superseded by 4/10 in the DB; `memory=off` does not ask about the knee |
+| C1 | Stage 1 | Fill `.env` (Gemini, AssemblyAI, Twilio SID/token/number, ElevenLabs key/voice, `DEMO_PHONE`), `ngrok config add-authtoken`, `ngrok http 8001`, answer the phone | `make smoke` rings; `MEMORY=off make call`: greeting, 4 questions in order, barge-in, goodbye; `/calls/{id}/trace` shows both sides |
+| C2 | Stage 2 | Create a Supabase project (or use `make db` locally), set `DATABASE_URL`, answer three calls in a row with no reset | Calls 1 and 2 run with `memory=off` and write nothing, so the 7/10 stays current; call 3 opens on the knee and supersedes the 7/10 with the 4/10. The supersession evidence comes from call 3 alone |
 | C3 | Stage 3 | Open the panel during a call | Live transcript, rail with highlight, superseded chain, chart, replay with no keys |
 | C4 | Stage 4 | Render account, deploy, recording session with the skill, upload the video, submit the deck on lablab | Public URL from another network; `video/reset.sh --check` all green; `demo.mp4` under 300 s; `SUBMISSION.md` with evidence on every row |
 
@@ -88,7 +88,7 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
 constancia/
   pyproject.toml          uv, python 3.12, exact versions (==), [dev] pytest, pytest-asyncio, ruff
   uv.lock
-  Makefile                dev / test / lint / demo / call PHONE=... / smoke / smoke-stt / smoke-tts / models
+  Makefile                dev / test / lint / demo / call [PHONE=...] / smoke / smoke-stt / smoke-tts / models
   Dockerfile              ringdown's (uv, non-root, $PORT)
   render.yaml             web docker, plan free, healthCheckPath /health, envVars sync:false
   .env.example            every key with an empty value
@@ -351,7 +351,7 @@ Then **C3**.
                           per call, "what can come out differently", opening and closing URLs
   docs/deck.md            slides (problem, product, demo, architecture, business, Law 25.326, team)
   web/index.html          the public landing (done — see docs/LANDING.md)
-  video/out/endcard.png   name, URL, repo, MIT via ffmpeg drawtext
+  video/out/endcard.png   name, URL, repo, MIT — headless Chrome over the project's own tokens
   SUBMISSION.md           evidence on every row (path, URL or video timestamp)
   README.md               final: 30-second version, criteria table, Honest limits, how to run, video
 ```
@@ -380,7 +380,8 @@ Then **C3**.
 ```bash
 curl https://<render-url>/health                 # from another network
 bash video/reset.sh --check                      # all green
-VIDEO_DIR=$PWD/video bash .../build-video.sh video/out/raw-fitted.mov   # demo.mp4 under 300 s
+VIDEO_DIR=$PWD/video MAX_SECONDS=300 OUTRO="video/out/endcard.png:5" OUTRO_REPLACE=2.4 \
+  bash .../build-video.sh video/out/raw-fitted.mov            # demo.mp4, 3:42.1 under the 5:00 cap
 ```
 
 Then **C4** and submission on lablab (human).

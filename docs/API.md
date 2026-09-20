@@ -25,7 +25,7 @@ The request body is `CallRequest` (`main.py:55`):
 |---|---|---|---|
 | `patient_id` | UUID | required | Looked up in the store; `patient_name` and `phone` fall back to the row. |
 | `patient_name` | str | from the store | |
-| `phone` | str | from the store | Validated against `E164` (`app/config.py:6`). |
+| `phone` | str | store row, then `DEMO_PHONE` | Resolution order is `request.phone`, then the patient row, then the `DEMO_PHONE` setting. Validated against `E164` (`app/config.py:6`). |
 | `pack` | str | the patient's `program_type`, else `rehab` | `400` on an unknown pack. |
 | `memory` | bool | `true` | `false` skips recall and store, nothing else. |
 | `mode` | `live` \| `scripted` \| `replay` | `live` | |

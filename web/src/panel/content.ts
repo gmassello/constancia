@@ -65,6 +65,8 @@ const EN: Record<string, string> = {
     "First follow-up call. Reports right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Mild stiffness after the exercises, no red flags.",
   "Segunda llamada de seguimiento. El dolor en rodilla derecha bajó de 7/10 a 4/10 al subir escaleras. Mejoró la adherencia: cinco sesiones esta semana contra tres la anterior. Sin molestias nuevas ni señales de alarma.":
     "Second follow-up call. Right knee pain dropped from 7/10 to 4/10 climbing stairs. Adherence improved: five sessions this week against three the week before. No new discomfort and no red flags.",
+  "Llamada de seguimiento. Refiere dolor en rodilla derecha 4/10 al subir escaleras. Hizo los ejercicios cinco veces. Sin molestias nuevas ni señales de alarma.":
+    "Follow-up call. Reports right knee pain 4/10 climbing stairs. Did the exercises five times. No new discomfort and no red flags.",
   "Llamada de seguimiento interrumpida por señal de alarma. Dolor de rodilla derecha 5/10 al subir escaleras. Hizo los ejercicios dos veces. Refiere una caída bajando la escalera el martes: se le pidió contactar al kinesiólogo hoy mismo y la llamada quedó marcada.":
     "Follow-up call cut short by a red flag. Right knee pain 5/10 climbing stairs. Did the exercises twice. Reports a fall coming down the stairs on Tuesday: she was asked to contact her physio today and the call was flagged.",
 

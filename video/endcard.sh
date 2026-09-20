@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # endcard.sh — the last frame of the video: name, URL, repo, licence.
 #
-#   PUBLIC_URL=https://constancia.onrender.com bash video/endcard.sh
+#   PUBLIC_URL=constancia.onrender.com bash video/endcard.sh
+#
+# No scheme: the card shows a bare domain. Render it AFTER the Render deploy —
+# the hostname is a guess until the service exists.
 #
 # Renders video/endcard.html at 1280x800 with headless Chrome, so the card uses
 # the project's own tokens instead of a second palette written in ffmpeg.

@@ -14,9 +14,11 @@ type Strings = {
   callWithoutMemory: string
   callWithMemory: string
   callHint: string
+  callSameWithoutMemory: string
   callReplay: string
   callAlarm: string
-  callLive: string
+  callLiveWithoutMemory: string
+  callLiveWithMemory: string
   callLiveHint: string
 
   liveTitle: string
@@ -108,10 +110,12 @@ const en: Strings = {
   callWithMemory: "Call with memory",
   callHint:
     "Same questions either way. With memory the call opens with what she said last week, and a fact that contradicts an old one retires it.",
+  callSameWithoutMemory: "the same call without memory",
   callReplay: "replay a recorded call",
   callAlarm: "call with a red flag",
-  callLive: "Dial her real phone",
-  callLiveHint: "This one rings an actual number and spends credit.",
+  callLiveWithoutMemory: "Real phone, no memory",
+  callLiveWithMemory: "Real phone, with memory",
+  callLiveHint: "These ring an actual number and spend credit.",
 
   liveTitle: "Call in progress",
   liveNow: "live",
@@ -229,10 +233,12 @@ const es: Strings = {
   callWithMemory: "Llamar con memoria",
   callHint:
     "Las mismas preguntas en los dos casos. Con memoria la llamada abre con lo que contó la semana pasada, y un dato que contradice a uno viejo lo retira.",
+  callSameWithoutMemory: "la misma llamada sin memoria",
   callReplay: "reproducir una llamada grabada",
   callAlarm: "llamada con señal de alarma",
-  callLive: "Marcar su teléfono real",
-  callLiveHint: "Esta hace sonar un número de verdad y gasta crédito.",
+  callLiveWithoutMemory: "Teléfono real, sin memoria",
+  callLiveWithMemory: "Teléfono real, con memoria",
+  callLiveHint: "Estas hacen sonar un número de verdad y gastan crédito.",
 
   liveTitle: "Llamada en curso",
   liveNow: "en vivo",

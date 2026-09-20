@@ -114,3 +114,22 @@ def test_without_a_database_the_store_is_the_seed(client: TestClient) -> None:
     assert unknown.json()["facts"] == []
 
     assert [p["name"] for p in client.get("/patients").json()] == ["Ana"]
+
+
+def test_live_dials_the_demo_phone_when_the_patient_row_has_none(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.config import get_settings
+
+    dialled: list[str] = []
+    monkeypatch.setattr("app.main.place_call", lambda call_id, to: dialled.append(to) or "CA1")
+    body = {"patient_id": "8c9d0e1f-2a3b-4c5d-6e7f-8091a2b3c4d5", "mode": "live"}
+
+    monkeypatch.setenv("DEMO_PHONE", "")
+    get_settings.cache_clear()
+    assert client.post("/calls", json=body).status_code == 400
+
+    monkeypatch.setenv("DEMO_PHONE", "+541199999999")
+    get_settings.cache_clear()
+    assert client.post("/calls", json=body).status_code == 200
+    assert dialled == ["+541199999999"]

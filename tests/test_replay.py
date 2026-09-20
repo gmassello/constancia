@@ -36,6 +36,19 @@ async def test_scripted_picks_week_1_for_a_patient_with_no_history() -> None:
     assert call.transcript[3]["text"].startswith("La rodilla derecha me duele siete")
 
 
+async def test_the_week_2_off_script_never_quotes_last_week() -> None:
+    store = load_seed()
+    call = build(memory=False)
+    await replay.run_scripted(call, store, "week2-off", delay_s=0.0)
+
+    assert call.transcript[3]["text"].startswith("La rodilla mejoró bastante")
+    spoken = " ".join(t["text"] for t in call.transcript if t["speaker"] == "agent")
+    assert "semana pasada" not in spoken
+
+    current = await store.current_facts(PATIENT)
+    assert [f["value"] for f in current if f["term"] == "rodilla derecha"] == [7]
+
+
 async def test_the_alarm_script_escalates_and_stops_asking() -> None:
     store = load_seed()
     call = build()

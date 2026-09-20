@@ -117,7 +117,7 @@ ngrok http 8001                       # PUBLIC_BASE_URL is the https URL it prin
 make dev
 make smoke PHONE=+54911...            # geographic permissions, no LLM or TTS credit spent
 make smoke-stt && make smoke-tts      # the two failure modes that cost the most time
-make call PHONE=+54911...
+make call                             # dials DEMO_PHONE; make call PHONE=+54911... overrides it
 make smoke-analysis URL=<recording url>   # entity detection and sentiment on a real recording
 ```
 
@@ -139,8 +139,8 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
   key term and summary that ships in `seed/` has an English counterpart in `web/src/panel/content.ts`, keyed by
   the Spanish string, so the demo reads end to end in either language. A fact a real call extracts is not in
   that table and falls through in Spanish — deliberately, since showing an invented translation of a verbatim
-  quote is worse than showing the quote. That path needs a Gemini key and a phone, so it is not the one a
-  reader of this README will hit first.
+  quote is worse than showing the quote. That path needs a Gemini key and a phone, and it is the one the demo
+  video shows: the calls in it are real, so the panel reads English around the patient's own Spanish.
 - **The landing's hero card is a scripted loop**, not a live call: two canned scripts with the real copy — week
   one with memory off, week two with it on — behind a selector, with step, pause and replay controls under
   them, plus a reset that takes the whole sequence back to week one. The panel is where a real call is watched. The call itself happened in

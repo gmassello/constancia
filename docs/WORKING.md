@@ -37,7 +37,7 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 95 passed, 1 skipped
+uv run pytest -q          # 97 passed, 2 skipped
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
@@ -53,20 +53,20 @@ missing translation fails the build, and presentational components do not earn a
 
 ## Tests
 
-Twelve files, 96 collected, 95 passing with no environment variable set — the 96th is the Postgres
-integration test and skips itself.
+Twelve files, 99 collected, 97 passing with no environment variable set — the other two are the
+Postgres integration tests and skip themselves.
 
 | File | Covers |
 |---|---|
 | `tests/test_orchestrator.py` | The protocol: question order, the red-flag cut, the silence re-prompt, a non-critical phase failing soft, a hangup that still reaches `summarize`, all three packs end to end |
 | `tests/test_queries.py` | Multi-step supersession chains, the weekly series per measure, `keyterms_at` as a point-in-time view |
-| `tests/test_twilio_routes.py` | The webhooks: TwiML, bad signature, unknown call, a recording URL that is not Twilio's |
+| `tests/test_twilio_routes.py` | The webhooks: TwiML, bad signature, unknown call, a recording URL that is not Twilio's, and the phone fallback down to `DEMO_PHONE` |
 | `tests/test_extract.py` | Grounding in all four shapes, retry on invalid JSON, giving up after three, an orphan `supersedes` |
 | `tests/test_memory.py` | Seed loading, idempotent `supersede`, key-term filtering by pack, L2 normalisation |
 | `tests/test_channel.py` | µ-law streaming, waiting on the mark, barge-in that cancels and clears, 100 ms framing, hangup, start timeout |
 | `tests/test_sse.py` | Late subscriber gets the buffer, `Last-Event-ID`, keep-alive, unsubscribe, close on `call_ended` |
 | `tests/test_analysis.py` | The AssemblyAI request body, `summarize` over a fixture, and that `run` never propagates a failure |
-| `tests/test_replay.py` | Scripted week1→week2 with supersession, automatic script choice, the `alarm` script cutting the protocol short, monotonic `export`, fixture playback |
+| `tests/test_replay.py` | Scripted week1→week2 with supersession, automatic script choice, the `week2-off` script never quoting last week, the `alarm` script cutting the protocol short, monotonic `export`, fixture playback |
 | `tests/test_guard.py` | Eight phrases that must escalate and eight that must not, accents and capitals, per-pack rules |
 | `tests/test_import_safety.py` | That importing `app.main` with no environment does not raise, and the `Settings` validation |
 | `tests/test_db.py` | **Integration.** A real Postgres round trip. Skips without `DATABASE_URL`. |

@@ -77,7 +77,9 @@ async def create_call(request: CallRequest) -> dict:
     patient_id = str(request.patient_id)
     row = await STORE.patient(patient_id) if STORE else None
     name = request.patient_name or (row or {}).get("name")
-    phone = request.phone or (row or {}).get("phone_e164")
+    settings = settings_or_none()
+    demo_phone = settings.demo_phone if settings else ""
+    phone = request.phone or (row or {}).get("phone_e164") or demo_phone
     if not name or (request.mode == "live" and not phone):
         raise HTTPException(status_code=400, detail="unknown patient: send patient_name and phone")
     try:
@@ -93,7 +95,7 @@ async def create_call(request: CallRequest) -> dict:
         )
     )
     if request.mode == "live":
-        if not settings_or_none():
+        if not settings:
             raise HTTPException(status_code=503, detail="live mode needs credentials")
         call.twilio_sid = place_call(call.id, phone)
     elif request.mode == "scripted":

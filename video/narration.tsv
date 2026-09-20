@@ -37,21 +37,24 @@ beat	gap	caption	speak
 2:product	1.2
 
 3:call-one	0.8	Week one. The agent asks from scratch	Week one. The agent asks from scratch.
-3:call-one	0.5	It dials a real phone. Nothing on file yet
-3:call-one	0.6	AssemblyAI transcribes her as she speaks	Assembly A I transcribes her as she speaks.
+3:call-one	0.5	Nothing on file, so it opens generically
+3:call-one	0.6	A real number rings, off camera	A real number rings, off camera.
+3:call-one	0.5	AssemblyAI transcribes her as she speaks	Assembly A I transcribes her as she speaks.
 3:call-one	1.5
 3:call-one	0.4	It asks the four rehab questions in order
+3:call-one	0.5	The call is in Spanish. The panel stays in English	The call is in Spanish. The panel stays in English.
+3:call-one	0.4	What she said is quoted as she said it
 3:call-one	3.0
 3:call-one	0.4	Right knee, 7 out of 10, climbing stairs	Right knee, seven out of ten, climbing stairs.
 3:call-one	0.5	The exercises, three times this week
 3:call-one	3.2
-3:call-one	0.4	She hangs up and the facts land
-3:call-one	0.5	Every fact carries her exact words
+3:call-one	0.4	She hangs up and the extractor reads the transcript
+3:call-one	0.5	Two facts, and every one needs a literal quote
 3:call-one	0.6	No quote, no fact. The extractor drops it	No quote, no fact. The extractor drops it.
 3:call-one	3.5
 
 4:memory-off	0.8	One week later. The same patient	One week later. The same patient.
-4:memory-off	0.5	First, with memory switched off
+4:memory-off	0.5	Same number, dialled again, memory still off
 4:memory-off	1.2
 4:memory-off	0.4	The agent asks the generic protocol
 4:memory-off	0.5	Nothing about the knee. It never knew	Nothing about the knee. It never knew.
@@ -59,9 +62,11 @@ beat	gap	caption	speak
 4:memory-off	0.4	This is every follow-up bot you have used
 4:memory-off	2.5
 
-5:memory-on	0.8	Now the same call, with memory on	Now the same call, with memory on.
+5:memory-on	0.8	Now we dial once more, with memory on	Now we dial once more, with memory on.
+5:memory-on	0.5	Same number, same agent. One switch	Same number, same agent. One switch.
 5:memory-on	1.5
 5:memory-on	0.4	It opens by asking about the knee on stairs
+5:memory-on	0.5	And it primes the recogniser with her own words
 5:memory-on	3.0
 5:memory-on	0.4	She says it is down to 4 out of 10	She says it is down to four out of ten.
 5:memory-on	3.0
@@ -81,5 +86,5 @@ beat	gap	caption	speak
 
 7:close	0.8	Every call costs cents. The physio gets the hour back	Every call costs cents. The physiotherapist gets the hour back.
 7:close	0.5	Sold per professional, not per patient
-7:close	0.6	Built on AssemblyAI Universal-Streaming	Built on Assembly A I Universal Streaming.
+7:close	0.6	Built on AssemblyAI Universal-Streaming	Built on Assembly A I Universal Streaming. Three real calls, transcribed live.
 7:close	0.8	constancia. Thanks for watching	Constancia. Thanks for watching.

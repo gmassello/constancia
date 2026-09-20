@@ -183,6 +183,15 @@ own pre-paint script and reads the same three keys.
 | `Keyterms` | Where the key terms came from and what they are for, then the terms themselves | props |
 | `Calls` | One row per past call: date, memory and escalation tags, the summary, and the transcript folded away | props |
 
+### The call controls
+
+Seven buttons in `PatientView`, in two groups. The scripted row pairs *Call without memory* with
+*Call with memory*; under it, three ghost links run *the same call without memory* (the `week2-off`
+script), a replay of a recorded call, and a call with a red flag. The live row only renders when
+`GET /health` reports `live: true`, and mirrors the scripted pair: *Real phone, no memory* and *Real
+phone, with memory*, both `mode: "live"`. They dial `DEMO_PHONE`, since the seeded patient carries no
+number of her own.
+
 ### Consuming the SSE
 
 `subscribe()` (`web/src/panel/api.ts`) is native `EventSource`, no library, and returns its own close
