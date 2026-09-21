@@ -29,7 +29,10 @@ agent lines — so the two calls differ in the memory and in nothing else.
 
 `POST /reset` puts the in-memory seed back where it started, which is what a second take needs.
 `bash video/reset.sh --check` is the same idea with a report: it reads the demo state through the API
-and says, invariant by invariant, whether it is the one the video expects.
+and says, invariant by invariant, whether it is the one the video expects. It then spends one request
+on Gemini and one on AssemblyAI and compares `PUBLIC_BASE_URL` against the tunnel ngrok is actually
+serving, because those three fail in silence: a spent quota, a rejected key and a stale tunnel all
+surface as a phone that rings and an agent that says nothing. No key is printed.
 
 The same thing from the terminal, without building the front end:
 

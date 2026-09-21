@@ -14,24 +14,58 @@ transcript of both sides while the phone rings off camera.
 
 ```bash
 ngrok http 8001                 # PUBLIC_BASE_URL in .env = the https URL it prints
+make web && make take           # the panel at http://localhost:8001/panel
 bash video/reset.sh --check     # every line green, or do not record
-make web && make dev            # the panel at http://localhost:8001/panel
-curl -s localhost:8001/health   # "live": true, or the live buttons do not render at all
 ```
 
+`reset.sh --check` is the gate. Past the demo state it censes the three things that fail in silence
+on camera: a Gemini quota that is gone, an AssemblyAI key that is rejected, and a `PUBLIC_BASE_URL`
+that is not the ngrok that is running. It spends one request on each service and prints no key. Each
+of them reads as a model bug from the other side of the camera, which is why none of them is left to
+be noticed during a take.
+
 `.env` needs `DEMO_PHONE` set to the phone that will be answered off camera, and `PUBLIC_BASE_URL`
-set to the tunnel URL **before** `make dev`. A stale tunnel URL makes every webhook 403 in
+set to the tunnel URL **before** `make take`. A stale tunnel URL makes every webhook 403 in
 `app/security.py:12`, and the symptom is a phone that rings and then goes silent — it reads as a
 model bug and it is not one. With `.env` complete but `DEMO_PHONE` empty the live buttons still
 render and answer `400 unknown patient` in the panel's error line: a dead button on camera.
+
+**Record against `make take`, not `make dev`.** `make dev` runs uvicorn with `--reload`: any save
+under the repo — an editor's autosave is enough — restarts it, the lifespan runs `load_seed()` again,
+and the take's calls vanish. The retired 7/10 comes back as current, mid-video. It cost one take.
+`make take` is the same server without the reloader, so the state cannot be swept out from under a
+recording.
 
 Window mode (`Cmd+Shift+5` → *Record Selected Window*), 1280x800, mic off, phone off camera, the
 browser in **English** and the **light** theme — both are the defaults, and English is what the
 judges read. Between takes: `bash video/reset.sh`, then delete the old `video/raw.mov`.
 
-Check the Gemini and AssemblyAI quotas in their consoles **before** the session. A rehearsal plus a
-take plus the verification run can exhaust a daily free tier, and it does not fail cleanly: the
-agent answers with a generic error and the beat dies on camera for no visible reason.
+**The recorded window has exactly one tab, and nothing the human reads lives in it.** A window
+capture records whichever *tab* is in front, and Claude's screenshots do not: the extension
+photographs the tab it drives, so Claude sees the demo while the file records whatever the human
+switched to. It cost a full take — two files, seven beats, and the reading sheet on screen for all
+of it, with Claude reporting "going perfectly" the whole way. The patient's lines go on a phone.
+Everything else — this chat, mail, the tunnel dashboard — goes in the **other** Chrome window
+(`Cmd+N`, never `Cmd+T`). One tab is also what keeps the tab strip clean, and the strip is in every
+frame: the discarded take has LinkedIn, WhatsApp, Gmail and "Las líneas de Ana" legible across the
+133 seconds of it that were otherwise usable.
+
+**Pull a control frame 30 seconds in and look at it.** It is the only check on any of the above that
+does not go through Claude, and if the take is already wrong it is what the mistake costs.
+
+```bash
+ffmpeg -v error -ss 30 -i video/raw.mov -frames:v 1 -y /tmp/control.jpg
+```
+
+One tab, the demo on it, and no *"Claude started debugging this browser"* banner. To sweep a finished
+file for the same fault, the reading sheet is dark and the demo is light, so one number every five
+seconds separates them:
+
+```bash
+ffmpeg -v error -i video/raw.mov -vf "fps=1/5,crop=iw*0.6:ih*0.5:iw*0.2:ih*0.35,\
+signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-" -f null - 2>/dev/null |
+  paste - - | sed -E 's/.*pts_time:([0-9.]+).*YAVG=([0-9.]+)/\1 \2/'
+```
 
 ## The two paths
 
@@ -140,20 +174,6 @@ with the week-2 lines:
 week-2 answers with the generic agent lines, because an agent with no memory block cannot open on the
 knee.
 
-**Nothing the human reads may live in the captured window.** A window capture records whichever
-*tab* is in front, and Claude's screenshots do not: the extension photographs the tab it drives, so
-Claude sees the demo while the file records whatever the human switched to. It cost a full take —
-two files, seven beats, and the reading sheet on screen for all of it, with Claude reporting "going
-perfectly" the whole way. The patient's lines go on a phone, or at least in a **second Chrome
-window** (`Cmd+N`, never `Cmd+T`). Sweep the recording for it before assembling: the tab strip is in
-every frame, so one frame at the 30 s mark tells you which tab was in front.
-
-**Record against `make take`, not `make dev`.** `make dev` runs uvicorn with `--reload`: any save
-under the repo — an editor's autosave is enough — restarts it, the lifespan runs `load_seed()` again,
-and the take's calls vanish. The retired 7/10 comes back as current, mid-video. It cost one take.
-`make take` is the same server without the reloader, so the state cannot be swept out from under a
-recording.
-
 **No reset between beats 3, 4 and 5.** With memory off `store_facts` returns early *and* `summarize`
 skips its `save_call` (`app/orchestrator.py:70,89`), so beats 3 and 4 write nothing at all: last
 week's 7/10 is still on file and still current when beat 5 dials. A reset is only needed before
@@ -231,6 +251,16 @@ The hostname is `constancia-voice.onrender.com`, which is what `render.yaml` cla
 `constancia.onrender.com` belongs to an unrelated app, so Render would have appended a random suffix
 and the card would have pointed at somebody else's form. Re-render the card if the deploy ever lands
 on a different hostname; it is spliced in after the take, so it never delays recording.
+
+**The service does not exist yet**, so the card currently names a URL that 404s. Verify before
+uploading, because a burned-in address that answers nothing is worse than no address:
+
+```bash
+curl -s -o /dev/null -D- https://constancia-voice.onrender.com/health | grep -i 'HTTP/\|x-render-routing'
+```
+
+`x-render-routing: no-server` means Render has no service on that hostname. Either the deploy lands
+before the upload, or the card points at the GitHub repo instead.
 
 ```bash
 PUBLIC_URL=constancia-voice.onrender.com bash video/endcard.sh   # no scheme: a bare domain on the card

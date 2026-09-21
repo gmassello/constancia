@@ -4,6 +4,10 @@
 #   bash video/reset.sh --check    reports, changes nothing. Run it before every take.
 #   bash video/reset.sh            makes the state be this, then reports.
 #
+# Either way it ends by censing what fails in silence on camera: a dead
+# Gemini or AssemblyAI quota, and a PUBLIC_BASE_URL that is not the ngrok
+# that is running. Both cost one request each; neither prints a key.
+#
 # Every invariant is read through the API, so it works the same against the
 # in-memory seed and against Postgres.
 #
@@ -118,9 +122,53 @@ else
   red "DEMO_PHONE is empty in .env — the live buttons render and answer 400"
 fi
 
-echo
-echo "  check the Gemini and AssemblyAI quotas in their consoles by hand:"
-echo "  a rehearsal, a take and a verification run can exhaust a daily free tier."
+envval() { sed -n "s/^$1=//p" .env 2>/dev/null | head -1; }
+
+gemini_key=$(envval GEMINI_API_KEY)
+gemini_model=$(envval GEMINI_MODEL)
+if [ -z "$gemini_key" ]; then
+  red "GEMINI_API_KEY is empty in .env — every reply falls back to the scripted LLM"
+else
+  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
+    -X POST "https://generativelanguage.googleapis.com/v1beta/models/$gemini_model:generateContent" \
+    -H "x-goog-api-key: $gemini_key" -H 'content-type: application/json' \
+    -d '{"contents":[{"parts":[{"text":"hi"}]}],"generationConfig":{"maxOutputTokens":1}}')
+  case "$code" in
+    200) green "Gemini quota alive ($gemini_model answered 200)" ;;
+    429) red "Gemini answered 429 — the daily quota is gone. On camera this is a generic agent error, not a visible rate limit" ;;
+    *)   red "Gemini answered $code — not a quota failure, but every agent turn dies on camera just the same" ;;
+  esac
+fi
+
+aai_key=$(envval ASSEMBLYAI_API_KEY)
+if [ -z "$aai_key" ]; then
+  red "ASSEMBLYAI_API_KEY is empty in .env — nothing transcribes the call"
+else
+  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
+    -H "authorization: $aai_key" 'https://api.assemblyai.com/v2/transcript?limit=1')
+  case "$code" in
+    200) green "AssemblyAI key accepted (account reachable)" ;;
+    401) red "AssemblyAI answered 401 — the key is rejected" ;;
+    429) red "AssemblyAI answered 429 — rate limited. The stream opens and closes with no turns" ;;
+    *)   red "AssemblyAI answered $code — nothing transcribes the call" ;;
+  esac
+fi
+
+configured=$(envval PUBLIC_BASE_URL)
+running=$(curl -sf --max-time 3 http://localhost:4040/api/tunnels 2>/dev/null | python3 -c '
+import json, sys
+tunnels = json.load(sys.stdin)["tunnels"]
+https = [t["public_url"] for t in tunnels if t["public_url"].startswith("https")]
+print(https[0] if https else "")
+' 2>/dev/null)
+if [ -z "$running" ]; then
+  red "no ngrok tunnel on localhost:4040 — every Twilio webhook 403s in app/security.py:12 and the phone rings, then goes silent"
+elif [ "$running" = "$configured" ]; then
+  green "PUBLIC_BASE_URL is the tunnel that is running"
+else
+  red "PUBLIC_BASE_URL is stale: the service expects $configured, ngrok is serving $running (403 in app/security.py:12)"
+fi
+
 echo
 
 if [ "$fails" -gt 0 ]; then
