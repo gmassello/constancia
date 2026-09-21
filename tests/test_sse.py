@@ -38,6 +38,25 @@ async def test_a_late_subscriber_gets_the_whole_buffer_in_order_then_live_events
         await gen.aclose()
 
 
+async def test_the_buffer_is_marked_replayed_and_live_events_are_not() -> None:
+    call = build()
+    for text in ("a", "b"):
+        call.emit("agent_turn", text=text)
+
+    snapshot, queue = call.subscribe()
+    gen = main.event_stream(call, snapshot, queue, 0)
+    try:
+        buffered = payloads(await drain(gen, 3))
+        assert [e["replayed"] for e in buffered] == [True, True]
+
+        call.emit("agent_turn", text="c")
+        live = payloads(await drain(gen, 1))[0]
+        assert "replayed" not in live
+        assert "replayed" not in call.trace[-1]
+    finally:
+        await gen.aclose()
+
+
 async def test_last_event_id_skips_what_the_client_already_saw() -> None:
     call = build()
     for text in ("a", "b", "c"):

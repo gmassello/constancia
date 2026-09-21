@@ -37,7 +37,7 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 145 tests, the 3 that need a database skipped
+uv run pytest -q          # 146 tests, the 3 that need a database skipped
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
@@ -55,7 +55,7 @@ missing translation fails the build, and presentational components do not earn a
 
 ## Tests
 
-Fourteen test files, 145 collected with no environment variable set. Every one of them passes
+Fourteen test files, 146 collected with no environment variable set. Every one of them passes
 except the three Postgres integration tests, which skip themselves.
 
 | File | Covers |

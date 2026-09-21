@@ -53,7 +53,7 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 |---|---:|---|
 | `web/src/panel/panel.css` | 346 | Layout and styles, on the aliases. |
 | `web/src/panel/copy.ts` | 455 | Two languages, one register, plus the maps for raw backend values. |
-| `web/src/panel/ActivityRail.tsx` | 142 | Turns each trace event into a labelled line. |
+| `web/src/panel/ActivityRail.tsx` | 150 | Turns each trace event into a labelled line. |
 | `web/src/panel/PatientView.tsx` | 153 | Loads the patient's data and composes the five cards. |
 | `web/src/panel/content.ts` | 109 | The ES→EN table for canned patient data. |
 | `web/src/panel/App.tsx` | 97 | Shell: sidebar, backend status, the two toggles, patient list. |
@@ -219,6 +219,12 @@ belongs in `/trace`, not on screen. The four failure types — `phase_failed`, `
 prints the backend's `error` verbatim as the detail: it is a `repr(exc)`, a measurement, so it is not
 translated. The `default` branch prints the raw event type — reachable only if the backend starts
 emitting something new.
+
+The `flash` highlight is not a timer. A line gets `.fresh` when its frame did **not** carry
+`replayed` — the flag the SSE generator puts on everything it sends from the buffer — and the
+animation fires because the line mounts, once, keyed by `seq` on a list that only grows. Two things
+break it and neither is loud: dropping the flag makes the whole backlog flash on every reconnect,
+and a key that is not `seq` remounts the lines and flashes them all again.
 
 ## Motion and accessibility
 

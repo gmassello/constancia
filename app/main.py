@@ -221,9 +221,13 @@ async def event_stream(
 ) -> AsyncIterator[str]:
     try:
         yield "retry: 3000\n\n"
+        # ponytail: the snapshot and the live events arrive through one `onmessage`, so the client
+        # cannot tell them apart on its own and the rail ends up flashing the whole backlog as new.
+        # A flag on the frame, not on `call.trace`: the stored event is what `/trace` and the
+        # fixtures carry, and this is a fact about the delivery, not about the call.
         for event in snapshot:
             if event["seq"] > last_id:
-                yield sse_frame(event)
+                yield sse_frame({**event, "replayed": True})
         if snapshot and snapshot[-1]["type"] == "call_ended":
             return
         while True:

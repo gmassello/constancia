@@ -6,6 +6,7 @@ import { label, type Copy } from "./copy"
 const NEAR_BOTTOM = 40
 
 type Line = { key: number; tone: string; label: string; text: string; detail?: string }
+type Shown = Line & { fresh: boolean }
 
 function describe(event: Event, c: Copy): Line | null {
   const key = event.seq
@@ -124,14 +125,21 @@ export default function ActivityRail({
     if (atBottom) node.scrollTop = node.scrollHeight
   }, [events])
 
-  const lines = events.map((event) => describe(event, c)).filter((line): line is Line => line !== null)
+  // ponytail: the flash fires when a line mounts, and lines are keyed by `seq` on a list that only
+  // grows, so each one animates exactly once. `replayed` is what the server puts on the frames it
+  // sends from the buffer, which is the only way to tell a backlog line from one landing now.
+  // Anything that makes these remount — reordering, a key that is not `seq` — flashes them again.
+  const lines: Shown[] = events.flatMap((event) => {
+    const line = describe(event, c)
+    return line ? [{ ...line, fresh: !event.replayed }] : []
+  })
 
   return (
     <div className="rail" ref={box}>
       <h3>{c.activity}</h3>
       {lines.length === 0 && <p className="empty">{c.waitingForCall}</p>}
       {lines.map((line) => (
-        <div className={`event ${line.tone} fresh`} key={line.key}>
+        <div className={`event ${line.tone}${line.fresh ? " fresh" : ""}`} key={line.key}>
           <span className="event-label">{line.label}</span>
           <span className="event-text">{line.text}</span>
           {line.detail && <span className="event-detail">{line.detail}</span>}
