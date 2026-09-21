@@ -18,6 +18,9 @@ def stream_twiml(call_id: str) -> str:
     return str(response)
 
 
+RING_TIMEOUT_S = 30
+
+
 def place_call(call_id: str, to: str) -> str:
     settings = get_settings()
     base = settings.public_base_url.rstrip("/")
@@ -29,5 +32,6 @@ def place_call(call_id: str, to: str) -> str:
         status_callback=f"{base}/voice/status",
         record=True,
         recording_status_callback=f"{base}/voice/recording",
+        timeout=RING_TIMEOUT_S,
     )
     return call.sid

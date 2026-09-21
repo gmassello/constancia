@@ -83,7 +83,7 @@ function describe(event: Event, c: Copy): Line | null {
         tone: "rejected",
         label: c.railFailed,
         text: label(c.phase, event.phase ?? event.type.replace("_failed", "")),
-        detail: String(event.error ?? ""),
+        detail: c.railErrorDetail,
       }
     case "facts_lost":
       return {
@@ -91,7 +91,7 @@ function describe(event: Event, c: Copy): Line | null {
         tone: "rejected",
         label: c.railFailed,
         text: c.railFactsLost(Number(event.count)),
-        detail: String(event.error ?? ""),
+        detail: c.railErrorDetail,
       }
     case "extract_retry":
     case "llm_retry":

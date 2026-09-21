@@ -63,7 +63,10 @@ the call would put dead air on it.
 Failures are handled per phase (`app/orchestrator.py`). A `CallEnded` (the patient hung up)
 emits `patient_hung_up` and the walk continues, so a call that drops after the second question still
 gets extracted, stored and summarised. Any other exception in a critical phase breaks the loop; in a
-non-critical one it emits `phase_failed` and moves on. `call_ended` is always emitted.
+non-critical one it emits `phase_failed` and moves on. `call_ended` is always emitted once a
+call reaches `run_call`. A live call that nobody answers never gets there — the WebSocket only
+opens when somebody picks up — so `/voice/status` emits it instead, carrying Twilio's
+`CallStatus` as the reason.
 
 `memory=false` short-circuits exactly two phases, `recall` and `store` (`_memory_off`,
 `app/orchestrator.py`), and emits `memory_off` with the reason so the panel can say which. Nothing

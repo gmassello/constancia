@@ -278,4 +278,37 @@ async def test_a_turn_that_lands_mid_question_still_reaches_the_transcript_and_t
     assert channel.call.transcript[0]["text"] == "and I fell on Tuesday"
     assert channel.take_dropped() == ["and I fell on Tuesday"]
     assert channel.take_dropped() == []
+    assert channel.call.transcript[0]["heard"] is False
+    assert channel.call.transcript[1]["interrupted"] is False
+    await channel.close()
+
+
+async def drive_to_the_goodbye(flag: str, words: int) -> tuple[Call, LiveChannel]:
+    from app import orchestrator
+    from app.llm import ScriptedLLM
+
+    channel, _, stt = await started_channel()
+    call = channel.call
+
+    async def patient() -> None:
+        for _ in range(len(call.pack.questions)):
+            await asyncio.sleep(0.04)
+            await stt.queue.put(turn("all fine thanks", words=3))
+        await asyncio.sleep(0.04)
+        await stt.queue.put(turn(flag, words=words))
+
+    await asyncio.gather(orchestrator.converse(call, channel, ScriptedLLM(), None, 1.0), patient())
+    return call, channel
+
+
+@pytest.mark.parametrize(("flag", "words"), [("fell", 1), ("I had a fall yesterday", 5)])
+async def test_a_red_flag_over_the_goodbye_still_reaches_the_guard(
+    speech, flag: str, words: int
+) -> None:
+    call, channel = await drive_to_the_goodbye(flag, words)
+
+    assert call.escalated is not None
+    assert call.escalated["rule"] == "fall"
+    assert flag in [t["text"] for t in call.transcript if t["speaker"] == "patient"]
+    assert channel.turns.empty()
     await channel.close()

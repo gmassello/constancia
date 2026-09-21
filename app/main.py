@@ -207,8 +207,23 @@ async def voice(call_id: str, form: Annotated[FormData, Depends(twilio_form)]) -
     return Response(content=stream_twiml(call_id), media_type="application/xml")
 
 
+UNANSWERED = ("no-answer", "busy", "failed", "canceled")
+
+
 @app.post("/voice/status")
 async def voice_status(form: Annotated[FormData, Depends(twilio_form)]) -> Response:
+    # ponytail: a live call that nobody answers never opens the WebSocket, so `run_call` never
+    # runs and no phase emits anything. This callback is the only thing Twilio sends on that
+    # path, and the panel needs a `call_ended` to stop reading as a call still dialling.
+    status = form.get("CallStatus", "")
+    if status not in UNANSWERED:
+        return Response(status_code=204)
+    call = next((c for c in CALLS.values() if c.twilio_sid == form.get("CallSid")), None)
+    if call and not any(event["type"] == "call_ended" for event in call.trace):
+        call.emit("call_ended", escalated=False, answers={}, reason=status)
+        call.ended_at = call.trace[-1]["at"]
+        if STORE is not None:
+            await STORE.save_call(call)
     return Response(status_code=204)
 
 

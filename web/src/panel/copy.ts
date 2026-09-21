@@ -29,6 +29,9 @@ type Strings = {
   liveDialling: string
   liveLost: string
   liveLostDetail: string
+  liveUnanswered: string
+  turnUnheard: string
+  railErrorDetail: string
   agent: string
   patient: string
 
@@ -140,6 +143,9 @@ const en = {
   liveDialling: "Dialling…",
   liveLost: "lost",
   liveLostDetail: "Lost the live feed for this call. Reload to see what was recorded.",
+  liveUnanswered: "Nobody picked up. Twilio ended the call as",
+  turnUnheard: "the agent was talking and did not answer this",
+  railErrorDetail: "the technical detail is in the call trace",
   agent: "agent",
   patient: "patient",
 
@@ -286,6 +292,9 @@ const es = {
   liveDialling: "Marcando…",
   liveLost: "sin señal",
   liveLostDetail: "Se perdió el seguimiento en vivo de esta llamada. Recargá para ver lo que quedó registrado.",
+  liveUnanswered: "Nadie atendió. Twilio terminó la llamada como",
+  turnUnheard: "el agente estaba hablando y no respondió a esto",
+  railErrorDetail: "el detalle técnico está en la traza de la llamada",
   agent: "agente",
   patient: "paciente",
 

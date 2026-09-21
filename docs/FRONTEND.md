@@ -51,18 +51,18 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/panel/panel.css` | 346 | Layout and styles, on the aliases. |
-| `web/src/panel/copy.ts` | 455 | Two languages, one register, plus the maps for raw backend values. |
+| `web/src/panel/panel.css` | 347 | Layout and styles, on the aliases. |
+| `web/src/panel/copy.ts` | 464 | Two languages, one register, plus the maps for raw backend values. |
 | `web/src/panel/ActivityRail.tsx` | 151 | Turns each trace event into a labelled line. |
 | `web/src/panel/PatientView.tsx` | 153 | Loads the patient's data and composes the five cards. |
 | `web/src/panel/content.ts` | 109 | The ES→EN table for canned patient data. |
 | `web/src/panel/App.tsx` | 97 | Shell: sidebar, backend status, the two toggles, patient list. |
-| `web/src/panel/api.ts` | 126 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
+| `web/src/panel/api.ts` | 133 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
 | `web/src/panel/FactChain.tsx` | 79 | The patient file: current facts and what they retired. |
-| `web/src/panel/Calls.tsx` | 101 | One row per past call: tags, the summary, and the transcript behind a `<details>`. |
+| `web/src/panel/Calls.tsx` | 102 | One row per past call: tags, the summary, and the transcript behind a `<details>`. |
 | `web/src/panel/WeeklyChart.tsx` | 70 | One series per measure, with scale, delta and verdict. |
 | `web/src/panel/Keyterms.tsx` | 64 | The words handed to the recogniser: the three-step drawing and the chips. |
-| `web/src/panel/LiveCall.tsx` | 69 | The SSE subscription and the live transcript. |
+| `web/src/panel/LiveCall.tsx` | 77 | The SSE subscription and the live transcript. |
 | `web/src/panel/main.tsx` | 12 | Mount. |
 
 ## Theming

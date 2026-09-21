@@ -46,7 +46,9 @@ class Call:
 
     def add_turn(self, speaker: str, text: str, **data) -> int:
         turn_id = len(self.transcript) + 1
-        self.transcript.append({"turn_id": turn_id, "speaker": speaker, "text": text, "at": _now()})
+        self.transcript.append(
+            {"turn_id": turn_id, "speaker": speaker, "text": text, "at": _now(), **data}
+        )
         self.emit(f"{speaker}_turn", turn_id=turn_id, text=text, **data)
         return turn_id
 

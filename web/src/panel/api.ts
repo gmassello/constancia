@@ -47,7 +47,14 @@ export type CallRow = {
   analysis: Analysis | null
 }
 
-export type Turn = { turn_id: number; speaker: string; text: string; at: string }
+export type Turn = {
+  turn_id: number
+  speaker: string
+  text: string
+  at: string
+  heard?: boolean
+  interrupted?: boolean
+}
 
 export type Point = { week: string; day: string; value: number }
 

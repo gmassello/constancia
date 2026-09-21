@@ -144,3 +144,33 @@ def test_live_dials_the_demo_phone_when_the_patient_row_has_none(
     get_settings.cache_clear()
     assert client.post("/calls", json=body).status_code == 200
     assert dialled == ["+541199999999"]
+
+
+def test_status_callback_ends_a_call_nobody_answered(client: TestClient, call) -> None:
+    call.twilio_sid = "CA123"
+    form = {"CallSid": "CA123", "CallStatus": "no-answer"}
+    response = client.post("/voice/status", data=form, headers=signed("/voice/status", form))
+
+    assert response.status_code == 204
+    ended = [e for e in call.trace if e["type"] == "call_ended"]
+    assert len(ended) == 1
+    assert ended[0]["reason"] == "no-answer"
+    assert call.ended_at
+
+
+def test_status_callback_leaves_an_answered_call_alone(client: TestClient, call) -> None:
+    call.twilio_sid = "CA123"
+    form = {"CallSid": "CA123", "CallStatus": "completed"}
+    response = client.post("/voice/status", data=form, headers=signed("/voice/status", form))
+
+    assert response.status_code == 204
+    assert [e for e in call.trace if e["type"] == "call_ended"] == []
+
+
+def test_status_callback_does_not_emit_a_second_call_ended(client: TestClient, call) -> None:
+    call.twilio_sid = "CA123"
+    call.emit("call_ended", escalated=False, answers={})
+    form = {"CallSid": "CA123", "CallStatus": "failed"}
+    client.post("/voice/status", data=form, headers=signed("/voice/status", form))
+
+    assert len([e for e in call.trace if e["type"] == "call_ended"]) == 1

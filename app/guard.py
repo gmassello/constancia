@@ -3,9 +3,13 @@ import unicodedata
 
 from app.packs import VerticalPack
 
-# ponytail: negation is looked for in the 20 characters before the match;
-# a real scope parser only if live calls show false positives.
-NEGATION = re.compile(r"(?:n't|\b(?:no|not|none|nothing|never|without|nor|neither)\b)[^.,;]{0,20}$")
+# ponytail: negation is looked for in the 20 characters before the match, and the
+# window stops at punctuation or at a conjunction that opens a new clause; a real
+# scope parser only if live calls show a missed red flag this cannot reach.
+NEGATION = re.compile(
+    r"(?:n't|\b(?:no|not|none|nothing|never|without|nor|neither)\b)"
+    r"(?:(?!\b(?:but|and|though|although|however|still|yet)\b)[^.,;]){0,20}$"
+)
 
 
 def normalize(text: str) -> str:

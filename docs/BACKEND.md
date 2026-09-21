@@ -8,22 +8,22 @@ each one is for.
 
 | Module | Lines | What it is |
 |---|---:|---|
-| [`app/main.py`](../app/main.py) | 325 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
+| [`app/main.py`](../app/main.py) | 340 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
 | [`app/memory.py`](../app/memory.py) | 349 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader and the `keyterms` computation. |
-| [`app/channel.py`](../app/channel.py) | 265 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
+| [`app/channel.py`](../app/channel.py) | 268 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
 | [`app/packs.py`](../app/packs.py) | 269 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
-| [`app/orchestrator.py`](../app/orchestrator.py) | 171 | The phase machine. Decides what is said, what is stored and when a call escalates. |
+| [`app/orchestrator.py`](../app/orchestrator.py) | 175 | The phase machine. Decides what is said, what is stored and when a call escalates. |
 | [`app/llm.py`](../app/llm.py) | 142 | `retrying`, the shared backoff every Gemini call site goes through; `GeminiLLM`; and `ScriptedLLM`, its deterministic double. |
 | [`app/replay.py`](../app/replay.py) | 109 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
 | [`app/extract.py`](../app/extract.py) | 104 | Structured extraction and the grounding check. |
 | [`app/queries.py`](../app/queries.py) | 96 | Pure reducers over fact rows: the chain, the weekly series, the key terms of a past call. |
 | [`app/analysis.py`](../app/analysis.py) | 99 | Post-call entity detection and sentiment on the recording. |
-| [`app/calls.py`](../app/calls.py) | 74 | The `Call` dataclass, the `emit`/`subscribe` event bus, and the global `CALLS` registry. |
+| [`app/calls.py`](../app/calls.py) | 76 | The `Call` dataclass, the `emit`/`subscribe` event bus, and the global `CALLS` registry. |
 | [`app/stt.py`](../app/stt.py) | 65 | AssemblyAI Universal-Streaming v3 over WebSocket, with hot key-term updates. |
 | [`app/db.py`](../app/db.py) | 60 | The psycopg async pool, the query helpers and `init_schema()`. |
 | [`app/config.py`](../app/config.py) | 53 | `Settings`, `get_settings()`, `settings_or_none()`. |
-| [`app/telephony.py`](../app/telephony.py) | 33 | The TwiML and the outbound Twilio call. |
-| [`app/guard.py`](../app/guard.py) | 32 | The deterministic red-flag guard. |
+| [`app/telephony.py`](../app/telephony.py) | 37 | The TwiML and the outbound Twilio call. |
+| [`app/guard.py`](../app/guard.py) | 36 | The deterministic red-flag guard. |
 | [`app/tts.py`](../app/tts.py) | 30 | ElevenLabs streaming in `ulaw_8000`. |
 | [`app/security.py`](../app/security.py) | 24 | The Twilio signature dependency. |
 
@@ -82,8 +82,12 @@ because `converse` returns early when `call.escalated` is already set.
 
 `check` (`app/guard.py`) normalises the turn (lowercase, NFD, diacritics dropped — so accents and
 capitals do not matter), walks `pack.red_flags` in declaration order and returns the first unnegated
-match. Negation is `\b(no|sin|nunca|tampoco)\b[^.,;]{0,20}$` applied to the text *before* the match,
-with a `ponytail:` marker naming the ceiling: a twenty-character window, not a scope parser.
+match. `NEGATION` (`app/guard.py`) is applied to the text *before* the match: it looks back at most
+twenty characters for a negator, and the window stops at `.`, `,`, `;` or at a conjunction that
+opens a new clause, so "I have no energy but I fell yesterday" still escalates. The regex is not
+transcribed here on purpose — no gate reads this prose, and the Spanish tokens a previous version
+quoted outlived the code by eight commits. A `ponytail:` marker beside it names the ceiling: a
+twenty-character window, not a scope parser.
 
 The patterns themselves use `NEAR` (`app/packs.py`) to require two terms to co-occur without
 crossing a negation or a full stop. Rehab has four rules, postpartum three and chronic two. The

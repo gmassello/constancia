@@ -76,6 +76,7 @@ function Row({ row, copy: c }: { row: CallRow; copy: Copy }) {
               >
                 <span className="who">{turn.speaker === "agent" ? c.agent : c.patient}</span>
                 <p>{c.data(turn.text)}</p>
+                {turn.heard === false && <span className="turn-note">{c.turnUnheard}</span>}
               </div>
             ))}
           </div>

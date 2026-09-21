@@ -41,6 +41,7 @@ export default function LiveCall({
   }, [callId, onEnded])
 
   const turns = events.filter((e) => e.type === "agent_turn" || e.type === "patient_turn")
+  const unanswered = events.find((e) => e.type === "call_ended" && e.reason)
 
   return (
     <section className="card live">
@@ -53,12 +54,19 @@ export default function LiveCall({
       <div className="live-body">
         <div className="transcript">
           {turns.length === 0 && (
-            <p className={lost ? "error" : "empty"}>{lost ? c.liveLostDetail : c.liveDialling}</p>
+            <p className={lost || unanswered ? "error" : "empty"}>
+              {lost
+                ? c.liveLostDetail
+                : unanswered
+                  ? `${c.liveUnanswered} ${c.data(String(unanswered.reason))}`
+                  : c.liveDialling}
+            </p>
           )}
           {turns.map((turn) => (
             <div className={`turn ${turn.type === "agent_turn" ? "agent" : "patient"}`} key={turn.seq}>
               <span className="who">{turn.type === "agent_turn" ? c.agent : c.patient}</span>
               <p>{c.data(String(turn.text))}</p>
+              {turn.heard === false && <span className="turn-note">{c.turnUnheard}</span>}
             </div>
           ))}
         </div>

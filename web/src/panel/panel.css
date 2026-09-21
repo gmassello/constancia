@@ -275,6 +275,7 @@ main { padding: 20px; max-width: 980px; }
 .turn.agent { background: var(--turn-agent-bg); }
 .turn.patient { background: var(--turn-patient-bg); }
 .who { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+.turn-note { display: block; font-size: 11px; font-style: italic; color: var(--text-muted); }
 
 .rail {
   border-left: 1px solid var(--color-divider);

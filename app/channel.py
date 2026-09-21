@@ -187,6 +187,7 @@ class LiveChannel:
             self.dropped.append(item)
 
     def take_dropped(self) -> list[str]:
+        self._drain_turns()
         dropped, self.dropped = self.dropped, []
         return dropped
 
@@ -201,9 +202,11 @@ class LiveChannel:
         # much we have fed) keeps it from counting as an interruption, and the drain below keeps a
         # turn that landed mid-question from being served as the answer to it. An interrupted turn
         # is not drained: there the queued words are the interruption. A drained turn is written to
-        # the transcript with `heard=False` and held in `dropped` for the guard, because it is the
+        # the transcript with `heard=False` — the flag reaches the row, not only the event — and
+        # held in `dropped` for the guard, because it is the
         # attribution that is wrong, not the words: dropping them loses clinical content and any
-        # red flag inside it. The orchestrator empties `dropped` through `escalated`.
+        # red flag inside it. An interrupted turn stays queued, so `take_dropped` drains again
+        # before it answers: the guard reads the queue, not only what a `say` happened to drain.
         self.speech_from_ms = self.fed_ms
         self.speaking = True
         self.tts_task = asyncio.create_task(self._stream_tts(text))

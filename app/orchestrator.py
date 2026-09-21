@@ -65,16 +65,20 @@ async def converse(call: Call, channel, llm, store, silence_s: float) -> None:
     if call.escalated:
         return
     pack = call.pack
+    goodbye = pack.goodbye
     for question in pack.questions:
         text = await phrase(call, llm, f"{pack.converse} {ASK_MARKER}{question.goal}")
         answer = await ask(call, channel, llm, text, silence_s)
         if await escalated(call, channel, llm, answer):
             return
         if answer is None:
-            await channel.say(pack.goodbye_silent)
-            return
+            goodbye = pack.goodbye_silent
+            break
         call.answers[question.key] = answer
-    await channel.say(pack.goodbye)
+    await channel.say(goodbye)
+    # ponytail: the call ends here, so whatever the patient said over the goodbye has no later
+    # phase to catch it. One last pass empties the queue through the guard.
+    await escalated(call, channel, llm, None)
 
 
 async def extract_facts(call: Call, channel, llm, store, silence_s: float) -> None:

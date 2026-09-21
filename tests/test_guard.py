@@ -20,6 +20,10 @@ POSITIVES = [
     ("MY LEG IS COMPLETELY NUMB", "numbness"),
     ("I can't feel my toes", "numbness"),
     ("There's no feeling in my foot", "numbness"),
+    ("I have no energy but I fell yesterday", "fall"),
+    ("I don't take the pills and my knee gave out", "fall"),
+    ("no appetite and a sudden sharp pain in my knee", "sudden_sharp_pain"),
+    ("nothing new really but I took a fall on Tuesday", "fall"),
 ]
 
 NEGATIVES = [
@@ -41,6 +45,10 @@ NEGATIVES = [
     "I fell asleep with the ice pack on",
     "I fell behind on the exercises this week",
     "I did the exercises three times and skipped two days",
+    "no falls and no sudden pain",
+    "I have no pain and no swelling",
+    "I never fell and never twisted anything",
+    "nothing that scared me, no fall",
 ]
 
 
