@@ -208,11 +208,18 @@ class LiveChannel:
         self.speaking = False
         if not interrupted:
             self._drain_turns()
+        spoken = True
         if interrupted:
             await self._send({"event": "clear", "streamSid": self.stream_sid})
         elif self.tts_task in done and self.tts_task.exception():
             self.call.emit("warning", phase="tts", error=repr(self.tts_task.exception()))
-        self.call.add_turn("agent", text, interrupted=interrupted)
+            spoken = False
+        # ponytail: a turn the patient never heard is dropped rather than recorded, because the
+        # transcript is what the professional reads and what `summarize` writes over. The `warning`
+        # in the trace is the only evidence, which costs the panel the text of the question. Record
+        # it with a `spoken=False` flag instead once anything downstream is ready to read one.
+        if spoken:
+            self.call.add_turn("agent", text, interrupted=interrupted)
 
     async def listen(self, timeout: float) -> str | None:
         if self.hung_up.is_set():

@@ -1,4 +1,5 @@
 import json
+from typing import Literal
 
 from pydantic import BaseModel, Field, ValidationError
 
@@ -30,7 +31,7 @@ Every field:
 class Fact(BaseModel):
     fact: str
     term: str
-    category: str
+    category: Literal[CATEGORIES]
     value: float | None = None
     quote: str
     turn_id: int

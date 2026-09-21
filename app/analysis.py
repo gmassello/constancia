@@ -90,6 +90,10 @@ async def run(call, store, fetch=transcribe) -> None:
             sentiment=analysis["sentiment"],
         )
         if store is not None and hasattr(store, "save_analysis"):
-            await store.save_analysis(call.id, analysis)
+            # ponytail: an UPDATE that matches no row does not raise, so without the count this
+            # lands in the void and the only trace is the absence of one. The row is missing
+            # whenever the recording webhook beats the `store` phase.
+            if not await store.save_analysis(call.id, analysis):
+                call.emit("warning", phase="analysis", error="no call row to attach it to")
     except Exception as exc:
         call.emit("analysis_failed", error=repr(exc))

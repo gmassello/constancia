@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 
 import ActivityRail from "./ActivityRail"
 import { subscribe, type Event } from "./api"
@@ -15,22 +15,29 @@ export default function LiveCall({
 }) {
   const [events, setEvents] = useState<Event[]>([])
   const [live, setLive] = useState(true)
-  const since = useRef(0)
+  const [lost, setLost] = useState(false)
 
   useEffect(() => {
     setEvents([])
     setLive(true)
-    since.current = 0
+    setLost(false)
     const seen = new Set<number>()
-    return subscribe(callId, (event) => {
-      if (seen.has(event.seq)) return
-      seen.add(event.seq)
-      setEvents((previous) => [...previous, event])
-      if (event.type === "call_ended") {
+    return subscribe(
+      callId,
+      (event) => {
+        if (seen.has(event.seq)) return
+        seen.add(event.seq)
+        setEvents((previous) => [...previous, event])
+        if (event.type === "call_ended") {
+          setLive(false)
+          onEnded()
+        }
+      },
+      () => {
         setLive(false)
-        onEnded()
-      }
-    })
+        setLost(true)
+      },
+    )
   }, [callId, onEnded])
 
   const turns = events.filter((e) => e.type === "agent_turn" || e.type === "patient_turn")
@@ -39,11 +46,15 @@ export default function LiveCall({
     <section className="card live">
       <div className="chart-head">
         <h2>{c.liveTitle}</h2>
-        <span className={live ? "dot live-dot" : "dot"}>{live ? c.liveNow : c.liveEnded}</span>
+        <span className={live ? "dot live-dot" : "dot"}>
+          {live ? c.liveNow : lost ? c.liveLost : c.liveEnded}
+        </span>
       </div>
       <div className="live-body">
         <div className="transcript">
-          {turns.length === 0 && <p className="empty">{c.liveDialling}</p>}
+          {turns.length === 0 && (
+            <p className={lost ? "error" : "empty"}>{lost ? c.liveLostDetail : c.liveDialling}</p>
+          )}
           {turns.map((turn) => (
             <div className={`turn ${turn.type === "agent_turn" ? "agent" : "patient"}`} key={turn.seq}>
               <span className="who">{turn.type === "agent_turn" ? c.agent : c.patient}</span>
@@ -51,7 +62,7 @@ export default function LiveCall({
             </div>
           ))}
         </div>
-        <ActivityRail events={events} since={since.current} copy={c} />
+        <ActivityRail events={events} copy={c} />
       </div>
     </section>
   )

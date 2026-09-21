@@ -105,6 +105,17 @@ def test_calls_needs_a_name_and_a_phone_when_the_patient_is_unknown(client: Test
     assert client.post("/calls", json=body).status_code == 400
 
 
+def test_scripted_rejects_a_script_that_does_not_exist(client: TestClient) -> None:
+    body = {"patient_id": "8c9d0e1f-2a3b-4c5d-6e7f-8091a2b3c4d5", "script": "does-not-exist"}
+
+    scripted = client.post("/calls", json={**body, "mode": "scripted"})
+    replayed = client.post("/calls", json={**body, "mode": "replay"})
+
+    assert scripted.status_code == 404
+    assert replayed.status_code == 404
+    assert client.get("/health").json()["calls"] == 0
+
+
 def test_without_a_database_the_store_is_the_seed(client: TestClient) -> None:
     health = client.get("/health").json()
     assert health["store"] == "seed"

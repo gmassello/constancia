@@ -86,6 +86,15 @@ async def create_call(request: CallRequest) -> dict:
         pack = get_pack(request.pack or (row or {}).get("program_type") or "rehab")
     except KeyError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if request.mode == "live" and not settings:
+        raise HTTPException(status_code=503, detail="live mode needs credentials")
+    if request.mode == "scripted" and request.script and request.script not in replay.scripts():
+        raise HTTPException(status_code=404, detail=f"no script named {request.script}")
+    if request.mode == "replay":
+        try:
+            replay.load_fixture(request.script or DEFAULT_FIXTURE)
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
     call = register(
         Call(
             patient_id=patient_id,
@@ -95,16 +104,10 @@ async def create_call(request: CallRequest) -> dict:
         )
     )
     if request.mode == "live":
-        if not settings:
-            raise HTTPException(status_code=503, detail="live mode needs credentials")
         call.twilio_sid = place_call(call.id, phone)
     elif request.mode == "scripted":
         call.task = asyncio.create_task(replay.run_scripted(call, STORE, request.script))
     else:
-        try:
-            replay.load_fixture(request.script or DEFAULT_FIXTURE)
-        except FileNotFoundError as exc:
-            raise HTTPException(status_code=404, detail=str(exc)) from exc
         call.task = asyncio.create_task(
             replay.run_recorded(call, request.script or DEFAULT_FIXTURE)
         )

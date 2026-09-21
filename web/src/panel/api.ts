@@ -29,6 +29,13 @@ export type Patient = {
   started_at: string
 }
 
+export type Analysis = {
+  transcript_id: string | null
+  entities: { text: string; type: string }[]
+  sentiment: Record<string, number>
+  negative: { text: string; confidence: number }[]
+}
+
 export type CallRow = {
   id: string
   started_at: string
@@ -37,6 +44,7 @@ export type CallRow = {
   escalated: unknown
   memory_enabled: boolean
   transcript: Turn[] | null
+  analysis: Analysis | null
 }
 
 export type Turn = { turn_id: number; speaker: string; text: string; at: string }
@@ -53,9 +61,27 @@ export type Series = {
 
 export type Health = { status: string; calls: number; store: string; live: boolean }
 
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly detail: string | null,
+  ) {
+    super(detail ? `${status} ${detail}` : String(status))
+  }
+}
+
+async function detail(response: Response): Promise<string | null> {
+  try {
+    const body = (await response.json()) as { detail?: unknown }
+    return typeof body.detail === "string" ? body.detail : null
+  } catch {
+    return null
+  }
+}
+
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${base}${path}`, init)
-  if (!response.ok) throw new Error(`${init?.method ?? "GET"} ${path} → ${response.status}`)
+  if (!response.ok) throw new ApiError(response.status, await detail(response))
   return (await response.json()) as T
 }
 
@@ -68,12 +94,32 @@ export const post = <T,>(path: string, body: unknown) =>
     body: JSON.stringify(body),
   })
 
-export function subscribe(callId: string, onEvent: (event: Event) => void): () => void {
+export function subscribe(
+  callId: string,
+  onEvent: (event: Event) => void,
+  onError?: () => void,
+): () => void {
   const source = new EventSource(`${base}/calls/${callId}/events`)
+  let ended = false
   source.onmessage = (message) => {
     const event = JSON.parse(message.data) as Event
     onEvent(event)
-    if (event.type === "call_ended") source.close()
+    if (event.type === "call_ended") {
+      ended = true
+      source.close()
+    }
   }
-  return () => source.close()
+  // ponytail: EventSource retries a failed connection every 3s for ever and says nothing, so
+  // without this a 404 — any call_id from before a restart — reads exactly like a call that is
+  // still dialling. No first-event timeout on top: a live call emits nothing until the WebSocket
+  // connects, which is after somebody picks up the phone, so a timeout would fire on camera.
+  source.onerror = () => {
+    if (ended) return
+    source.close()
+    onError?.()
+  }
+  return () => {
+    ended = true
+    source.close()
+  }
 }

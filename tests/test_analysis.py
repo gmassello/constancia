@@ -108,6 +108,20 @@ async def test_run_emits_the_event_and_writes_the_analysis() -> None:
     assert (await store.call(call.id))["analysis"]["transcript_id"] == "t-abc123"
 
 
+async def test_an_analysis_with_no_call_row_to_attach_it_to_says_so() -> None:
+    call = build()
+    store = load_seed()
+
+    async def fetch(url: str) -> dict:
+        return PAYLOAD
+
+    await analysis.run(call, store, fetch)
+
+    warnings = [e for e in call.trace if e["type"] == "warning"]
+    assert [w["phase"] for w in warnings] == ["analysis"]
+    assert await store.call(call.id) is None
+
+
 async def test_run_never_propagates_a_failure() -> None:
     call = build()
 

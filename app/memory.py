@@ -47,13 +47,19 @@ class MemoryStore:
         self.embedding_dims = settings.embedding_dims
         self.client = genai.Client(api_key=settings.gemini_api_key)
 
-    async def embed(self, text: str) -> list[float]:
+    async def embed(self, text: str, emit=None) -> list[float]:
         from google.genai import types
 
-        response = await self.client.aio.models.embed_content(
-            model=self.embedding_model,
-            contents=text,
-            config=types.EmbedContentConfig(output_dimensionality=self.embedding_dims),
+        from app.llm import retrying
+
+        response = await retrying(
+            lambda: self.client.aio.models.embed_content(
+                model=self.embedding_model,
+                contents=text,
+                config=types.EmbedContentConfig(output_dimensionality=self.embedding_dims),
+            ),
+            "gemini embeddings",
+            emit,
         )
         return normalize(list(response.embeddings[0].values))
 
@@ -87,8 +93,8 @@ class MemoryStore:
     async def call(self, call_id: str) -> dict | None:
         return await db.fetch_one(f"select {CALL_COLUMNS} from calls where id = %s", (call_id,))
 
-    async def save_analysis(self, call_id: str, analysis: dict) -> None:
-        await db.execute(
+    async def save_analysis(self, call_id: str, analysis: dict) -> int:
+        return await db.execute(
             "update calls set analysis = %s::jsonb where id = %s",
             (json.dumps(analysis, ensure_ascii=False), call_id),
         )
@@ -132,12 +138,22 @@ class MemoryStore:
             ),
         )
 
-    async def insert_fact(self, call, fact, embedding: list[float]) -> str:
+    async def insert_fact(
+        self, call, fact, embedding: list[float], supersedes: str | None = None
+    ) -> str:
+        # ponytail: one statement, so the insert and the retirement are one transaction. db.execute
+        # opens a connection per statement and the pool commits on the way out, so splitting them
+        # leaves the old fact and the new one both current the moment the second one fails — which
+        # is the state app/AGENTS.md forbids. `where id = null` matches nothing, so no supersession
+        # needs no branch.
         fact_id = str(uuid.uuid4())
         await db.execute(
+            "with inserted as ("
             "insert into patient_memories (id, patient_id, call_id, fact, term, category, value, "
             "quote, turn_id, confidence, reported_at, embedding) "
-            "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s::vector)",
+            "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s::vector) returning id) "
+            "update patient_memories set superseded_by = %s, valid_until = now() "
+            "where id = %s and superseded_by is null",
             (
                 fact_id,
                 call.patient_id,
@@ -151,6 +167,8 @@ class MemoryStore:
                 fact.confidence,
                 call.started_at,
                 db.to_vector_literal(embedding),
+                fact_id,
+                supersedes,
             ),
         )
         return fact_id
@@ -175,7 +193,7 @@ class FakeStore:
         self.facts = [dict(f) for f in facts or []]
         self.saved_calls: list[str] = []
 
-    async def embed(self, text: str) -> list[float]:
+    async def embed(self, text: str, emit=None) -> list[float]:
         return normalize([float(len(text)), 1.0])
 
     async def patients(self) -> list[dict]:
@@ -191,9 +209,11 @@ class FakeStore:
     async def call(self, call_id: str) -> dict | None:
         return self._calls.get(call_id)
 
-    async def save_analysis(self, call_id: str, analysis: dict) -> None:
-        if call_id in self._calls:
-            self._calls[call_id]["analysis"] = analysis
+    async def save_analysis(self, call_id: str, analysis: dict) -> int:
+        if call_id not in self._calls:
+            return 0
+        self._calls[call_id]["analysis"] = analysis
+        return 1
 
     async def search(
         self, professional_id: str, query: str, limit: int = SEARCH_LIMIT
@@ -224,6 +244,7 @@ class FakeStore:
 
     async def save_call(self, call) -> None:
         self.saved_calls.append(call.id)
+        previous = self._calls.get(call.id, {})
         self._calls[call.id] = {
             "id": call.id,
             "patient_id": call.patient_id,
@@ -235,10 +256,12 @@ class FakeStore:
             "summary": call.summary,
             "escalated": call.escalated,
             "memory_enabled": call.memory,
-            "analysis": None,
+            "analysis": previous.get("analysis"),
         }
 
-    async def insert_fact(self, call, fact, embedding: list[float]) -> str:
+    async def insert_fact(
+        self, call, fact, embedding: list[float], supersedes: str | None = None
+    ) -> str:
         fact_id = str(uuid.uuid4())
         self.facts.append(
             {
@@ -257,6 +280,8 @@ class FakeStore:
                 "superseded_by": None,
             }
         )
+        if supersedes:
+            await self.supersede(supersedes, fact_id)
         return fact_id
 
     async def supersede(self, old_id: str, new_id: str) -> None:

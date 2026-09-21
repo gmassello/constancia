@@ -174,10 +174,15 @@ with the week-2 lines:
 week-2 answers with the generic agent lines, because an agent with no memory block cannot open on the
 knee.
 
-**No reset between beats 3, 4 and 5.** With memory off `store_facts` returns early *and* `summarize`
-skips its `save_call` (`app/orchestrator.py:70,89`), so beats 3 and 4 write nothing at all: last
-week's 7/10 is still on file and still current when beat 5 dials. A reset is only needed before
-**re-shooting** beat 5, because the supersession only runs one way per state of the seed.
+**No reset between beats 3, 4 and 5.** With memory off `store_facts` returns before the fact loop, so
+beats 3 and 4 write no facts: last week's 7/10 is still on file and still current when beat 5 dials.
+A reset is only needed before **re-shooting** beat 5, because the supersession only runs one way per
+state of the seed.
+
+They do write their **call row**, though — turning memory off stops the agent remembering, not the
+call being on the record. So by beat 6 the *Calls so far* card shows three rows, two of them tagged
+*without memory*, and that tag is the A/B in the record rather than only on screen. If the narration
+ever counts the calls out loud, that is the number.
 
 **The point of the beat is the question, not the answer.** She says the knee is at four out of ten
 and the agent has no idea that means anything: it never asks about the knee, and the rail shows

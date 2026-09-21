@@ -70,7 +70,7 @@ No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 128 green, no network and no database
+make test          # 145 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session
@@ -132,9 +132,10 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
 - **~1–1.5 s of silence per turn**: the LLM writes the whole sentence before the TTS starts. Sentence-level streaming is the marked upgrade path.
 - **The replay fixtures are still synthetic.** `seed/replay/*.json` come from the scripted mode, not from a
   real call. They get re-recorded from `GET /calls/{id}/export` once a real call happens.
-- **`app/analysis.py` has never met a real recording.** Its pure functions are tested against a canned
-  AssemblyAI response; `make smoke-analysis` is what closes it. If Twilio's media needs basic auth, the
-  recording has to be downloaded and re-uploaded instead of passed by URL.
+- **`app/analysis.py` is only tested against a canned response.** Its pure functions never see the
+  network in the suite; `make smoke-analysis` is what checks the wire format by hand. It has met real
+  recordings since C1: Twilio's media is behind basic auth, so the mp3 is relayed through
+  AssemblyAI's `/v2/upload` rather than passed by URL.
 - **Calls live in memory.** After a restart the panel loses the live trace of past calls; the history comes
   from the database instead.
 - **In English the panel translates the canned content, not live output.** Every fact, quote, transcript turn,

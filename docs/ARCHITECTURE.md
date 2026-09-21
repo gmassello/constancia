@@ -20,15 +20,15 @@ The LLM writes sentences and extracts structure; it never chooses.
 
 ## One call, end to end
 
-1. `POST /calls` (`app/main.py:75`) resolves the patient, picks the vertical pack, registers a `Call`
+1. `POST /calls` (`app/main.py`) resolves the patient, picks the vertical pack, registers a `Call`
    and branches on `mode`.
-2. In `live` mode, `place_call` (`app/telephony.py:21`) asks Twilio to dial, pointing its webhook at
+2. In `live` mode, `place_call` (`app/telephony.py`) asks Twilio to dial, pointing its webhook at
    `POST /voice` with `record=True`.
-3. Twilio calls `POST /voice` (`app/main.py:183`). After the signature check it gets back TwiML that
+3. Twilio calls `POST /voice` (`app/main.py`). After the signature check it gets back TwiML that
    connects a bidirectional Media Stream to `wss://.../media/{call_id}`.
-4. Twilio opens that socket (`app/main.py:271`). A `LiveChannel` (`app/channel.py:61`) connects to
+4. Twilio opens that socket (`app/main.py`). A `LiveChannel` (`app/channel.py`) connects to
    AssemblyAI and starts both readers, and `run_call` takes over.
-5. `run_call` (`app/orchestrator.py:111`) walks the six phases.
+5. `run_call` (`app/orchestrator.py`) walks the six phases.
 6. After hangup, Twilio posts the recording to `/voice/recording` and the post-call analysis runs as
    a background task.
 
@@ -38,7 +38,7 @@ can inspect is not worth making.
 
 ## The six phases
 
-Declared as data in `PHASES` (`app/orchestrator.py:101`), walked in order:
+Declared as data in `PHASES` (`app/orchestrator.py`), walked in order:
 
 | # | Phase | Critical | What it does |
 |---|---|---|---|
@@ -46,23 +46,27 @@ Declared as data in `PHASES` (`app/orchestrator.py:101`), walked in order:
 | 2 | `greet` | **yes** | The LLM writes the greeting — which, with memory on, opens by quoting last week. |
 | 3 | `converse` | **yes** | One pass over `pack.questions`. Each answer goes through the red-flag guard before it is kept. |
 | 4 | `extract` | no | The transcript becomes structured facts. |
-| 5 | `store` | no | The call row is written, the facts are embedded and inserted, and the ones they contradict are retired. |
+| 5 | `store` | no | The call row is written **whether or not memory is on** — memory decides what the agent remembers, not whether the call is on the record. With memory on the facts are then embedded and inserted, each one retiring what it contradicts in the same statement; if one fails part way, `facts_lost` names how many did not make it. |
 | 6 | `summarize` | no | A summary for the professional, with the new facts named in the prompt, saved onto the call row written in `store`. |
 
 `recall` runs **before** `greet`, not after, so the agent can open on the knee. That is the moment
 the project exists to show.
 
-The phone hangs up at the end of `converse` (`app/orchestrator.py:125-127`): the channel closes and
+A **critical** phase that fails breaks the loop, which skips both phases that write the call row, so
+`run_call` writes it once more on the way out. A call that died in `greet` is still a call that
+happened, and the professional sees it.
+
+The phone hangs up at the end of `converse` (`app/orchestrator.py`): the channel closes and
 `ended_at` is set there. Phases 4 to 6 run with the line already dead — a synchronous write during
 the call would put dead air on it.
 
-Failures are handled per phase (`app/orchestrator.py:117-124`). A `CallEnded` (the patient hung up)
+Failures are handled per phase (`app/orchestrator.py`). A `CallEnded` (the patient hung up)
 emits `patient_hung_up` and the walk continues, so a call that drops after the second question still
 gets extracted, stored and summarised. Any other exception in a critical phase breaks the loop; in a
 non-critical one it emits `phase_failed` and moves on. `call_ended` is always emitted.
 
 `memory=false` short-circuits exactly two phases, `recall` and `store` (`_memory_off`,
-`app/orchestrator.py:24`), and emits `memory_off` with the reason so the panel can say which. Nothing
+`app/orchestrator.py`), and emits `memory_off` with the reason so the panel can say which. Nothing
 else about the call changes — that is what makes the A/B honest.
 
 ## Memory
@@ -78,12 +82,12 @@ quote       "hurts seven out of ten"   ← must be a literal span of turn_id
 turn_id     4
 ```
 
-**No quote, no fact.** `ground` (`app/extract.py:66`) requires the quote to be a literal substring of
+**No quote, no fact.** `ground` (`app/extract.py`) requires the quote to be a literal substring of
 the turn with that id, and that turn to be the *patient's* — a quote lifted from the agent's own
 question is not evidence. A fact that fails is dropped with `fact_rejected`.
 
 **Contradictions retire, they do not delete.** A new fact that supersedes an old one sets
-`superseded_by` and `valid_until` on it (`supersede`, `app/memory.py:158`). Both stay visible: the
+`superseded_by` and `valid_until` on it (`supersede`, `app/memory.py`). Both stay visible: the
 panel draws the chain, current fact on a filled dot and the retired one hanging below it, struck
 through, with the window it was true for. "Current" means `valid_until is null and superseded_by is
 null`, nothing cleverer.
@@ -106,12 +110,12 @@ what lets the test suite run with no network.
 | Needs credentials | yes | no | no |
 
 `scripted` is not a mock of the call — it is the real pipeline with a scripted patient on the other
-end (`app/channel.py:22`), so the phase order, the guard, the extraction and the supersession are all
-exercised. `build_llm` (`app/replay.py:36`) is the switch; with no Gemini key the agent's lines come
+end (`app/channel.py`), so the phase order, the guard, the extraction and the supersession are all
+exercised. `build_llm` (`app/replay.py`) is the switch; with no Gemini key the agent's lines come
 from `seed/scripts.json`, keyed by the pack's question ids so that reordering a question raises
 `KeyError` instead of silently pairing the wrong sentence with the wrong question. A script that escalates
 speaks in a different order — the questions after the red flag are never asked — so it declares its own
-`order` list and that one wins (`agent_lines`, `app/replay.py:31`). `alarm` is the one that does.
+`order` list and that one wins (`agent_lines`, `app/replay.py`). `alarm` is the one that does.
 There are four: `week1`, `week2`, `week2-off` and `alarm`. `week2-off` exists because the script is
 otherwise picked from what the agent recalls, so a memory-off call would travel back to week one
 instead of showing the same week without the memory block.
@@ -123,7 +127,7 @@ mode by `make fixtures`.
 
 ## Storage
 
-Two stores behind one duck-typed interface, chosen once in the lifespan (`app/main.py:39`):
+Two stores behind one duck-typed interface, chosen once in the lifespan (`app/main.py`):
 
 ```python
 if settings and settings.database_url:
@@ -134,7 +138,7 @@ else:
 ```
 
 Postgres with pgvector when `DATABASE_URL` is set and the settings validate; otherwise the JSON seed,
-in process. Both return the same columns (`FACT_COLUMNS`, `app/memory.py:16`), which is why
+in process. Both return the same columns (`FACT_COLUMNS`, `app/memory.py`), which is why
 [`app/queries.py`](../app/queries.py) can be one pure reducer instead of SQL written twice.
 
 > The naming trap: **`MemoryStore` is the Postgres one.** The "memory" in its name is longitudinal

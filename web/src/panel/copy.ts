@@ -10,6 +10,7 @@ type Strings = {
   phoneNoKeys: string
   noPatients: string
   backendDown: string
+  loadFailed: (status: number, detail: string | null) => string
 
   followedSince: (day: string) => string
   callWithoutMemory: string
@@ -26,6 +27,8 @@ type Strings = {
   liveNow: string
   liveEnded: string
   liveDialling: string
+  liveLost: string
+  liveLostDetail: string
   agent: string
   patient: string
 
@@ -95,15 +98,19 @@ type Strings = {
   railRetryText: (attempt: number) => string
   railRecording: string
   railRecordingReady: string
+  railFactsLost: (count: number) => string
+  understandingTitle: string
+  understandingLede: string
 
   category: Record<string, string>
+  mood: Record<string, string>
   program: Record<string, string>
   rule: Record<string, string>
   phase: Record<string, string>
   reason: Record<string, string>
 }
 
-const en: Strings = {
+const en = {
   brand: "constancia",
   home: "Home",
   dataSeed: "data: local seed",
@@ -112,6 +119,8 @@ const en: Strings = {
   phoneNoKeys: "phone: no keys",
   noPatients: "No patients loaded.",
   backendDown: "Could not reach the service.",
+  loadFailed: (status, detail) =>
+    detail ? `The service answered ${status}: ${detail}` : `The service answered ${status}.`,
 
   followedSince: (day) => `in follow-up since ${day}`,
   callWithoutMemory: "Call without memory",
@@ -129,6 +138,8 @@ const en: Strings = {
   liveNow: "live",
   liveEnded: "ended",
   liveDialling: "Dialling…",
+  liveLost: "lost",
+  liveLostDetail: "Lost the live feed for this call. Reload to see what was recorded.",
   agent: "agent",
   patient: "patient",
 
@@ -201,6 +212,9 @@ const en: Strings = {
   railRetryText: (attempt) => `attempt ${attempt}`,
   railRecording: "recording",
   railRecordingReady: "ready",
+  railFactsLost: (count) => `${count} facts were not saved`,
+  understandingTitle: "What AssemblyAI heard in the recording",
+  understandingLede: "Entity detection and sentiment over the call audio, after hangup.",
 
   category: {
     symptom: "symptom",
@@ -209,6 +223,7 @@ const en: Strings = {
     clinical_value: "clinical value",
     red_flag: "red flag",
   },
+  mood: { POSITIVE: "positive", NEUTRAL: "neutral", NEGATIVE: "negative" },
   program: { rehab: "rehab", postpartum: "postpartum", chronic: "chronic" },
   rule: {
     sudden_sharp_pain: "sudden sharp pain",
@@ -239,9 +254,9 @@ const en: Strings = {
     "memory disabled for this call": "memory disabled for this call",
     "no memory store configured": "no memory store configured",
   },
-}
+} satisfies Strings
 
-const es: Strings = {
+const es = {
   brand: "constancia",
   home: "Inicio",
   dataSeed: "datos: seed local",
@@ -250,6 +265,8 @@ const es: Strings = {
   phoneNoKeys: "teléfono: sin claves",
   noPatients: "No hay pacientes cargados.",
   backendDown: "No se pudo contactar al servicio.",
+  loadFailed: (status, detail) =>
+    detail ? `El servicio respondió ${status}: ${detail}` : `El servicio respondió ${status}.`,
 
   followedSince: (day) => `en seguimiento desde ${day}`,
   callWithoutMemory: "Llamar sin memoria",
@@ -267,6 +284,8 @@ const es: Strings = {
   liveNow: "en vivo",
   liveEnded: "terminada",
   liveDialling: "Marcando…",
+  liveLost: "sin señal",
+  liveLostDetail: "Se perdió el seguimiento en vivo de esta llamada. Recargá para ver lo que quedó registrado.",
   agent: "agente",
   patient: "paciente",
 
@@ -339,6 +358,9 @@ const es: Strings = {
   railRetryText: (attempt) => `intento ${attempt}`,
   railRecording: "grabación",
   railRecordingReady: "lista",
+  railFactsLost: (count) => `${count} datos no se guardaron`,
+  understandingTitle: "Lo que AssemblyAI escuchó en la grabación",
+  understandingLede: "Detección de entidades y sentimiento sobre el audio, después de colgar.",
 
   category: {
     symptom: "síntoma",
@@ -347,6 +369,7 @@ const es: Strings = {
     clinical_value: "valor clínico",
     red_flag: "señal de alarma",
   },
+  mood: { POSITIVE: "positivo", NEUTRAL: "neutro", NEGATIVE: "negativo" },
   program: { rehab: "rehabilitación", postpartum: "puerperio", chronic: "crónicos" },
   rule: {
     sudden_sharp_pain: "dolor repentino y fuerte",
@@ -377,12 +400,44 @@ const es: Strings = {
     "memory disabled for this call": "memoria desactivada en esta llamada",
     "no memory store configured": "no hay almacén de memoria configurado",
   },
-}
+} satisfies Strings
 
 export type Copy = Strings & {
   data: (text: string) => string
   day: (iso: string) => string
 }
+
+
+// ponytail: `Strings` types the nested maps as Record<string, string>, so a key that exists in
+// English and not in Spanish compiles and `label()` degrades in silence — the reader just sees the
+// raw backend value. `satisfies` above keeps the literal keys; this fails the build when they drift.
+type Aligned<A, B> = Exclude<keyof A, keyof B> extends never
+  ? Exclude<keyof B, keyof A> extends never
+    ? true
+    : false
+  : false
+
+const parity = {
+  measure: true,
+  unit: true,
+  category: true,
+  mood: true,
+  program: true,
+  rule: true,
+  phase: true,
+  reason: true,
+} satisfies {
+  measure: Aligned<typeof en.measure, typeof es.measure>
+  unit: Aligned<typeof en.unit, typeof es.unit>
+  category: Aligned<typeof en.category, typeof es.category>
+  mood: Aligned<typeof en.mood, typeof es.mood>
+  program: Aligned<typeof en.program, typeof es.program>
+  rule: Aligned<typeof en.rule, typeof es.rule>
+  phase: Aligned<typeof en.phase, typeof es.phase>
+  reason: Aligned<typeof en.reason, typeof es.reason>
+}
+
+void parity
 
 const base: Record<Lang, Strings> = { en, es }
 

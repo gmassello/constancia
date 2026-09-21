@@ -79,6 +79,17 @@ async def test_run_retries_when_the_reply_does_not_validate() -> None:
     assert "rejected" in llm.prompts[1]
 
 
+async def test_an_invented_category_is_rejected_and_the_model_gets_a_second_go() -> None:
+    invented = json.dumps({"facts": [{**VALID, "category": "pain_level"}]})
+    call, llm = build([invented, json.dumps({"facts": [VALID]})])
+
+    facts = await extract.run(call, llm, [])
+
+    assert [fact.category for fact in facts] == ["symptom"]
+    assert "extract_retry" in types_of(call)
+    assert "pain_level" in llm.prompts[1]
+
+
 async def test_run_gives_up_after_three_attempts() -> None:
     call, llm = build(['{"facts": [{}]}'] * extract.MAX_ATTEMPTS)
 

@@ -8,7 +8,7 @@ The service degrades on purpose. Pick the shallowest one that shows what you nee
 
 ```bash
 uv sync
-make test          # 128 green, no network and no database
+make test          # 145 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session
@@ -105,9 +105,15 @@ pages, still runs `scripted` and `replay` calls and still answers every read end
 
 Four more tuning knobs are defaulted in [`../app/config.py`](../app/config.py) and deliberately left
 out of `.env.example`, because nobody needs to set them to run the project: `EMBEDDING_DIMS` (1536,
-and it has to match `vector(1536)` in the schema), `LANGUAGE` (`es`), `SILENCE_S` (8.0, how long the
+and it has to match `vector(1536)` in the schema), `LANGUAGE` (`en`), `SILENCE_S` (8.0, how long the
 agent waits before re-prompting) and `BARGE_MIN_WORDS` (2, how many words of the patient count as an
 interruption).
+
+`LANGUAGE` is the one worth leaving alone. It feeds `stream_url()` in
+[`../app/stt.py`](../app/stt.py) and `transcribe()` in [`../app/analysis.py`](../app/analysis.py), but
+nothing else: the packs, the TTS and the red-flag regexes are English, so setting `LANGUAGE=es` puts
+the recogniser in Spanish while the agent keeps speaking English — and a real red flag stops matching
+the guard. The project is English only, as [`ARCHITECTURE.md`](ARCHITECTURE.md) says.
 
 ## The database
 
@@ -142,7 +148,7 @@ them is in the repo.
 The container binds `${PORT:-8000}`; Render sets `PORT`. Local development uses 8001.
 
 **The schema applies itself at boot.** When the store is Postgres, the lifespan runs `schema.sql`
-before serving (`app/main.py:39`) — it is idempotent end to end, so every boot after the first is a
+before serving (`app/main.py`) — it is idempotent end to end, so every boot after the first is a
 no-op, and `tests/test_db.py` asserts exactly that. A fresh Render database therefore comes up with
 its three tables and the `vector` extension already there. If the database is unreachable the service
 fails to start and the deploy goes red, which is the loud version of the problem: before this, the
@@ -195,9 +201,10 @@ in a dashboard. They are tracked in [`PLAN.md`](PLAN.md):
 | C3 | Stage 3 | The panel during a live call: transcript, rail with the highlight, the chain, the chart. |
 | C4 | Stage 4 | A public URL reachable from another network, the video, the deck. |
 
-Until C1 happens, [`../app/analysis.py`](../app/analysis.py) has never met a real recording — its
-pure functions are tested against a canned AssemblyAI response, and `make smoke-analysis` is what
-closes it.
+[`../app/analysis.py`](../app/analysis.py) has met real recordings: C1 closed on live calls, and the
+401 it answered the first time is why the mp3 is relayed through AssemblyAI's `/v2/upload` instead of
+handed over by URL. Its pure functions are still tested against a canned response, and
+`make smoke-analysis` is what re-checks the wire format by hand.
 
 ---
 

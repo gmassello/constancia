@@ -112,6 +112,15 @@ def speech(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(tts, "stream", stream)
 
 
+@pytest.fixture
+def mute(monkeypatch: pytest.MonkeyPatch):
+    async def stream(text: str):
+        raise RuntimeError("elevenlabs said 401")
+        yield b""
+
+    monkeypatch.setattr(tts, "stream", stream)
+
+
 async def started_channel() -> tuple[LiveChannel, FakeWS, FakeSTT]:
     call = Call(patient_id="test", patient_name="Ana", pack=get_pack("rehab"))
     ws, stt = FakeWS(), FakeSTT()
@@ -197,6 +206,17 @@ async def test_a_turn_that_lands_mid_question_is_not_served_as_its_answer(speech
 
     assert channel.call.trace[-1]["interrupted"] is False
     assert await channel.listen(0.05) is None
+    await channel.close()
+
+
+async def test_a_turn_the_tts_never_spoke_is_not_written_into_the_transcript(mute) -> None:
+    channel, ws, _ = await started_channel()
+    await channel.say("Hi Ana")
+
+    assert ws.events("media") == []
+    assert [t["speaker"] for t in channel.call.transcript] == []
+    warnings = [e for e in channel.call.trace if e["type"] == "warning"]
+    assert [w["phase"] for w in warnings] == ["tts"]
     await channel.close()
 
 

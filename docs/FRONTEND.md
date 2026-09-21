@@ -20,7 +20,7 @@ Two pages, built as two HTML entries: the public landing at `/` and the professi
 There is no router and no SPA fallback. The multi-page split happens at build time, so the landing
 never loads the panel's bundle.
 
-FastAPI serves the result (`app/main.py:288-301`) and the ordering is deliberate: `/` and `/panel`
+FastAPI serves the result (`app/main.py`) and the ordering is deliberate: `/` and `/panel`
 are **explicit routes** so they can carry `Cache-Control: no-store`, and the `StaticFiles` mount goes
 last, after every API route. Vite hashes the assets but not `index.html`; a cached `index.html` keeps
 naming the previous build's bundles, which is a confusing way to lose an afternoon. `/assets/*` stays
@@ -42,27 +42,27 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 | File | Lines | What it is |
 |---|---:|---|
 | `web/src/landing/Landing.tsx` | 480 | The seven sections, with the design's inline styles kept. |
-| `web/src/landing/DemoCard.tsx` | 743 | The scripted demo card: two scripts, the fact chain, the player and its controls. |
+| `web/src/landing/DemoCard.tsx` | 744 | The scripted demo card: two scripts, the fact chain, the player and its controls. |
 | `web/src/landing/copy.ts` | 502 | Four sets — two languages × two registers. |
-| `web/src/landing/landing.css` | 119 | Six keyframes, the pause rule and the reduced-motion block. |
+| `web/src/landing/landing.css` | 123 | Six keyframes, the pause rule and the reduced-motion block. |
 | `web/src/landing/main.tsx` | 12 | Mount. |
 
 ### Panel
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/panel/panel.css` | 305 | Layout and styles, on the aliases. |
-| `web/src/panel/copy.ts` | 400 | Two languages, one register, plus the maps for raw backend values. |
-| `web/src/panel/ActivityRail.tsx` | 136 | Turns each trace event into a labelled line. |
-| `web/src/panel/PatientView.tsx` | 132 | Loads the patient's data and composes the five cards. |
-| `web/src/panel/content.ts` | 92 | The ES→EN table for canned patient data. |
+| `web/src/panel/panel.css` | 346 | Layout and styles, on the aliases. |
+| `web/src/panel/copy.ts` | 455 | Two languages, one register, plus the maps for raw backend values. |
+| `web/src/panel/ActivityRail.tsx` | 142 | Turns each trace event into a labelled line. |
+| `web/src/panel/PatientView.tsx` | 153 | Loads the patient's data and composes the five cards. |
+| `web/src/panel/content.ts` | 109 | The ES→EN table for canned patient data. |
 | `web/src/panel/App.tsx` | 97 | Shell: sidebar, backend status, the two toggles, patient list. |
-| `web/src/panel/api.ts` | 79 | Backend types, `get`/`post`, and `subscribe()` over `EventSource`. |
+| `web/src/panel/api.ts` | 125 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
 | `web/src/panel/FactChain.tsx` | 79 | The patient file: current facts and what they retired. |
-| `web/src/panel/Calls.tsx` | 71 | One row per past call: tags, the summary, and the transcript behind a `<details>`. |
+| `web/src/panel/Calls.tsx` | 101 | One row per past call: tags, the summary, and the transcript behind a `<details>`. |
 | `web/src/panel/WeeklyChart.tsx` | 70 | One series per measure, with scale, delta and verdict. |
 | `web/src/panel/Keyterms.tsx` | 64 | The words handed to the recogniser: the three-step drawing and the chips. |
-| `web/src/panel/LiveCall.tsx` | 58 | The SSE subscription and the live transcript. |
+| `web/src/panel/LiveCall.tsx` | 69 | The SSE subscription and the live transcript. |
 | `web/src/panel/main.tsx` | 12 | Mount. |
 
 ## Theming
@@ -106,11 +106,15 @@ possible at all. The gate is a `grep`:
 
 ```bash
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
-  --include=*.tsx --include=*.ts --include=*.css | grep -v tokens.css
+  --include='*.tsx' --include='*.ts' --include='*.css' | grep -v tokens.css
 ```
 
 It must return nothing. It includes `.tsx` on purpose: in `DemoCard.tsx:31-36` the rail colours live
 as **data** (`TONE`), not as styles, and reading stylesheets alone would miss them.
+
+`tests/test_docs.py` asserts the same thing by walking `web/src` in Python, so `make test` is what
+actually enforces it. The shell line stays because it prints the file and the line, and because the
+unquoted version of it is how the gate spent a long time passing without running.
 
 ## Two languages
 
@@ -143,7 +147,13 @@ surface nobody judges.
 |---|---|---|---|
 | **Chrome** | What the interface says: nav, headings, buttons, labels, verdicts, units | `copy.ts`, keyed, typed | Build error |
 | **Data** | What the patient said or the agent wrote: transcript turns, facts, quotes, key terms, summaries | Landing: `{es, en}` pairs beside their source in `DemoCard`. Panel: `content.ts`, keyed **by the English string** | Landing: impossible, the type requires both. Panel: falls through to English |
-| **Raw backend values** | `symptom`, `red_flag`, `sudden_sharp_pain`, `rehab`, `recall` — taxonomy, not the patient's words | The maps at the end of `panel/copy.ts`, resolved with `label()` | Degrades to `raw.replace(/_/g, " ")` |
+| **Raw backend values** | `symptom`, `red_flag`, `sudden_sharp_pain`, `rehab`, `recall` — taxonomy, not the patient's words | The maps at the end of `panel/copy.ts`, resolved with `label()` | Build error: the `parity` gate |
+
+The maps are typed `Record<string, string>`, which on its own would let a missing Spanish key
+compile and let `label()` fall through to `raw.replace(/_/g, " ")` — the Spanish reader would see
+`sudden sharp pain`. `en` and `es` are therefore declared with `satisfies Strings` rather than an
+annotation, which keeps their literal keys, and the `parity` block at the end of the file asserts
+that each of the eight maps carries the same keys in both languages.
 
 `speech()` ([`web/src/panel/content.ts`](../web/src/panel/content.ts)) is keyed by the English
 string — the one the call actually produces — and carries a `ponytail:` marker saying so: a fact a

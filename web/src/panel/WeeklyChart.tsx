@@ -7,7 +7,7 @@ function Chart({ series, copy: c }: { series: Series; copy: Copy }) {
   const points = series.points
   const last = points[points.length - 1]
   const previous = points.length > 1 ? points[points.length - 2] : null
-  const top = series.scale_max ?? Math.max(...points.map((p) => p.value), 1)
+  const top = series.scale_max || Math.max(...points.map((p) => p.value), 1)
   const delta = previous ? last.value - previous.value : 0
   const better = series.lower_is_better ? delta < 0 : delta > 0
 
@@ -38,7 +38,7 @@ function Chart({ series, copy: c }: { series: Series; copy: Copy }) {
         {points.map((point) => (
           <div className="chart-col" key={point.week}>
             <div className="bar-value">{point.value}</div>
-            <div className="bar" style={{ height: `${(point.value / top) * PLOT_FILL}%` }} />
+            <div className="bar" style={{ height: `${Math.min(point.value / top, 1) * PLOT_FILL}%` }} />
           </div>
         ))}
       </div>

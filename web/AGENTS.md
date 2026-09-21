@@ -7,12 +7,19 @@ In addition to [`../AGENTS.md`](../AGENTS.md), which applies everywhere.
   `--fill-subtle`, `--color-danger`). The gate, which must return nothing:
   ```bash
   grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' src \
-    --include=*.tsx --include=*.ts --include=*.css | grep -v tokens.css
+    --include='*.tsx' --include='*.ts' --include='*.css' | grep -v tokens.css
   ```
-  It includes `.tsx` because some colours live there as data, not as styles.
+  It includes `.tsx` because some colours live there as data, not as styles. The globs are
+  quoted because zsh expands an unquoted one before `grep` sees it and aborts the whole
+  command, which prints nothing and reads exactly like a pass. That is why the gate also lives
+  in `tests/test_docs.py`, walked in Python: `make test` runs it, and no shell can mangle it.
 - **Every visible string comes from a `copy.ts`.** Add it to the type first; `tsc` then names every
   set that is missing it. A string that interpolates a value is typed as a **function**, never built
   by concatenation — word order moves in Spanish.
+- **The nested maps have a parity gate too.** `measure`, `unit`, `category`, `mood`, `program`,
+  `rule`, `phase` and `reason` are typed `Record<string, string>`, so `tsc` cannot see a key that
+  only one language has. The `parity` block at the end of `panel/copy.ts` can: it fails the build
+  when the two drift. A key added to one language goes in the other in the same change.
 - **English is the annotated base, Spanish the translation.** Patient data is different: the call
   happens in English, so `panel/content.ts` is keyed by the English string and translates *into*
   Spanish. Anything the extractor writes live is not in that table and falls through on purpose.

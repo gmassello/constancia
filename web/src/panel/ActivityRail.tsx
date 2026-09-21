@@ -83,6 +83,14 @@ function describe(event: Event, c: Copy): Line | null {
         text: label(c.phase, event.phase ?? event.type.replace("_failed", "")),
         detail: String(event.error ?? ""),
       }
+    case "facts_lost":
+      return {
+        key,
+        tone: "rejected",
+        label: c.railFailed,
+        text: c.railFactsLost(Number(event.count)),
+        detail: String(event.error ?? ""),
+      }
     case "extract_retry":
     case "llm_retry":
       return { key, tone: "muted", label: c.railRetry, text: c.railRetryText(Number(event.attempt)) }
@@ -102,11 +110,9 @@ function describe(event: Event, c: Copy): Line | null {
 
 export default function ActivityRail({
   events,
-  since,
   copy: c,
 }: {
   events: Event[]
-  since: number
   copy: Copy
 }) {
   const box = useRef<HTMLDivElement>(null)
@@ -125,7 +131,7 @@ export default function ActivityRail({
       <h3>{c.activity}</h3>
       {lines.length === 0 && <p className="empty">{c.waitingForCall}</p>}
       {lines.map((line) => (
-        <div className={`event ${line.tone}${line.key > since ? " fresh" : ""}`} key={line.key}>
+        <div className={`event ${line.tone} fresh`} key={line.key}>
           <span className="event-label">{line.label}</span>
           <span className="event-text">{line.text}</span>
           {line.detail && <span className="event-detail">{line.detail}</span>}

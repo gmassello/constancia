@@ -254,7 +254,7 @@ main { padding: 20px; max-width: 980px; }
 .terms-icon { color: var(--text-accent); }
 .terms-arrow { flex: none; margin-top: 3px; color: var(--tone-dim); }
 
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 0; }
 .chip {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -330,6 +330,13 @@ main { padding: 20px; max-width: 980px; }
 }
 .call-turns > summary:hover { color: var(--text-accent); }
 .call-turns .transcript { max-height: 300px; margin-top: 8px; }
+
+.call-understanding { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-divider); }
+.call-understanding h4 { margin: 0; font-size: 13px; }
+.call-understanding-lede { margin: 2px 0 8px; font-size: 12px; color: var(--text-muted); }
+.call-understanding .chips + .chips { margin-top: 6px; }
+.chip.mood-negative { background: var(--danger-fill); color: var(--color-danger); border-color: transparent; }
+.chip.mood-positive { background: var(--fill-subtle); color: var(--text-accent); border-color: transparent; }
 
 @media (max-width: 880px) {
   .app { grid-template-columns: 1fr; }

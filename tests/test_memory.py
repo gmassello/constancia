@@ -46,6 +46,18 @@ async def test_supersede_retires_the_old_fact_but_keeps_it_in_the_chain() -> Non
     assert old["id"] in [fact["id"] for fact in await store.chain(PATIENT)]
 
 
+async def test_inserting_a_superseding_fact_retires_the_old_one_in_one_call() -> None:
+    store = load_seed()
+    old = (await store.current_facts(PATIENT))[0]
+
+    await store.insert_fact(Stub(), NEW, await store.embed(NEW.fact), old["id"])
+
+    current = await store.current_facts(PATIENT)
+    assert old["id"] not in [fact["id"] for fact in current]
+    assert [fact["value"] for fact in current if fact["term"] == "right knee"] == [4]
+    assert old["id"] in [fact["id"] for fact in await store.chain(PATIENT)]
+
+
 async def test_supersede_does_not_retire_a_fact_twice() -> None:
     store = load_seed()
     old = (await store.current_facts(PATIENT))[0]

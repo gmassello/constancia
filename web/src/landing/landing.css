@@ -116,4 +116,8 @@ a:hover { color: var(--text-accent); }
   .demo-split {
     grid-template-columns: minmax(0, 1fr) !important;
   }
+  .demo-split > :first-child {
+    border-right: 0 !important;
+    border-bottom: 1px solid var(--color-divider) !important;
+  }
 }

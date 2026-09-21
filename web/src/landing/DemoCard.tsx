@@ -567,6 +567,7 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
         </div>
       ) : (
         <div
+          className="demo-split"
           style={{
             display: "grid",
             gridTemplateColumns: "minmax(0, 1.15fr) minmax(0, 1fr)",

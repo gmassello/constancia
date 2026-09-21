@@ -81,25 +81,43 @@ async def extract_facts(call: Call, channel, llm, store, silence_s: float) -> No
 
 
 async def store_facts(call: Call, channel, llm, store, silence_s: float) -> None:
+    # ponytail: the call row is not memory. Turning memory off stops the agent from remembering,
+    # not from being on the record, and the row has to exist before any fact points at it.
+    if store is not None:
+        await store.save_call(call)
     if _memory_off(call, "store", store):
         return
-    await store.save_call(call)
-    for fact in call.new_facts:
-        embedding = await store.embed(fact.fact)
-        fact_id = await store.insert_fact(call, fact, embedding)
+    # ponytail: each fact is its own transaction, so a failure part way through keeps the ones
+    # already written and drops the rest. Naming them is what this costs; making the whole loop
+    # one transaction needs a connection held across statements in app/db.py.
+    stored = 0
+    try:
+        for fact in call.new_facts:
+            embedding = await store.embed(fact.fact, call.emit)
+            fact_id = await store.insert_fact(call, fact, embedding, fact.supersedes)
+            stored += 1
+            call.emit(
+                "fact_stored",
+                id=fact_id,
+                fact=fact.fact,
+                term=fact.term,
+                category=fact.category,
+                value=fact.value,
+                quote=fact.quote,
+                turn_id=fact.turn_id,
+            )
+            if fact.supersedes:
+                call.emit("fact_superseded", old_id=fact.supersedes, new_id=fact_id)
+    except Exception as exc:
+        lost = call.new_facts[stored:]
         call.emit(
-            "fact_stored",
-            id=fact_id,
-            fact=fact.fact,
-            term=fact.term,
-            category=fact.category,
-            value=fact.value,
-            quote=fact.quote,
-            turn_id=fact.turn_id,
+            "facts_lost",
+            count=len(lost),
+            stored=stored,
+            fact=lost[0].fact if lost else "",
+            error=repr(exc),
         )
-        if fact.supersedes:
-            await store.supersede(fact.supersedes, fact_id)
-            call.emit("fact_superseded", old_id=fact.supersedes, new_id=fact_id)
+        raise
 
 
 async def summarize(call: Call, channel, llm, store, silence_s: float) -> None:
@@ -109,7 +127,7 @@ async def summarize(call: Call, channel, llm, store, silence_s: float) -> None:
         fragment = f"{fragment} What was recorded: {found}"
     call.summary = await phrase(call, llm, fragment)
     call.emit("summary", text=call.summary)
-    if call.memory and store is not None:
+    if store is not None:
         await store.save_call(call)
 
 
@@ -140,5 +158,13 @@ async def run_call(call: Call, channel, llm, store=None, silence_s: float = SILE
         if name == "converse":
             await channel.close()
             call.ended_at = call.trace[-1]["at"]
+    # ponytail: `store` and `summarize` both write the row, and a critical phase breaks out of the
+    # loop before either runs — so without this a call that died in `greet` leaves no trace the
+    # professional can see. `save_call` is an upsert on the id, so running it again is free.
+    if store is not None:
+        try:
+            await store.save_call(call)
+        except Exception as exc:
+            call.emit("warning", phase="store", error=repr(exc))
     call.emit("call_ended", escalated=bool(call.escalated), answers=dict(call.answers))
     return call

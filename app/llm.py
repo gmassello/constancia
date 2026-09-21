@@ -56,6 +56,31 @@ class ScriptedLLM:
         return self.structured_replies.pop(0) if self.structured_replies else '{"facts": []}'
 
 
+
+async def retrying(call_api, what: str, emit: Callable[..., object] | None = None):
+    # ponytail: embeddings and completions are the same provider on the same key, so they share
+    # one quota and have to share one backoff. Whoever adds a third Gemini call site uses this,
+    # not a bare await: a 429 halfway through a fact loop drops every fact after it.
+    from google.genai import errors
+
+    for attempt in range(MAX_ATTEMPTS):
+        try:
+            return await call_api()
+        except errors.APIError as exc:
+            code = getattr(exc, "code", None)
+            retriable = code == 429 or (isinstance(code, int) and code >= 500)
+            if not retriable or attempt == MAX_ATTEMPTS - 1:
+                raise LLMError(f"{what} failed after {attempt + 1} attempts: {code}") from exc
+            delay = BASE_DELAY_S * (2**attempt)
+            if code == 429:
+                delay *= RATE_LIMIT_FACTOR
+            if emit:
+                emit("llm_retry", code=code, attempt=attempt + 1, delay_s=delay)
+            await asyncio.sleep(delay)
+
+    raise LLMError("unreachable")
+
+
 class GeminiLLM:
     def __init__(self) -> None:
         from google import genai
@@ -65,40 +90,25 @@ class GeminiLLM:
         self.client = genai.Client(api_key=settings.gemini_api_key)
 
     async def _generate(self, contents, config, emit: Callable[..., object] | None) -> str:
-        from google.genai import errors
-
         started = time.monotonic()
-        for attempt in range(MAX_ATTEMPTS):
-            try:
-                response = await self.client.aio.models.generate_content(
-                    model=self.model, contents=contents, config=config
-                )
-            except errors.APIError as exc:
-                code = getattr(exc, "code", None)
-                retriable = code == 429 or (isinstance(code, int) and code >= 500)
-                if not retriable or attempt == MAX_ATTEMPTS - 1:
-                    raise LLMError(f"gemini failed after {attempt + 1} attempts: {code}") from exc
-                delay = BASE_DELAY_S * (2**attempt)
-                if code == 429:
-                    delay *= RATE_LIMIT_FACTOR
-                if emit:
-                    emit("llm_retry", code=code, attempt=attempt + 1, delay_s=delay)
-                await asyncio.sleep(delay)
-                continue
-
-            text = (response.text or "").strip()
-            if emit:
-                usage = getattr(response, "usage_metadata", None)
-                emit(
-                    "llm",
-                    tokens=getattr(usage, "total_token_count", None),
-                    elapsed_ms=int((time.monotonic() - started) * 1000),
-                )
-            if not text:
-                raise LLMError("gemini returned an empty reply")
-            return text
-
-        raise LLMError("unreachable")
+        response = await retrying(
+            lambda: self.client.aio.models.generate_content(
+                model=self.model, contents=contents, config=config
+            ),
+            "gemini",
+            emit,
+        )
+        text = (response.text or "").strip()
+        if emit:
+            usage = getattr(response, "usage_metadata", None)
+            emit(
+                "llm",
+                tokens=getattr(usage, "total_token_count", None),
+                elapsed_ms=int((time.monotonic() - started) * 1000),
+            )
+        if not text:
+            raise LLMError("gemini returned an empty reply")
+        return text
 
     async def reply(
         self, system: str, history: list[dict], emit: Callable[..., object] | None = None

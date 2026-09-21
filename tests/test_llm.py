@@ -1,4 +1,5 @@
 import pytest
+from google.genai import errors
 
 from app import llm
 
@@ -60,3 +61,37 @@ async def test_an_empty_history_opens_the_call(monkeypatch) -> None:
 
     assert [c.role for c in models.contents] == ["user"]
     assert models.contents[0].parts[0].text == "(start of the call)"
+
+
+class Boom(errors.APIError):
+    def __init__(self, code: int) -> None:
+        self.code = code
+
+
+async def test_retrying_backs_off_and_succeeds_on_a_rate_limit(monkeypatch) -> None:
+    slept: list[float] = []
+
+    async def no_sleep(seconds: float) -> None:
+        slept.append(seconds)
+
+    monkeypatch.setattr(llm.asyncio, "sleep", no_sleep)
+    attempts: list[int] = []
+
+    async def flaky():
+        attempts.append(1)
+        if len(attempts) < 3:
+            raise Boom(429)
+        return "ok"
+
+    assert await llm.retrying(flaky, "gemini embeddings") == "ok"
+    assert slept == [5.0, 10.0]
+
+
+async def test_retrying_gives_up_on_an_error_that_is_not_retriable() -> None:
+    async def refused():
+        raise Boom(400)
+
+    with pytest.raises(llm.LLMError) as failure:
+        await llm.retrying(refused, "gemini embeddings")
+
+    assert "gemini embeddings failed after 1 attempts: 400" in str(failure.value)

@@ -37,28 +37,30 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 128 passed, 2 skipped
+uv run pytest -q          # 145 tests, the 3 that need a database skipped
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
-  --include=*.tsx --include=*.ts --include=*.css | grep -v tokens.css   # must be empty
+  --include='*.tsx' --include='*.ts' --include='*.css' | grep -v tokens.css   # must be empty
 ```
 
 The last one is the design-system gate: no ramp step may survive outside `tokens.css`. It includes
 `.tsx` because some colours live there as data rather than as styles. The reasoning is in
-[`FRONTEND.md`](FRONTEND.md).
+[`FRONTEND.md`](FRONTEND.md). `tests/test_docs.py` walks the same tree in Python and asserts the same
+thing, so `make test` already covers it — the shell line stays for the times you want the file and
+line printed, and because an unquoted glob in it is how the gate was silently dead before.
 
 There is **no test runner in the front end**. `tsc` is the check: the copy types are built so that a
 missing translation fails the build, and presentational components do not earn a test framework.
 
 ## Tests
 
-Thirteen test files, 130 collected, 128 passing with no environment variable set — the other two are the
-Postgres integration tests and skip themselves.
+Fourteen test files, 145 collected with no environment variable set. Every one of them passes
+except the three Postgres integration tests, which skip themselves.
 
 | File | Covers |
 |---|---|
-| `tests/conftest.py` | Not a test: one autouse fixture blanks `GEMINI_API_KEY` and `DATABASE_URL` so the suite cannot reach the network or a database through a filled `.env`. `build_llm` (`app/replay.py:38`) picks the real model the moment a key is readable, so without this `make test` means something different for each person who runs it. |
+| `tests/conftest.py` | Not a test: one autouse fixture blanks `GEMINI_API_KEY` and `DATABASE_URL` so the suite cannot reach the network or a database through a filled `.env`. `build_llm` (`app/replay.py`) picks the real model the moment a key is readable, so without this `make test` means something different for each person who runs it. |
 | `tests/test_orchestrator.py` | The protocol: question order, the red-flag cut, the silence re-prompt, a non-critical phase failing soft, a hangup that still reaches `summarize`, all three packs end to end |
 | `tests/test_queries.py` | Multi-step supersession chains, the weekly series per measure, `keyterms_at` as a point-in-time view |
 | `tests/test_twilio_routes.py` | The webhooks: TwiML, bad signature, unknown call, a recording URL that is not Twilio's, and the phone fallback down to `DEMO_PHONE` |
@@ -69,6 +71,8 @@ Postgres integration tests and skip themselves.
 | `tests/test_analysis.py` | The AssemblyAI request body, `summarize` over a fixture, and that `run` never propagates a failure |
 | `tests/test_replay.py` | Scripted week1→week2 with supersession, automatic script choice, the `week2-off` script never quoting last week, the `alarm` script cutting the protocol short, monotonic `export`, fixture playback |
 | `tests/test_guard.py` | Rehab's fourteen phrases that must escalate and eighteen that must not, accents and capitals, then the postpartum and chronic rules with their own tables — including the baby's fever, which must not escalate |
+| `tests/test_llm.py` | The history the model is handed in all three shapes, and the shared backoff: a rate limit that clears on the third try, and an error that is not retriable |
+| `tests/test_docs.py` | The documentation gates: every published test count matches the suite, every line anchor in `API.md` still points at what it names, and no ramp step survives outside `tokens.css` |
 | `tests/test_import_safety.py` | That importing `app.main` with no environment does not raise, and the `Settings` validation |
 | `tests/test_db.py` | **Integration.** A real Postgres round trip. Skips without `DATABASE_URL`. |
 
@@ -84,10 +88,11 @@ global mock:
    call that would go out.
 3. `analysis.run(call, store, fetch=transcribe)` takes its fetcher as an argument; the test passes its
    own and reads a canned AssemblyAI response from `tests/fixtures/`.
-4. The one test that does need a database marks itself `integration` and skips without `DATABASE_URL`.
+4. The three tests that do need a database mark themselves `integration` and skip without `DATABASE_URL`.
 5. Anything that genuinely needs a key lives in `scripts/smoke_*.py` and is run by hand.
 
-There is no `conftest.py`. pytest is configured in `pyproject.toml` with `asyncio_mode = "auto"`.
+`tests/conftest.py` holds one autouse fixture and nothing else. The rest of pytest is configured
+in `pyproject.toml`, with `asyncio_mode = "auto"`.
 
 ## Conventions
 
@@ -98,8 +103,8 @@ The hard rules are in [`../AGENTS.md`](../AGENTS.md). The ones that bite most of
   bilingual interface (the two `copy.ts` and `panel/content.ts`), where English is the annotated base
   and Spanish the translation.
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path. There
-  are eight in the repo; `git grep 'ponytail:'` finds them and they are the honest list of what was
-  knowingly left simple.
+  are twenty-five in the code; `git grep 'ponytail:'` finds them and they are the honest list of
+  what was knowingly left simple.
 - **Exact versions.** `==` in `pyproject.toml`, no `^`/`~` in `package.json`. `uv.lock` and
   `pnpm-lock.yaml` are committed.
 - **No secrets in git.** `.env` is ignored, `.env.example` lists every key with an empty value, and no

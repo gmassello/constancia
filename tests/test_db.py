@@ -1,6 +1,7 @@
 import os
 import uuid
 
+import psycopg
 import pytest
 
 from app import db
@@ -56,6 +57,41 @@ async def test_a_fact_survives_a_round_trip_and_is_retired_by_supersession() -> 
         retired = next(r for r in await store.chain(patient_id) if str(r["id"]) == old_id)
         assert str(retired["superseded_by"]) == new_id
         assert retired["valid_until"] is not None
+    finally:
+        await db.execute("delete from patient_memories where patient_id = %s", (patient_id,))
+        await db.execute("delete from calls where patient_id = %s", (patient_id,))
+        await db.execute("delete from patients where id = %s", (patient_id,))
+        await db.close_pool()
+
+
+async def test_a_superseding_insert_that_fails_leaves_the_old_fact_current() -> None:
+    db.init_schema()
+    store = MemoryStore()
+    patient_id = str(uuid.uuid4())
+    call = Call(patient_id=patient_id, patient_name="Ana", pack=get_pack("rehab"))
+    embedding = [0.0] * 1535 + [1.0]
+
+    await db.execute(
+        "insert into patients (id, professional_id, program_type, name, phone_e164) "
+        "values (%s, %s, 'rehab', 'Ana', '+541100000000')",
+        (patient_id, PROFESSIONAL),
+    )
+    try:
+        await store.save_call(call)
+        old_id = await store.insert_fact(call, fact("pain 7/10", 7), embedding)
+
+        new_id = await store.insert_fact(call, fact("pain 4/10", 4), embedding, old_id)
+        assert [row["fact"] for row in await store.current_facts(patient_id)] == ["pain 4/10"]
+        retired = next(r for r in await store.chain(patient_id) if str(r["id"]) == old_id)
+        assert str(retired["superseded_by"]) == new_id
+
+        with pytest.raises(psycopg.Error):
+            await store.insert_fact(call, fact("pain 2/10", 2), [0.0] * 8, new_id)
+
+        still = next(r for r in await store.chain(patient_id) if str(r["id"]) == new_id)
+        assert still["superseded_by"] is None
+        assert still["valid_until"] is None
+        assert [row["fact"] for row in await store.current_facts(patient_id)] == ["pain 4/10"]
     finally:
         await db.execute("delete from patient_memories where patient_id = %s", (patient_id,))
         await db.execute("delete from calls where patient_id = %s", (patient_id,))

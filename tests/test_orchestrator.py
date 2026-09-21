@@ -3,6 +3,7 @@ import pytest
 from app import orchestrator
 from app.calls import Call
 from app.channel import ScriptedPatient
+from app.extract import Fact
 from app.llm import ScriptedLLM
 from app.packs import ASK_MARKER, get_pack
 
@@ -136,6 +137,7 @@ SUPERSEDING = {
     "turn_id": 4,
     "confidence": 0.9,
 }
+SUPERSEDING_FACT = Fact(**SUPERSEDING)
 
 
 def build_week_2(memory: bool) -> tuple[Call, ScriptedPatient, ScriptedLLM, object]:
@@ -188,13 +190,80 @@ async def test_the_summary_reaches_the_stored_call() -> None:
 
 async def test_memory_off_never_mentions_the_knee() -> None:
     call, channel, llm, store = build_week_2(memory=False)
+    before = await store.current_facts(PATIENT)
     await orchestrator.run_call(call, channel, llm, store, silence_s=0.01)
 
     spoken = [p for p in llm.prompts if ASK_MARKER in p or call.pack.greet in p]
     assert spoken and not any("knee" in prompt for prompt in spoken)
     assert channel.keyterms == []
-    assert store.saved_calls == []
+    assert await store.current_facts(PATIENT) == before
     assert "memory_off" in types_of(call)
+
+
+async def test_memory_off_still_records_that_the_call_happened() -> None:
+    call, channel, llm, store = build_week_2(memory=False)
+    await orchestrator.run_call(call, channel, llm, store, silence_s=0.01)
+
+    row = await store.call(call.id)
+    assert row is not None
+    assert row["memory_enabled"] is False
+    assert row["summary"] == call.summary
+    assert row["transcript"] == call.transcript
+
+
+async def test_a_critical_phase_failing_still_records_that_the_call_happened() -> None:
+    async def boom(call, channel, llm, store, silence_s):
+        raise RuntimeError("gemini is down")
+
+    call, channel, llm, store = build_week_2(memory=True)
+    original = orchestrator.PHASES
+    orchestrator.PHASES = tuple(
+        (name, boom if name == "converse" else fn, critical) for name, fn, critical in original
+    )
+    try:
+        await orchestrator.run_call(call, channel, llm, store, silence_s=0.01)
+    finally:
+        orchestrator.PHASES = original
+
+    assert phases_done(call) == ["recall", "greet"]
+    row = await store.call(call.id)
+    assert row is not None
+    assert row["transcript"] == call.transcript
+
+
+async def test_a_fact_that_fails_to_store_names_the_ones_that_were_lost() -> None:
+    call, channel, llm, store = build_week_2(memory=True)
+    call.new_facts = [SUPERSEDING_FACT, SUPERSEDING_FACT, SUPERSEDING_FACT]
+
+    async def refuse(text: str, emit=None):
+        raise RuntimeError("gemini embeddings failed after 4 attempts: 429")
+
+    store.embed = refuse
+    with pytest.raises(RuntimeError):
+        await orchestrator.store_facts(call, channel, llm, store, 0.01)
+
+    lost = [e for e in call.trace if e["type"] == "facts_lost"]
+    assert len(lost) == 1
+    assert lost[0]["count"] == 3
+    assert lost[0]["stored"] == 0
+
+
+async def test_an_embedding_retry_reaches_the_trace() -> None:
+    call, channel, llm, store = build_week_2(memory=True)
+    call.new_facts = [SUPERSEDING_FACT]
+    seen: list[str] = []
+
+    async def slow(text: str, emit=None):
+        if emit:
+            emit("llm_retry", code=429, attempt=1, delay_s=5.0)
+        seen.append(text)
+        return [0.0] * 8
+
+    store.embed = slow
+    await orchestrator.store_facts(call, channel, llm, store, 0.01)
+
+    assert seen == [SUPERSEDING_FACT.fact]
+    assert "llm_retry" in types_of(call)
 
 
 async def test_without_a_store_the_memory_phases_are_skipped() -> None:

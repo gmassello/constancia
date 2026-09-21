@@ -39,10 +39,11 @@ async def fetch_one(sql: str, params: Any = None) -> dict | None:
     return rows[0] if rows else None
 
 
-async def execute(sql: str, params: Any = None) -> None:
+async def execute(sql: str, params: Any = None) -> int:
     connections = await pool()
     async with connections.connection() as conn, conn.cursor() as cur:
         await cur.execute(sql, params)
+        return cur.rowcount
 
 
 def to_vector_literal(embedding: list[float]) -> str:
