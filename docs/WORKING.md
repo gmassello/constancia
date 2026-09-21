@@ -2,12 +2,13 @@
 
 ## Commands
 
-Sixteen targets in the [`../Makefile`](../Makefile). Everything runs through `uv`; nothing needs a
+Eighteen targets in the [`../Makefile`](../Makefile). Everything runs through `uv`; nothing needs a
 virtualenv activated.
 
 | Target | What it does | Needs |
 |---|---|---|
 | `make dev` | uvicorn with `--reload` on port 8001 | — |
+| `make take` | uvicorn without `--reload`, for a recording that a file save must not restart | — |
 | `make test` | `pytest -q` — the offline suite | — |
 | `make lint` | `ruff check .` | — |
 | `make demo` | A full call against a scripted patient, trace printed. `MEMORY=on` runs week two over the seed. | — |
@@ -21,6 +22,7 @@ virtualenv activated.
 | `make smoke PHONE=` | A `<Say>`-only call: checks geographic permissions, spends no LLM or TTS credit | Twilio |
 | `make smoke-stt` | Opens the AssemblyAI streaming socket and closes it | AssemblyAI |
 | `make smoke-tts` | One ElevenLabs `ulaw_8000` request; asserts it is not MP3 | ElevenLabs |
+| `make smoke-call PHONE=` | A full call through the live channel, driven from the shell | all credentials |
 | `make smoke-analysis URL=` | Entity detection and sentiment against a real recording | AssemblyAI |
 | `make models` | Lists the Gemini models available to the key | Gemini |
 
@@ -37,7 +39,7 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 146 tests, the 3 that need a database skipped
+uv run pytest -q          # 153 tests, the 3 that need a database skipped
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
@@ -55,7 +57,7 @@ missing translation fails the build, and presentational components do not earn a
 
 ## Tests
 
-Fourteen test files, 146 collected with no environment variable set. Every one of them passes
+Fourteen test files, 153 collected with no environment variable set. Every one of them passes
 except the three Postgres integration tests, which skip themselves.
 
 | File | Covers |
@@ -103,8 +105,9 @@ The hard rules are in [`../AGENTS.md`](../AGENTS.md). The ones that bite most of
   bilingual interface (the two `copy.ts` and `panel/content.ts`), where English is the annotated base
   and Spanish the translation.
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path. There
-  are twenty-five in the code; `git grep 'ponytail:'` finds them and they are the honest list of
-  what was knowingly left simple.
+  are thirty-two in the code; `git grep -c 'ponytail:' -- 'app/*.py' web/src scripts tests schema.sql`
+  counts them and they are the honest list of what was knowingly left simple. The docs quote a few
+  more, which is why the unscoped `git grep` returns a larger number.
 - **Exact versions.** `==` in `pyproject.toml`, no `^`/`~` in `package.json`. `uv.lock` and
   `pnpm-lock.yaml` are committed.
 - **No secrets in git.** `.env` is ignored, `.env.example` lists every key with an empty value, and no

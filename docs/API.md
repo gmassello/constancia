@@ -12,10 +12,10 @@ from it (`include_in_schema=False`).
 | Method | Path | Handler | Returns |
 |---|---|---|---|
 | `POST` | `/calls` | `create_call` — `main.py:75` | `{call_id, mode, twilio_sid}`. Starts the call in the requested mode. |
-| `GET` | `/calls/{call_id}/trace` | `trace` — `main.py:262` | The whole live call: `answers`, `summary`, `escalated`, `transcript` and the event trace. |
-| `GET` | `/calls/{call_id}/events` | `call_events` — `main.py:248` | **SSE.** The event stream of one call. See below. |
-| `GET` | `/calls/{call_id}/export` | `call_export` — `main.py:127` | The call as a replayable fixture, timestamps relative to the first event. `404` on an unknown call. |
-| `GET` | `/calls/{call_id}/keyterms` | `call_keyterms` — `main.py:176` | The key terms that were current **when that call started**, not today's. |
+| `GET` | `/calls/{call_id}/trace` | `trace` — `main.py:277` | The whole live call: `answers`, `summary`, `escalated`, `transcript` and the event trace. |
+| `GET` | `/calls/{call_id}/events` | `call_events` — `main.py:263` | **SSE.** The event stream of one call. See below. |
+| `GET` | `/calls/{call_id}/export` | `call_export` — `main.py:142` | The call as a replayable fixture, timestamps relative to the first event. `404` on an unknown call. |
+| `GET` | `/calls/{call_id}/keyterms` | `call_keyterms` — `main.py:191` | The key terms that were current **when that call started**, not today's. |
 
 ### `POST /calls`
 
@@ -42,9 +42,9 @@ watch the call is the SSE stream.
 
 ### The SSE stream
 
-`GET /calls/{call_id}/events`, generator at `event_stream` (`main.py:219`). The contract:
+`GET /calls/{call_id}/events`, generator at `event_stream` (`main.py:234`). The contract:
 
-- Every event carries a monotonic `seq`, sent as the SSE `id:` field (`sse_frame`, `main.py:215`).
+- Every event carries a monotonic `seq`, sent as the SSE `id:` field (`sse_frame`, `main.py:230`).
 - The first frame is `retry: 3000`, so the browser owns the reconnect and the client needs no backoff
   of its own.
 - A subscriber that arrives late gets the whole buffer first, then live events. `Last-Event-ID` is
@@ -62,7 +62,7 @@ watch the call is the SSE stream.
 Headers are `Cache-Control: no-cache, no-transform` and `X-Accel-Buffering: no` (`SSE_HEADERS`, `main.py:28`) — the
 second one stops a reverse proxy from buffering the stream into uselessness.
 
-The client side is thirteen lines of `EventSource` with de-duplication by `seq`
+The client side is thirty lines of `EventSource` with de-duplication by `seq`
 ([`../web/src/panel/api.ts`](../web/src/panel/api.ts), `subscribe`), which is what makes the
 automatic reconnect harmless.
 
@@ -70,13 +70,13 @@ automatic reconnect harmless.
 
 | Method | Path | Handler | Returns |
 |---|---|---|---|
-| `GET` | `/patients` | `patients` — `main.py:135` | Every patient, by name. |
-| `GET` | `/patients/{patient_id}` | `patient` — `main.py:140` | One patient. `404` if unknown. |
-| `GET` | `/patients/{patient_id}/calls` | `patient_calls` — `main.py:148` | That patient's calls, newest first, each with its `transcript`, `summary`, `memory_enabled` and `analysis`. A call runs with memory off and is still on this list: memory decides what the agent remembers, not whether the call was recorded. |
-| `GET` | `/patients/{patient_id}/chain` | `patient_chain` — `main.py:153` | Current facts, each with the facts it retired hanging off it as `superseded`. |
-| `GET` | `/patients/{patient_id}/facts` | `patient_facts` — `main.py:164` | `{patient_id, facts}` — the same rows, flat and ungrouped. |
-| `GET` | `/patients/{patient_id}/weekly?term=` | `patient_weekly` — `main.py:158` | One series per measure declared by the patient's pack. |
-| `GET` | `/search?q=&professional_id=` | `search` — `main.py:169` | Semantic search over that professional's facts. **`503` without Postgres.** |
+| `GET` | `/patients` | `patients` — `main.py:150` | Every patient, by name. |
+| `GET` | `/patients/{patient_id}` | `patient` — `main.py:155` | One patient. `404` if unknown. |
+| `GET` | `/patients/{patient_id}/calls` | `patient_calls` — `main.py:163` | That patient's calls, newest first, each with its `transcript`, `summary`, `memory_enabled` and `analysis`. A call runs with memory off and is still on this list: memory decides what the agent remembers, not whether the call was recorded. |
+| `GET` | `/patients/{patient_id}/chain` | `patient_chain` — `main.py:168` | Current facts, each with the facts it retired hanging off it as `superseded`. |
+| `GET` | `/patients/{patient_id}/facts` | `patient_facts` — `main.py:179` | `{patient_id, facts}` — the same rows, flat and ungrouped. |
+| `GET` | `/patients/{patient_id}/weekly?term=` | `patient_weekly` — `main.py:173` | One series per measure declared by the patient's pack. |
+| `GET` | `/search?q=&professional_id=` | `search` — `main.py:184` | Semantic search over that professional's facts. **`503` without Postgres.** |
 
 `analysis` is what `app/analysis.py` wrote after the recording webhook — `{transcript_id, entities,
 sentiment, negative}` — or `null` on any call with no Twilio recording, which is every scripted and
@@ -101,10 +101,10 @@ does not match. The body is only read after the signature passes.
 
 | Method | Path | Handler | Returns |
 |---|---|---|---|
-| `POST` | `/voice?call_id=` | `voice` — `main.py:188` | TwiML `<Connect><Stream>` pointing at `wss://.../media/{call_id}`. `404` on an unknown call. |
-| `POST` | `/voice/status` | `voice_status` — `main.py:195` | `204`. Signature validation only. |
-| `POST` | `/voice/recording` | `voice_recording` — `main.py:200` | `204`. Stores the recording URL and queues the post-call analysis. `400` if the URL is not a Twilio URL. |
-| `WS` | `/media/{call_id}` | `media` — `main.py:280` | The Twilio Media Stream. This socket is where a live call actually happens. |
+| `POST` | `/voice?call_id=` | `voice` — `main.py:203` | TwiML `<Connect><Stream>` pointing at `wss://.../media/{call_id}`. `404` on an unknown call. |
+| `POST` | `/voice/status` | `voice_status` — `main.py:210` | `204`. Signature validation only. |
+| `POST` | `/voice/recording` | `voice_recording` — `main.py:215` | `204`. Stores the recording URL and queues the post-call analysis. `400` if the URL is not a Twilio URL. |
+| `WS` | `/media/{call_id}` | `media` — `main.py:295` | The Twilio Media Stream. This socket is where a live call actually happens. |
 
 `is_twilio_recording` (`app/config.py:51`) is the reason `/voice/recording` cannot be used to make
 the service fetch an arbitrary URL.
@@ -114,7 +114,7 @@ the service fetch an arbitrary URL.
 | Method | Path | Handler | Returns |
 |---|---|---|---|
 | `GET` | `/health` | `health` — `main.py:65` | `{status, calls, store, live}`. `store` is `seed` or `postgres`; `live` says whether credentials validate. |
-| `POST` | `/reset` | `reset` — `main.py:117` | Reloads the seed and clears in-memory calls. **`409` when the store is Postgres** — it refuses to reset a real database. |
+| `POST` | `/reset` | `reset` — `main.py:132` | Reloads the seed and clears in-memory calls. **`409` when the store is Postgres** — it refuses to reset a real database. |
 
 `/reset` is what a second take of the demo needs.
 
@@ -124,8 +124,8 @@ Served only when `web/dist` exists (the guard in `main.py`), so the API boots wi
 
 | Method | Path | Handler | Returns |
 |---|---|---|---|
-| `GET` | `/` | `landing` — `main.py:302` | The public landing. |
-| `GET` | `/panel` | `panel` — `main.py:306` | The professional's panel. |
+| `GET` | `/` | `landing` — `main.py:317` | The public landing. |
+| `GET` | `/panel` | `panel` — `main.py:321` | The professional's panel. |
 | `GET` | `/*` | `StaticFiles` mount — `main.py` | Hashed assets. Mounted **last**, after every API route. |
 
 The two HTML entries are served by explicit routes rather than by the mount so they can carry

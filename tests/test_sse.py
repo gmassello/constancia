@@ -115,3 +115,32 @@ async def test_a_buffer_that_already_ended_does_not_wait_for_more() -> None:
 
     assert [e["type"] for e in payloads(frames)] == ["call_started", "call_ended"]
     assert call.subscribers == []
+
+
+async def test_a_call_task_that_dies_before_emitting_still_ends_the_call() -> None:
+    call = build()
+
+    async def dies() -> None:
+        raise RuntimeError("fixture is corrupt")
+
+    task = main._watched(call, dies())
+    await asyncio.gather(task, return_exceptions=True)
+    await asyncio.sleep(0)
+
+    types = [event["type"] for event in call.trace]
+    assert types == ["phase_failed", "call_ended"]
+    assert "fixture is corrupt" in call.trace[0]["error"]
+
+
+async def test_a_call_task_that_ended_normally_is_not_ended_twice() -> None:
+    call = build()
+
+    async def runs_then_dies() -> None:
+        call.emit("call_ended", escalated=False, answers={})
+        raise RuntimeError("after the end")
+
+    task = main._watched(call, runs_then_dies())
+    await asyncio.gather(task, return_exceptions=True)
+    await asyncio.sleep(0)
+
+    assert [event["type"] for event in call.trace] == ["call_ended"]

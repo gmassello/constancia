@@ -22,7 +22,8 @@ async def ask(call: Call, channel, llm, text: str, silence_s: float) -> str | No
 
 
 async def escalated(call: Call, channel, llm, answer: str | None) -> bool:
-    hit = answer and guard.check(call.pack, answer)
+    turns = (*channel.take_dropped(), answer)
+    hit = next((h for t in turns if t and (h := guard.check(call.pack, t))), None)
     if not hit:
         return False
     call.escalated = hit
@@ -67,10 +68,10 @@ async def converse(call: Call, channel, llm, store, silence_s: float) -> None:
     for question in pack.questions:
         text = await phrase(call, llm, f"{pack.converse} {ASK_MARKER}{question.goal}")
         answer = await ask(call, channel, llm, text, silence_s)
+        if await escalated(call, channel, llm, answer):
+            return
         if answer is None:
             await channel.say(pack.goodbye_silent)
-            return
-        if await escalated(call, channel, llm, answer):
             return
         call.answers[question.key] = answer
     await channel.say(pack.goodbye)

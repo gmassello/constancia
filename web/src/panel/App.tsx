@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import PatientView from "./PatientView"
 import { get, type Health, type Patient } from "./api"
@@ -15,7 +15,7 @@ export default function App() {
   const [selected, setSelected] = useState<Patient | null>(null)
   const [health, setHealth] = useState<Health | null>(null)
   const [unreachable, setUnreachable] = useState(false)
-  const c = copy(lang)
+  const c = useMemo(() => copy(lang), [lang])
   const dark = theme === "dark"
 
   useEffect(() => {

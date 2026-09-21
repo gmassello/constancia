@@ -44,7 +44,7 @@ about the code.
 | File | What it is | Written |
 |---|---|---|
 | [`INTENT.md`](INTENT.md) | The **pre-code specification**. Market research with citations, the business case, and the design contract. Its last section is called *Before writing code* — which is when it was written. Where it and the code disagree, the code is right and [`PLAN.md`](PLAN.md)'s deviation register usually says why. | 2026-09-02 |
-| [`PLAN.md`](PLAN.md) | The four-stage build order, the four human checkpoints, and — at the top, lines 21 to 62 — **the deviation register**: twenty numbered entries recording what was built differently from `INTENT.md` and why. That register is the real decision log of this project. | during the build |
+| [`PLAN.md`](PLAN.md) | The four-stage build order, the four human checkpoints, and — at the top, lines 26 to 68 — **the deviation register**: twenty numbered entries recording what was built differently from `INTENT.md` and why. That register is the real decision log of this project. | during the build |
 | [`LANDING.md`](LANDING.md) | Written as a spec for one piece of work, half-converted into a log. Contains the densest technical content in the repo: the OKLCH derivation of the light theme with measured contrast ratios, and the design of the copy types. | stage 4 |
 
 ## Hackathon

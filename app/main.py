@@ -106,12 +106,27 @@ async def create_call(request: CallRequest) -> dict:
     if request.mode == "live":
         call.twilio_sid = place_call(call.id, phone)
     elif request.mode == "scripted":
-        call.task = asyncio.create_task(replay.run_scripted(call, STORE, request.script))
+        call.task = _watched(call, replay.run_scripted(call, STORE, request.script))
     else:
-        call.task = asyncio.create_task(
-            replay.run_recorded(call, request.script or DEFAULT_FIXTURE)
-        )
+        call.task = _watched(call, replay.run_recorded(call, request.script or DEFAULT_FIXTURE))
     return {"call_id": call.id, "mode": request.mode, "twilio_sid": call.twilio_sid}
+
+
+# ponytail: `run_call` wraps every phase, but the lines around it do not — picking the script,
+# reading the current facts, building the LLM. A task that dies there emits nothing at all, and the
+# panel cannot tell that from a call still dialling, so the death is reported as the call ending.
+def _watched(call: Call, coroutine) -> asyncio.Task:
+    def ended(task: asyncio.Task) -> None:
+        if task.cancelled() or task.exception() is None:
+            return
+        if any(event["type"] == "call_ended" for event in call.trace):
+            return
+        call.emit("phase_failed", phase="call", critical=True, error=repr(task.exception()))
+        call.emit("call_ended", escalated=bool(call.escalated), answers=dict(call.answers))
+
+    task = asyncio.create_task(coroutine)
+    task.add_done_callback(ended)
+    return task
 
 
 @app.post("/reset")

@@ -260,3 +260,22 @@ async def test_start_times_out_without_a_twilio_stream(monkeypatch: pytest.Monke
     with pytest.raises(CallEnded):
         await channel.start()
     await channel.close()
+
+
+async def test_a_turn_that_lands_mid_question_still_reaches_the_transcript_and_the_guard(
+    speech,
+) -> None:
+    channel, _, stt = await started_channel()
+
+    async def tail_of_the_previous_answer() -> None:
+        await asyncio.sleep(0.03)
+        await stt.queue.put(turn("and I fell on Tuesday", words=1, start_ms=0))
+
+    await asyncio.gather(channel.say("Any new discomfort?"), tail_of_the_previous_answer())
+
+    assert await channel.listen(0.05) is None
+    assert channel.call.transcript[0]["speaker"] == "patient"
+    assert channel.call.transcript[0]["text"] == "and I fell on Tuesday"
+    assert channel.take_dropped() == ["and I fell on Tuesday"]
+    assert channel.take_dropped() == []
+    await channel.close()

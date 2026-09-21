@@ -47,144 +47,144 @@
       "scripted": true
     },
     {
-      "t": 1.202,
+      "t": 1.2,
       "type": "agent_turn",
       "turn_id": 1,
       "text": "Hi Ana, I am your physio's follow-up assistant. Last week you told me your knee hurt seven out of ten climbing stairs, so I am calling to see how it has been this week.",
       "interrupted": false
     },
     {
-      "t": 2.405,
+      "t": 2.4,
       "type": "patient_turn",
       "turn_id": 2,
       "text": "Hello, yes, this is Ana."
     },
     {
-      "t": 2.405,
+      "t": 2.4,
       "type": "phase_done",
       "phase": "greet"
     },
     {
-      "t": 2.405,
+      "t": 2.4,
       "type": "phase_started",
       "phase": "converse"
     },
     {
-      "t": 2.405,
+      "t": 2.4,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 3.606,
+      "t": 3.6,
       "type": "agent_turn",
       "turn_id": 3,
       "text": "Tell me, how much does it hurt today from one to ten climbing stairs?",
       "interrupted": false
     },
     {
-      "t": 4.807,
+      "t": 4.8,
       "type": "patient_turn",
       "turn_id": 4,
       "text": "My knee is a lot better, it is four out of ten on the stairs now."
     },
     {
-      "t": 4.807,
+      "t": 4.8,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 6.009,
+      "t": 6.0,
       "type": "agent_turn",
       "turn_id": 5,
       "text": "Last week you did the exercises three times. How many times did you manage this week?",
       "interrupted": false
     },
     {
-      "t": 7.211,
+      "t": 7.2,
       "type": "patient_turn",
       "turn_id": 6,
       "text": "I did them five times this week, I got myself better organised."
     },
     {
-      "t": 7.211,
+      "t": 7.2,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 8.413,
+      "t": 8.4,
       "type": "agent_turn",
       "turn_id": 7,
       "text": "Did you have any new discomfort after the exercises, any swelling or stiffness?",
       "interrupted": false
     },
     {
-      "t": 9.615,
+      "t": 9.6,
       "type": "patient_turn",
       "turn_id": 8,
       "text": "No, no new discomfort."
     },
     {
-      "t": 9.616,
+      "t": 9.6,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 10.818,
+      "t": 10.8,
       "type": "agent_turn",
       "turn_id": 9,
       "text": "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?",
       "interrupted": false
     },
     {
-      "t": 12.02,
+      "t": 12.0,
       "type": "patient_turn",
       "turn_id": 10,
       "text": "No, nothing like that."
     },
     {
-      "t": 13.222,
+      "t": 13.2,
       "type": "agent_turn",
       "turn_id": 11,
       "text": "That is everything for today. I will send the summary to your physio. Take care, we will talk next week.",
       "interrupted": false
     },
     {
-      "t": 13.222,
+      "t": 13.2,
       "type": "phase_done",
       "phase": "converse"
     },
     {
-      "t": 13.222,
+      "t": 13.2,
       "type": "phase_started",
       "phase": "extract"
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "facts_extracted",
       "count": 2
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "phase_done",
       "phase": "extract"
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "phase_started",
       "phase": "store"
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "fact_stored",
-      "id": "5e52da2b-9fa8-40b5-b5b0-3e0c583ee53d",
+      "id": "fact-5",
       "fact": "right knee pain 4/10 climbing stairs",
       "term": "right knee",
       "category": "symptom",
@@ -193,15 +193,15 @@
       "turn_id": 4
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "fact_superseded",
       "old_id": "1e5ed3db-6c84-5c04-8974-8ada6ec868d4",
-      "new_id": "5e52da2b-9fa8-40b5-b5b0-3e0c583ee53d"
+      "new_id": "fact-5"
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "fact_stored",
-      "id": "7803f1e2-6a1d-4197-8d73-49d339ea7381",
+      "id": "fact-6",
       "fact": "did the exercises five times this week",
       "term": "home exercises",
       "category": "adherence",
@@ -210,40 +210,40 @@
       "turn_id": 6
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "fact_superseded",
       "old_id": "57ee6aa9-40ed-554f-9642-00aa15a92cc3",
-      "new_id": "7803f1e2-6a1d-4197-8d73-49d339ea7381"
+      "new_id": "fact-6"
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "phase_done",
       "phase": "store"
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "phase_started",
       "phase": "summarize"
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "summary",
       "text": "Second follow-up call. Right knee pain dropped from 7/10 to 4/10 climbing stairs. Adherence improved: five sessions this week against three the week before. No new discomfort and no red flags."
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "phase_done",
       "phase": "summarize"
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "call_ended",
       "escalated": false,
       "answers": {

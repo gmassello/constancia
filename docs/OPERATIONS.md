@@ -8,7 +8,7 @@ The service degrades on purpose. Pick the shallowest one that shows what you nee
 
 ```bash
 uv sync
-make test          # 146 tests, no network and no database
+make test          # 153 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session

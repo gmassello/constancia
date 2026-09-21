@@ -70,7 +70,7 @@ No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 146 tests, no network and no database
+make test          # 153 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session
@@ -138,18 +138,19 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
   AssemblyAI's `/v2/upload` rather than passed by URL.
 - **Calls live in memory.** After a restart the panel loses the live trace of past calls; the history comes
   from the database instead.
-- **In English the panel translates the canned content, not live output.** Every fact, quote, transcript turn,
-  key term and summary that ships in `seed/` has an English counterpart in `web/src/panel/content.ts`, keyed by
-  the Spanish string, so the demo reads end to end in either language. A fact a real call extracts is not in
-  that table and falls through in English — deliberately, since showing an invented translation of a verbatim
-  quote is worse than showing the quote. That path needs a Gemini key and a phone, and it is the one the demo
-  video shows: the calls in it are real, so a Spanish reader sees English quotes inside a Spanish panel.
+- **In Spanish the panel translates the canned content, not live output.** Every fact, quote, transcript turn,
+  key term and summary that ships in `seed/` has a Spanish counterpart in `web/src/panel/content.ts`, keyed by
+  the English string the call actually produces, so the demo reads end to end in either language. A fact a real
+  call extracts is not in that table and falls through in English — deliberately, since showing an invented
+  translation of a verbatim quote is worse than showing the quote. That path needs a Gemini key and a phone,
+  and it is the one the demo video shows: the calls in it are real, so a Spanish reader sees English quotes
+  inside a Spanish panel.
 - **The landing's hero card is a scripted loop**, not a live call: two canned scripts with the real copy — week
   one with memory off, week two with it on — behind a selector, with step, pause and replay controls under
-  them, plus a reset that takes the whole sequence back to week one. The panel is where a real call is watched. The call itself happened in
-  Spanish, and the card renders it whole in whichever language the visitor picked — turns, facts and quotes
-  together — so in English the quote is a translation and the turn id beside it, not the wording, is what
-  anchors the fact. The call itself happens in English; the card renders it in whichever language the visitor picked.
+  them, plus a reset that takes the whole sequence back to week one. The panel is where a real call is watched.
+  The call itself happens in English, and the card renders it whole in whichever language the visitor picked —
+  turns, facts and quotes together — so in Spanish the quote is a translation and the turn id beside it, not
+  the wording, is what anchors the fact.
 - Twilio trial accounts only call verified numbers and prepend their own message.
 - English only. The packs are content, not code, so another language is a translation — except the red-flag patterns in `app/guard.py`, which encode English negation and have to be re-derived, not translated.
 
@@ -161,7 +162,7 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
 | `app/main.py` | the entry point: the twenty routes and the store choice |
 | `app/orchestrator.py` | the phase pipeline; the code decides, the LLM phrases |
 | `app/channel.py` | the voice loop: Twilio ↔ AssemblyAI ↔ TTS, barge-in |
-| `app/packs.py` | the three vertical packs; the only Spanish in the repo |
+| `app/packs.py` | the three vertical packs: the questions, the red flags and the prompts |
 | `app/guard.py` | the deterministic red-flag guard |
 | `app/memory.py` | the fact store: recall, supersession, key terms; `FakeStore` for the offline path |
 | `app/extract.py` | structured extraction with span grounding against patient turns |

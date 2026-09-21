@@ -45,6 +45,7 @@ function describe(event: Event, c: Copy): Line | null {
         tone: "muted",
         label: c.railMemoryOff,
         text: c.railMemoryOffText(label(c.phase, event.phase)),
+        detail: label(c.reason, event.reason),
       }
     case "summary":
       return { key, tone: "summary", label: c.railSummary, text: c.data(String(event.text)) }

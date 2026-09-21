@@ -20,10 +20,8 @@ CHECK_ONLY=0
 [ "${1:-}" = "--check" ] && CHECK_ONLY=1
 
 fails=0
-warns=0
 green() { printf '  \033[32mok\033[0m    %s\n' "$1"; }
 red()   { printf '  \033[31mFAIL\033[0m  %s\n' "$1"; fails=$((fails + 1)); }
-warn()  { printf '  \033[33mwarn\033[0m  %s\n' "$1"; warns=$((warns + 1)); }
 
 get() { curl -sf --max-time 5 "$BASE$1"; }
 
@@ -126,6 +124,7 @@ envval() { sed -n "s/^$1=//p" .env 2>/dev/null | head -1; }
 
 gemini_key=$(envval GEMINI_API_KEY)
 gemini_model=$(envval GEMINI_MODEL)
+: "${gemini_model:=gemini-3.8-flash}"
 if [ -z "$gemini_key" ]; then
   red "GEMINI_API_KEY is empty in .env — every reply falls back to the scripted LLM"
 else
@@ -144,14 +143,11 @@ aai_key=$(envval ASSEMBLYAI_API_KEY)
 if [ -z "$aai_key" ]; then
   red "ASSEMBLYAI_API_KEY is empty in .env — nothing transcribes the call"
 else
-  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
-    -H "authorization: $aai_key" 'https://api.assemblyai.com/v2/transcript?limit=1')
-  case "$code" in
-    200) green "AssemblyAI key accepted (account reachable)" ;;
-    401) red "AssemblyAI answered 401 — the key is rejected" ;;
-    429) red "AssemblyAI answered 429 — rate limited. The stream opens and closes with no turns" ;;
-    *)   red "AssemblyAI answered $code — nothing transcribes the call" ;;
-  esac
+  if out=$(uv run python scripts/smoke_stt.py 2>&1); then
+    green "AssemblyAI streaming socket opens and greets (the socket the call uses)"
+  else
+    red "AssemblyAI streaming socket did not open — nothing transcribes the call: $(printf '%s' "$out" | tail -1)"
+  fi
 fi
 
 configured=$(envval PUBLIC_BASE_URL)
@@ -175,5 +171,5 @@ if [ "$fails" -gt 0 ]; then
   echo "$fails invariant(s) red — do not record. Run: bash video/reset.sh"
   exit 1
 fi
-[ "$warns" -gt 0 ] && echo "all green, $warns warning(s)." || echo "all green."
+echo "all green."
 exit 0

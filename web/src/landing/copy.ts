@@ -111,7 +111,7 @@ export type Copy = {
   footerWarning: string
 }
 
-const en: Copy = {
+const en = {
   navHow: "How it works",
   navMemory: "Memory",
   navStack: "Stack",
@@ -184,7 +184,7 @@ const en: Copy = {
   statVerticalsLabel: "verticals on one engine — rehab, postpartum, chronic",
   statHoursValue: "333 h",
   statHoursLabel: "free streaming STT — $0.15/hour after that",
-  statTestsValue: "146",
+  statTestsValue: "153",
   statTestsLabel: "tests, with no network and no database",
 
   howKicker: "How it works",
@@ -235,9 +235,9 @@ const en: Copy = {
 
   footerLicense: "constancia · MIT licensed",
   footerWarning: "Hackathon demo on fictitious data — no authentication, not a product.",
-}
+} satisfies Copy
 
-const es: Copy = {
+const es = {
   navHow: "Cómo funciona",
   navMemory: "Memoria",
   navStack: "Stack",
@@ -310,7 +310,7 @@ const es: Copy = {
   statVerticalsLabel: "verticales sobre un solo motor — rehab, puerperio, crónicos",
   statHoursValue: "333 h",
   statHoursLabel: "de STT en streaming gratis — después, US$0,15 por hora",
-  statTestsValue: "146",
+  statTestsValue: "153",
   statTestsLabel: "tests, sin red y sin base de datos",
 
   howKicker: "Cómo funciona",
@@ -361,7 +361,7 @@ const es: Copy = {
 
   footerLicense: "constancia · licencia MIT",
   footerWarning: "Demo de hackathon con datos ficticios — sin autenticación, no es un producto.",
-}
+} satisfies Copy
 
 const enPlain = {
   demoChain: "What Ana said before, and what she says now",
@@ -493,6 +493,21 @@ const esPlain: Record<PlainKey, string> = {
   closingBody:
     "La primera semana no sabe nada y pregunta de cero. La segunda abre preguntando por la rodilla que ella mencionó — y cuando dice que está mejor, el número viejo se tacha delante tuyo.",
 }
+
+// ponytail: `Copy` types demoCategory as Record<string, string>, so a key in one language and not
+// the other compiles and the card falls back to the raw backend value in silence. `satisfies` above
+// keeps the literal keys; this fails the build when they drift. The twin of web/src/panel/copy.ts.
+type Aligned<A, B> = Exclude<keyof A, keyof B> extends never
+  ? Exclude<keyof B, keyof A> extends never
+    ? true
+    : false
+  : false
+
+const parity = { demoCategory: true } satisfies {
+  demoCategory: Aligned<typeof en.demoCategory, typeof es.demoCategory>
+}
+
+void parity
 
 const base: Record<Lang, Copy> = { en, es }
 const plain: Record<Lang, Record<PlainKey, string>> = { en: enPlain, es: esPlain }

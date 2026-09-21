@@ -1,6 +1,6 @@
 # Frontend reference
 
-React 19 + Vite + TypeScript in [`../web/`](../web). Nineteen files, about 3,500 lines, and **no UI
+React 19 + Vite + TypeScript in [`../web/`](../web). Twenty files, about 4,000 lines, and **no UI
 library, no router, no state library, no date library and no charting library**. The chart is `div`s
 with a percentage height; the dates are `Intl.DateTimeFormat`; the segmented control is native radios
 styled with `:has()`.
@@ -43,7 +43,7 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 |---|---:|---|
 | `web/src/landing/Landing.tsx` | 480 | The seven sections, with the design's inline styles kept. |
 | `web/src/landing/DemoCard.tsx` | 744 | The scripted demo card: two scripts, the fact chain, the player and its controls. |
-| `web/src/landing/copy.ts` | 502 | Four sets — two languages × two registers. |
+| `web/src/landing/copy.ts` | 517 | Four sets — two languages × two registers. |
 | `web/src/landing/landing.css` | 123 | Six keyframes, the pause rule and the reduced-motion block. |
 | `web/src/landing/main.tsx` | 12 | Mount. |
 
@@ -53,11 +53,11 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 |---|---:|---|
 | `web/src/panel/panel.css` | 346 | Layout and styles, on the aliases. |
 | `web/src/panel/copy.ts` | 455 | Two languages, one register, plus the maps for raw backend values. |
-| `web/src/panel/ActivityRail.tsx` | 150 | Turns each trace event into a labelled line. |
+| `web/src/panel/ActivityRail.tsx` | 151 | Turns each trace event into a labelled line. |
 | `web/src/panel/PatientView.tsx` | 153 | Loads the patient's data and composes the five cards. |
 | `web/src/panel/content.ts` | 109 | The ES→EN table for canned patient data. |
 | `web/src/panel/App.tsx` | 97 | Shell: sidebar, backend status, the two toggles, patient list. |
-| `web/src/panel/api.ts` | 125 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
+| `web/src/panel/api.ts` | 126 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
 | `web/src/panel/FactChain.tsx` | 79 | The patient file: current facts and what they retired. |
 | `web/src/panel/Calls.tsx` | 101 | One row per past call: tags, the summary, and the transcript behind a `<details>`. |
 | `web/src/panel/WeeklyChart.tsx` | 70 | One series per measure, with scale, delta and verdict. |

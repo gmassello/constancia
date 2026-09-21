@@ -29,6 +29,9 @@ class ScriptedPatient:
         self.keyterms: list[str] = []
         self.closed = False
 
+    def take_dropped(self) -> list[str]:
+        return []
+
     async def _pace(self) -> None:
         if self.delay_s:
             await asyncio.sleep(self.delay_s)
@@ -68,6 +71,7 @@ class LiveChannel:
         self.started = asyncio.Event()
         self.hung_up = asyncio.Event()
         self.turns: asyncio.Queue = asyncio.Queue()
+        self.dropped: list[str] = []
         self.barge = asyncio.Event()
         self.mark_event = asyncio.Event()
         self.speaking = False
@@ -179,6 +183,12 @@ class LiveChannel:
             if item is None:
                 self.turns.put_nowait(None)
                 return
+            self.call.add_turn("patient", item, heard=False)
+            self.dropped.append(item)
+
+    def take_dropped(self) -> list[str]:
+        dropped, self.dropped = self.dropped, []
+        return dropped
 
     async def say(self, text: str) -> None:
         if self.hung_up.is_set():
@@ -190,7 +200,10 @@ class LiveChannel:
         # because it arrives by two routes: word `start` (milliseconds of caller audio, against how
         # much we have fed) keeps it from counting as an interruption, and the drain below keeps a
         # turn that landed mid-question from being served as the answer to it. An interrupted turn
-        # is not drained: there the queued words are the interruption.
+        # is not drained: there the queued words are the interruption. A drained turn is written to
+        # the transcript with `heard=False` and held in `dropped` for the guard, because it is the
+        # attribution that is wrong, not the words: dropping them loses clinical content and any
+        # red flag inside it. The orchestrator empties `dropped` through `escalated`.
         self.speech_from_ms = self.fed_ms
         self.speaking = True
         self.tts_task = asyncio.create_task(self._stream_tts(text))

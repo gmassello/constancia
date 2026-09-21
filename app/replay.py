@@ -68,7 +68,7 @@ def export(call: Call) -> dict:
         },
         "events": [
             {
-                "t": round(_seconds(event["at"]) - base, 3),
+                "t": round(_seconds(event["at"]) - base, 1),
                 **{k: v for k, v in event.items() if k not in ("at", "seq")},
             }
             for event in events

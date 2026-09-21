@@ -13,11 +13,19 @@ PUBLISHED = (
     "docs/SUBMISSION.md",
     "docs/LANDING.md",
     "docs/deck.md",
+    "docs/API.md",
+    "docs/BACKEND.md",
+    "docs/FRONTEND.md",
+    "docs/README.md",
     "web/src/landing/copy.ts",
 )
+SIZED = ("docs/BACKEND.md", "docs/FRONTEND.md")
+SIZED_ROW = re.compile(r"^\|\s*\[?`([^`]+)`(?:\]\([^)]*\))?\s*\|\s*(\d+)\s*\|")
 # ponytail: every pattern here is checked against the collected total, so a doc may publish that
 # number and no other. A "142 passing" would need the suite's own result, and running the suite from
-# inside it recurses. Prose says how many skip in words instead.
+# inside it recurses. Prose says how many skip in words instead. The gate reads digits only, so a
+# written in words is invisible to it, which is how six of them drifted, so the counts a doc writes
+# out in prose are anchored by the table gates below instead.
 COUNTS = (
     re.compile(r"(\d+) green"),
     re.compile(r"(\d+) passed"),
@@ -123,3 +131,33 @@ def test_no_ramp_step_survives_outside_tokens_css() -> None:
     ]
 
     assert stray == []
+
+
+@pytest.mark.parametrize("doc", SIZED)
+def test_every_line_count_in_the_module_tables_matches_the_file(doc: str) -> None:
+    # The sibling of the anchor gate, on the other axis. BACKEND.md and FRONTEND.md publish a line
+    # count per module, and "every published number comes out of a command" is a rule the repo set
+    # itself — so the command runs here instead of being quoted in prose nobody re-runs.
+    wrong = []
+    for line in ROOT.joinpath(doc).read_text().splitlines():
+        found = SIZED_ROW.match(line)
+        if not found:
+            continue
+        path, published = found.group(1), int(found.group(2))
+        real = len(ROOT.joinpath(path).read_text().splitlines())
+        if real != published:
+            wrong.append(f"{doc} publishes {published} lines for {path}, which has {real}")
+
+    assert wrong == []
+
+
+def test_the_target_table_lists_every_target_in_the_makefile() -> None:
+    # WORKING.md publishes how many targets there are and then a row per target, and neither was
+    # checked against the Makefile — `make take` and `make smoke-call` had been missing for long
+    # enough that the count in the prose had drifted too.
+    phony = ROOT.joinpath("Makefile").read_text().splitlines()[0]
+    targets = set(phony.removeprefix(".PHONY:").split())
+    working = ROOT.joinpath("docs/WORKING.md").read_text()
+    table = set(re.findall(r"^\| `make ([a-z-]+)", working, re.M))
+
+    assert table == targets

@@ -262,7 +262,10 @@ class FakeStore:
     async def insert_fact(
         self, call, fact, embedding: list[float], supersedes: str | None = None
     ) -> str:
-        fact_id = str(uuid.uuid4())
+        # ponytail: a counter, not a uuid, because the id is an opaque handle here and a fixture
+        # recorded off this store has to come out byte-identical every run. The seeded rows carry
+        # uuids, so the two can never collide. A real id is the database's job, in the branch above.
+        fact_id = f"fact-{len(self.facts) + 1}"
         self.facts.append(
             {
                 "id": fact_id,

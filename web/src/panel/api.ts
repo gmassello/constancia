@@ -109,13 +109,14 @@ export function subscribe(
       source.close()
     }
   }
-  // ponytail: EventSource retries a failed connection every 3s for ever and says nothing, so
-  // without this a 404 — any call_id from before a restart — reads exactly like a call that is
-  // still dialling. No first-event timeout on top: a live call emits nothing until the WebSocket
-  // connects, which is after somebody picks up the phone, so a timeout would fire on camera.
+  // ponytail: a 404 — any call_id from before a restart — reads exactly like a call that is still
+  // dialling, because EventSource says nothing either way. The browser tells them apart: a response
+  // that is not an event stream is fatal and leaves readyState CLOSED, while a dropped connection
+  // leaves CONNECTING and retries every 3s, which is what `retry:` and `Last-Event-ID` are for. Only
+  // the fatal one is reported. No first-event timeout on top: a live call emits nothing until the
+  // WebSocket connects, which is after somebody picks up the phone, so a timeout would fire on camera.
   source.onerror = () => {
-    if (ended) return
-    source.close()
+    if (ended || source.readyState !== EventSource.CLOSED) return
     onError?.()
   }
   return () => {

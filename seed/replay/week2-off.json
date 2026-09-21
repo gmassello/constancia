@@ -42,175 +42,175 @@
       "scripted": true
     },
     {
-      "t": 1.202,
+      "t": 1.2,
       "type": "agent_turn",
       "turn_id": 1,
       "text": "Hi Ana, I am your physio's follow-up assistant. I am calling to see how you are doing with your recovery this week.",
       "interrupted": false
     },
     {
-      "t": 2.404,
+      "t": 2.4,
       "type": "patient_turn",
       "turn_id": 2,
       "text": "Hello, yes, this is Ana."
     },
     {
-      "t": 2.404,
+      "t": 2.4,
       "type": "phase_done",
       "phase": "greet"
     },
     {
-      "t": 2.404,
+      "t": 2.4,
       "type": "phase_started",
       "phase": "converse"
     },
     {
-      "t": 2.405,
+      "t": 2.4,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 3.607,
+      "t": 3.6,
       "type": "agent_turn",
       "turn_id": 3,
       "text": "Tell me, how much does it hurt today from one to ten, and at what moment or with what movement do you notice it most?",
       "interrupted": false
     },
     {
-      "t": 4.809,
+      "t": 4.8,
       "type": "patient_turn",
       "turn_id": 4,
       "text": "My knee is a lot better, it is four out of ten on the stairs now."
     },
     {
-      "t": 4.809,
+      "t": 4.8,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 6.011,
+      "t": 6.0,
       "type": "agent_turn",
       "turn_id": 5,
       "text": "How many times did you manage the exercises this week? Was it hard to keep the routine up?",
       "interrupted": false
     },
     {
-      "t": 7.214,
+      "t": 7.2,
       "type": "patient_turn",
       "turn_id": 6,
       "text": "I did them five times this week, I got myself better organised."
     },
     {
-      "t": 7.214,
+      "t": 7.2,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 8.416,
+      "t": 8.4,
       "type": "agent_turn",
       "turn_id": 7,
       "text": "Did you have any new discomfort after the exercises, any swelling or stiffness?",
       "interrupted": false
     },
     {
-      "t": 9.617,
+      "t": 9.6,
       "type": "patient_turn",
       "turn_id": 8,
       "text": "No, no new discomfort."
     },
     {
-      "t": 9.617,
+      "t": 9.6,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 10.82,
+      "t": 10.8,
       "type": "agent_turn",
       "turn_id": 9,
       "text": "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?",
       "interrupted": false
     },
     {
-      "t": 12.022,
+      "t": 12.0,
       "type": "patient_turn",
       "turn_id": 10,
       "text": "No, nothing like that."
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "agent_turn",
       "turn_id": 11,
       "text": "That is everything for today. I will send the summary to your physio. Take care, we will talk next week.",
       "interrupted": false
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "phase_done",
       "phase": "converse"
     },
     {
-      "t": 13.223,
+      "t": 13.2,
       "type": "phase_started",
       "phase": "extract"
     },
     {
-      "t": 13.224,
+      "t": 13.2,
       "type": "facts_extracted",
       "count": 2
     },
     {
-      "t": 13.224,
+      "t": 13.2,
       "type": "phase_done",
       "phase": "extract"
     },
     {
-      "t": 13.224,
+      "t": 13.2,
       "type": "phase_started",
       "phase": "store"
     },
     {
-      "t": 13.224,
+      "t": 13.2,
       "type": "memory_off",
       "phase": "store",
       "reason": "memory disabled for this call"
     },
     {
-      "t": 13.224,
+      "t": 13.2,
       "type": "phase_done",
       "phase": "store"
     },
     {
-      "t": 13.224,
+      "t": 13.2,
       "type": "phase_started",
       "phase": "summarize"
     },
     {
-      "t": 13.224,
+      "t": 13.2,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 13.224,
+      "t": 13.2,
       "type": "summary",
       "text": "Follow-up call. Reports right knee pain 4/10 climbing stairs. Did the exercises five times. No new discomfort and no red flags."
     },
     {
-      "t": 13.224,
+      "t": 13.2,
       "type": "phase_done",
       "phase": "summarize"
     },
     {
-      "t": 13.224,
+      "t": 13.2,
       "type": "call_ended",
       "escalated": false,
       "answers": {

@@ -6,8 +6,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# ponytail: recorded takes must be byte-identical every run, so the key that would make
-# build_llm pick Gemini is blanked here. The mirror of scripts/demo.py, which fills keys in.
+# ponytail: recorded takes must be byte-identical every run. Three things would break that and all
+# three are pinned: the key that would make build_llm pick Gemini is blanked here, `t` is quantised
+# in app/replay.export, and FakeStore mints fact ids from a counter. The mirror of scripts/demo.py,
+# which fills keys in. `make fixtures && git diff --exit-code seed/replay/` is the check.
 os.environ["GEMINI_API_KEY"] = ""
 
 from app import replay  # noqa: E402

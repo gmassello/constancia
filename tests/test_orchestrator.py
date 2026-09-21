@@ -273,3 +273,22 @@ async def test_without_a_store_the_memory_phases_are_skipped() -> None:
     reasons = [e["reason"] for e in call.trace if e["type"] == "memory_off"]
     assert reasons == ["no memory store configured"] * 2
     assert list(call.answers) == ["pain", "adherence", "side_effects", "red_flags"]
+
+
+class DroppingPatient(ScriptedPatient):
+    def __init__(self, call: Call, answers: list[str | None], dropped: list[str]) -> None:
+        super().__init__(call, answers)
+        self.dropped = list(dropped)
+
+    def take_dropped(self) -> list[str]:
+        dropped, self.dropped = self.dropped, []
+        return dropped
+
+
+async def test_a_turn_the_channel_dropped_still_goes_through_the_guard() -> None:
+    call = Call(patient_id="test", patient_name="Ana", pack=get_pack("rehab"))
+    channel = DroppingPatient(call, WEEK_1, ["and I fell on Tuesday coming down the stairs"])
+    await orchestrator.run_call(call, channel, ScriptedLLM(), silence_s=0.01)
+
+    assert call.escalated["rule"] == "fall"
+    assert "guard_hit" in types_of(call)

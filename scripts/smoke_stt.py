@@ -7,6 +7,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.stt import StreamingSTT  # noqa: E402
 
+TIMEOUT_S = 20.0
+
 
 async def main() -> None:
     stt = StreamingSTT(keyterms=["knee", "physiotherapy"])
@@ -21,4 +23,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(asyncio.wait_for(main(), TIMEOUT_S))
