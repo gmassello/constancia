@@ -6,6 +6,14 @@ SEVERITY = (
     r"(?:sudden|suddenly|out of nowhere|all of a sudden|severe|severely|"
     r"excruciating|unbearable|sharp|stabbing|shooting|intense|worst)"
 )
+SELF = (
+    r"(?:(?!\b(?:no|not|none|nothing|nor|never|without"
+    r"|baby|babies|she|he|her|his|they|them)\b|n't)[^.]){0,40}"
+)
+BAD = (
+    r"(?:bad|terrible|awful|horrible|pounding|splitting|blinding|"
+    r"thumping|relentless|constant|worst|severe|severely|intense)"
+)
 
 ASK_MARKER = "Ask about: "
 
@@ -154,6 +162,17 @@ POSTPARTUM = VerticalPack(
             r"|\bcan'?t stop the bleeding\b",
             "heavy bleeding",
         ),
+        RedFlag(
+            "fever",
+            rf"\b(?:i|i'?ve|i'?m|my)\b{SELF}\b(?:fever\w*|temperature|chills|shivery|shivering)\b",
+            "a fever",
+        ),
+        RedFlag(
+            "bad_headache",
+            rf"\b(?:headache\w*|migraine\w*)\b{NEAR}\b{BAD}\b"
+            rf"|\b{BAD}\b{NEAR}\b(?:headache\w*|migraine\w*)\b",
+            "a bad headache",
+        ),
     ),
     escalation=_escalation("midwife"),
     reprompt=REHAB.reprompt,
@@ -194,6 +213,13 @@ CHRONIC = VerticalPack(
             r"|\bshort(?:ness)? of breath\b|\bout of breath\b|\bcan'?t breathe\b|\bcannot breathe\b"
             r"|\bcan'?t catch my breath\b|\btrouble breathing\b|\bstruggling to breathe\b",
             "chest pain or shortness of breath",
+        ),
+        RedFlag(
+            "vision",
+            r"\bblurr\w*\b|\bdouble vision\b|\bseeing double\b"
+            rf"|\b(?:vision|sight|eyes?)\b{NEAR}\b(?:fuzzy|dim\w*|hazy|going dark)\b"
+            r"|\bspots in front of my eyes\b",
+            "blurred or double vision",
         ),
     ),
     escalation=_escalation("doctor"),

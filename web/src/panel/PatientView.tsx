@@ -38,10 +38,14 @@ export default function PatientView({
     if (rows.length > 0) setTerms(await get<string[]>(`/calls/${rows[0].id}/keyterms`))
   }, [patient.id])
 
-  useEffect(() => {
-    setCallId(null)
+  const refresh = useCallback(() => {
     reload().catch((cause: Error) => setError(cause.message))
   }, [reload])
+
+  useEffect(() => {
+    setCallId(null)
+    refresh()
+  }, [refresh])
 
   const call = async (memory: boolean, mode: Mode, script?: string) => {
     setError(null)
@@ -106,7 +110,7 @@ export default function PatientView({
         {error && <p className="error">{error}</p>}
       </header>
 
-      {callId && <LiveCall callId={callId} onEnded={reload} copy={c} />}
+      {callId && <LiveCall callId={callId} onEnded={refresh} copy={c} />}
 
       <section className="card">
         <WeeklyChart series={series} copy={c} />

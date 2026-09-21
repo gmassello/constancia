@@ -14,15 +14,20 @@ export default function App() {
   const [patients, setPatients] = useState<Patient[]>([])
   const [selected, setSelected] = useState<Patient | null>(null)
   const [health, setHealth] = useState<Health | null>(null)
+  const [unreachable, setUnreachable] = useState(false)
   const c = copy(lang)
   const dark = theme === "dark"
 
   useEffect(() => {
-    get<Patient[]>("/patients").then((rows) => {
-      setPatients(rows)
-      setSelected(rows[0] ?? null)
-    })
-    get<Health>("/health").then(setHealth)
+    get<Patient[]>("/patients")
+      .then((rows) => {
+        setPatients(rows)
+        setSelected(rows[0] ?? null)
+      })
+      .catch(() => setUnreachable(true))
+    get<Health>("/health")
+      .then(setHealth)
+      .catch(() => setUnreachable(true))
   }, [])
 
   return (
@@ -81,6 +86,8 @@ export default function App() {
       <main>
         {selected ? (
           <PatientView patient={selected} live={health?.live ?? false} copy={c} />
+        ) : unreachable ? (
+          <p className="error">{c.backendDown}</p>
         ) : (
           <p className="empty">{c.noPatients}</p>
         )}

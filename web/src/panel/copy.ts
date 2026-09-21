@@ -9,6 +9,7 @@ type Strings = {
   phoneReady: string
   phoneNoKeys: string
   noPatients: string
+  backendDown: string
 
   followedSince: (day: string) => string
   callWithoutMemory: string
@@ -88,6 +89,12 @@ type Strings = {
   railCall: string
   railCallStarted: (memory: boolean) => string
   railCallEnded: string
+  railHungUp: string
+  railFailed: string
+  railRetry: string
+  railRetryText: (attempt: number) => string
+  railRecording: string
+  railRecordingReady: string
 
   category: Record<string, string>
   program: Record<string, string>
@@ -104,6 +111,7 @@ const en: Strings = {
   phoneReady: "phone: ready",
   phoneNoKeys: "phone: no keys",
   noPatients: "No patients loaded.",
+  backendDown: "Could not reach the service.",
 
   followedSince: (day) => `in follow-up since ${day}`,
   callWithoutMemory: "Call without memory",
@@ -187,6 +195,12 @@ const en: Strings = {
   railCall: "call",
   railCallStarted: (memory) => `started · memory ${memory ? "on" : "off"}`,
   railCallEnded: "ended",
+  railHungUp: "the patient hung up",
+  railFailed: "failed",
+  railRetry: "retry",
+  railRetryText: (attempt) => `attempt ${attempt}`,
+  railRecording: "recording",
+  railRecordingReady: "ready",
 
   category: {
     symptom: "symptom",
@@ -202,7 +216,10 @@ const en: Strings = {
     swelling_with_fever: "swelling with fever",
     numbness: "numbness or tingling",
     heavy_bleeding: "heavy bleeding",
+    fever: "a fever",
+    bad_headache: "a bad headache",
     chest_pain: "chest pain or breathlessness",
+    vision: "blurred or double vision",
   },
   phase: {
     recall: "recall",
@@ -211,6 +228,11 @@ const en: Strings = {
     extract: "extraction",
     store: "storage",
     summarize: "summary",
+    analysis: "analysis",
+    channel: "the phone channel",
+    twilio_reader: "the Twilio stream",
+    stt_reader: "speech recognition",
+    tts: "the voice",
   },
   reason: {
     "not grounded": "no verbatim quote backs it",
@@ -227,6 +249,7 @@ const es: Strings = {
   phoneReady: "teléfono: listo",
   phoneNoKeys: "teléfono: sin claves",
   noPatients: "No hay pacientes cargados.",
+  backendDown: "No se pudo contactar al servicio.",
 
   followedSince: (day) => `en seguimiento desde ${day}`,
   callWithoutMemory: "Llamar sin memoria",
@@ -310,6 +333,12 @@ const es: Strings = {
   railCall: "llamada",
   railCallStarted: (memory) => `empezó · memoria ${memory ? "on" : "off"}`,
   railCallEnded: "terminó",
+  railHungUp: "el paciente cortó",
+  railFailed: "falló",
+  railRetry: "reintento",
+  railRetryText: (attempt) => `intento ${attempt}`,
+  railRecording: "grabación",
+  railRecordingReady: "lista",
 
   category: {
     symptom: "síntoma",
@@ -325,7 +354,10 @@ const es: Strings = {
     swelling_with_fever: "hinchazón con fiebre",
     numbness: "hormigueo o pérdida de sensibilidad",
     heavy_bleeding: "sangrado abundante",
+    fever: "fiebre",
+    bad_headache: "dolor de cabeza fuerte",
     chest_pain: "dolor en el pecho o falta de aire",
+    vision: "visión borrosa o doble",
   },
   phase: {
     recall: "memoria",
@@ -334,6 +366,11 @@ const es: Strings = {
     extract: "extracción",
     store: "guardado",
     summarize: "resumen",
+    analysis: "análisis",
+    channel: "el canal telefónico",
+    twilio_reader: "el stream de Twilio",
+    stt_reader: "el reconocimiento de voz",
+    tts: "la voz",
   },
   reason: {
     "not grounded": "ninguna cita textual lo respalda",

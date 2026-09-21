@@ -52,11 +52,11 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 | File | Lines | What it is |
 |---|---:|---|
 | `web/src/panel/panel.css` | 305 | Layout and styles, on the aliases. |
-| `web/src/panel/copy.ts` | 320 | Two languages, one register, plus the maps for raw backend values. |
-| `web/src/panel/ActivityRail.tsx` | 117 | Turns each trace event into a labelled line. |
-| `web/src/panel/PatientView.tsx` | 114 | Loads the patient's data and composes the five cards. |
+| `web/src/panel/copy.ts` | 400 | Two languages, one register, plus the maps for raw backend values. |
+| `web/src/panel/ActivityRail.tsx` | 136 | Turns each trace event into a labelled line. |
+| `web/src/panel/PatientView.tsx` | 132 | Loads the patient's data and composes the five cards. |
 | `web/src/panel/content.ts` | 92 | The ES→EN table for canned patient data. |
-| `web/src/panel/App.tsx` | 90 | Shell: sidebar, backend status, the two toggles, patient list. |
+| `web/src/panel/App.tsx` | 97 | Shell: sidebar, backend status, the two toggles, patient list. |
 | `web/src/panel/api.ts` | 79 | Backend types, `get`/`post`, and `subscribe()` over `EventSource`. |
 | `web/src/panel/FactChain.tsx` | 79 | The patient file: current facts and what they retired. |
 | `web/src/panel/Calls.tsx` | 71 | One row per past call: tags, the summary, and the transcript behind a `<details>`. |
@@ -202,9 +202,13 @@ automatic reconnect harmless: a reconnect replays, and the client does not care.
 flips the indicator and calls back into `PatientView.reload()`, so the chain, the series and the call
 list refresh from the API the moment the call finishes.
 
-`ActivityRail.describe()` is a closed `switch`. Five event types return `null` explicitly because
-they are already visible in the transcript. The `default` branch prints the raw event type — reachable
-only if the backend starts emitting something new.
+`ActivityRail.describe()` is a closed `switch` over every type the backend emits. Six return `null`
+explicitly: five are already visible in the transcript, and `twilio_frame` is stream plumbing that
+belongs in `/trace`, not on screen. The four failure types — `phase_failed`, `warning`,
+`extract_failed`, `analysis_failed` — share one branch that names the phase through `c.phase` and
+prints the backend's `error` verbatim as the detail: it is a `repr(exc)`, a measurement, so it is not
+translated. The `default` branch prints the raw event type — reachable only if the backend starts
+emitting something new.
 
 ## Motion and accessibility
 

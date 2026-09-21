@@ -37,7 +37,7 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 97 passed, 2 skipped
+uv run pytest -q          # 128 passed, 2 skipped
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
@@ -53,7 +53,7 @@ missing translation fails the build, and presentational components do not earn a
 
 ## Tests
 
-Twelve files, 99 collected, 97 passing with no environment variable set — the other two are the
+Thirteen test files, 130 collected, 128 passing with no environment variable set — the other two are the
 Postgres integration tests and skip themselves.
 
 | File | Covers |
@@ -68,7 +68,7 @@ Postgres integration tests and skip themselves.
 | `tests/test_sse.py` | Late subscriber gets the buffer, `Last-Event-ID`, keep-alive, unsubscribe, close on `call_ended` |
 | `tests/test_analysis.py` | The AssemblyAI request body, `summarize` over a fixture, and that `run` never propagates a failure |
 | `tests/test_replay.py` | Scripted week1→week2 with supersession, automatic script choice, the `week2-off` script never quoting last week, the `alarm` script cutting the protocol short, monotonic `export`, fixture playback |
-| `tests/test_guard.py` | Eight phrases that must escalate and eight that must not, accents and capitals, per-pack rules |
+| `tests/test_guard.py` | Rehab's fourteen phrases that must escalate and eighteen that must not, accents and capitals, then the postpartum and chronic rules with their own tables — including the baby's fever, which must not escalate |
 | `tests/test_import_safety.py` | That importing `app.main` with no environment does not raise, and the `Settings` validation |
 | `tests/test_db.py` | **Integration.** A real Postgres round trip. Skips without `DATABASE_URL`. |
 
@@ -114,7 +114,7 @@ The hard rules are in [`../AGENTS.md`](../AGENTS.md). The ones that bite most of
 | You want to | Do this |
 |---|---|
 | Add a question to a vertical | Add a `Question` to that pack's `questions` in `app/packs.py`. The orchestrator walks the tuple; nothing else changes. If it should be charted, add a `Measure` too. |
-| Add a red flag | Add a `RedFlag` with its pattern and its message. Use `NEAR` for two-term co-occurrence. Add both a phrase that must escalate and one that must not to `tests/test_guard.py`. |
+| Add a red flag | Add a `RedFlag` with its pattern and its message. Use `NEAR` for two-term co-occurrence, or `SELF` when the symptom belongs to the patient and not to somebody they are talking about. Add both a phrase that must escalate and one that must not to `tests/test_guard.py`, and the rule's key to the `rule` map in both halves of `web/src/panel/copy.ts` — that map is a `Record<string, string>`, so `tsc` will not catch a missing one. |
 | Add a vertical | Write a pack and register it. Give it a `measure` and `unit` entry in `web/src/panel/copy.ts` for both languages. |
 | Add a phase | Add a row to `PHASES` in `app/orchestrator.py` with the same signature as its neighbours, and decide whether it is critical. |
 | Add an endpoint | `app/main.py`, before the `StaticFiles` mount — the mount is last on purpose. Update [`API.md`](API.md). |

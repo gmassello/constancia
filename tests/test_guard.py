@@ -88,3 +88,55 @@ def test_other_packs_have_their_own_rules() -> None:
         assert guard.check(postpartum, turn)["rule"] == "heavy_bleeding"
     assert guard.check(postpartum, "I haven't had any clots") is None
     assert guard.check(postpartum, "I'm not bleeding heavily at all") is None
+
+
+def test_postpartum_fever_and_headache() -> None:
+    postpartum = get_pack("postpartum")
+    fever = [
+        "yes, I had a fever of thirty nine last night",
+        "my temperature went up and I feel shivery",
+        "I've had chills since yesterday",
+        "I'm running a temperature",
+    ]
+    for turn in fever:
+        assert guard.check(postpartum, turn)["rule"] == "fever"
+
+    headache = [
+        "I have had a really bad headache for two days",
+        "the worst headache of my life",
+        "a pounding headache that will not go away",
+    ]
+    for turn in headache:
+        assert guard.check(postpartum, turn)["rule"] == "bad_headache"
+
+    quiet = [
+        "my baby had a fever but I am fine",
+        "the baby had a fever",
+        "No, no fever, nothing like that",
+        "I haven't had a fever",
+        "I'm not running a temperature",
+        "just a mild headache in the afternoon",
+        "no headaches at all this week",
+        "I haven't had a bad headache",
+    ]
+    for turn in quiet:
+        assert guard.check(postpartum, turn) is None
+
+
+def test_chronic_blurred_vision() -> None:
+    chronic = get_pack("chronic")
+    blurred = [
+        "my vision has been blurred since yesterday",
+        "everything looks blurry and I feel dizzy",
+        "I am seeing double in the mornings",
+    ]
+    for turn in blurred:
+        assert guard.check(chronic, turn)["rule"] == "vision"
+
+    quiet = [
+        "no blurred vision at all",
+        "I don't have any blurry vision",
+        "my sight is fine",
+    ]
+    for turn in quiet:
+        assert guard.check(chronic, turn) is None

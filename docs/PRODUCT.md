@@ -67,8 +67,8 @@ the red-flag patterns and what is worth charting:
 | Pack | Follows | Red flags |
 |---|---|---|
 | `rehab` | pain out of ten, sessions a week | sudden sharp pain, a fall, swelling with fever, numbness |
-| `postpartum` | symptoms, mood | heavy bleeding |
-| `chronic` | symptoms, a clinical reading, adherence | chest pain or breathlessness |
+| `postpartum` | symptoms, mood | heavy bleeding, a fever, a bad headache |
+| `chronic` | symptoms, a clinical reading, adherence | chest pain or breathlessness, blurred or double vision |
 
 Adding a fourth vertical is writing a pack. Nothing in the orchestrator, the extractor or the panel
 knows what rehab is.

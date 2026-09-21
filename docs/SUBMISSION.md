@@ -26,7 +26,7 @@ Every row needs evidence: a file path, a public URL or a video timestamp. A row 
 - [ ] Deployed backend with public `/health` and panel, tested from another network
 - [ ] Demo video under 5 minutes, captions burned in
 - [ ] Deck submitted — written; the artifact has to be shared and uploaded to lablab
-- [x] `make test` green — 97 passed, 2 skipped, no environment variable set
+- [x] `make test` green — 128 passed, 2 skipped, no environment variable set
 - [ ] `scripts/test_outbound.py` places a real call
 - [ ] Week-1 → week-2 moment works live and in replay — replay is green (`seed/replay/week2-on.json`, and the panel's buttons); live waits on C1/C2
 - [ ] `video/reset.sh --check` all green — the seed invariants pass; the credentials and `DEMO_PHONE` checks are red until `.env` is filled, and they are red on purpose now that beats 3, 4 and 5 are live

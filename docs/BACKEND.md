@@ -81,7 +81,9 @@ match. Negation is `\b(no|sin|nunca|tampoco)\b[^.,;]{0,20}$` applied to the text
 with a `ponytail:` marker naming the ceiling: a twenty-character window, not a scope parser.
 
 The patterns themselves use `NEAR` (`app/packs.py:3`) to require two terms to co-occur without
-crossing a negation or a full stop. Rehab has four rules, postpartum and chronic one each.
+crossing a negation or a full stop. Rehab has four rules, postpartum three and chronic two. The
+postpartum fever rule uses `SELF` rather than `NEAR`: the span it allows also excludes third-person
+subjects, so "the baby had a fever" does not escalate and "I had a fever" does.
 
 A hit sets `call.escalated`, emits `guard_hit` and **returns immediately** — the remaining questions
 are not asked.

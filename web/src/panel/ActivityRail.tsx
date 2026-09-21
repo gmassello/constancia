@@ -70,11 +70,30 @@ function describe(event: Event, c: Copy): Line | null {
       }
     case "call_ended":
       return { key, tone: "muted", label: c.railCall, text: c.railCallEnded }
+    case "patient_hung_up":
+      return { key, tone: "muted", label: c.railCall, text: c.railHungUp }
+    case "phase_failed":
+    case "warning":
+    case "extract_failed":
+    case "analysis_failed":
+      return {
+        key,
+        tone: "rejected",
+        label: c.railFailed,
+        text: label(c.phase, event.phase ?? event.type.replace("_failed", "")),
+        detail: String(event.error ?? ""),
+      }
+    case "extract_retry":
+    case "llm_retry":
+      return { key, tone: "muted", label: c.railRetry, text: c.railRetryText(Number(event.attempt)) }
+    case "recording_ready":
+      return { key, tone: "muted", label: c.railRecording, text: c.railRecordingReady }
     case "agent_turn":
     case "patient_turn":
     case "llm":
     case "phase_started":
     case "phase_done":
+    case "twilio_frame":
       return null
     default:
       return { key, tone: "muted", label: event.type.replace(/_/g, " "), text: "" }
