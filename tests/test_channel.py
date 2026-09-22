@@ -46,11 +46,14 @@ class FakeWS:
         self.inbox: asyncio.Queue = asyncio.Queue()
         self.sent: list[dict] = []
         self.closed = False
+        self.gone = False
 
     async def receive_text(self) -> str:
         return await self.inbox.get()
 
     async def send_text(self, text: str) -> None:
+        if self.gone:
+            raise ConnectionError("twilio closed its side")
         message = json.loads(text)
         self.sent.append(message)
         if message["event"] == "mark":
@@ -70,6 +73,7 @@ class FakeSTT:
         self.frames = 0
         self.keyterms: list[str] = []
         self.pending: list[dict] = []
+        self.finish_delay = 0.0
 
     async def connect(self) -> None:
         return None
@@ -89,6 +93,7 @@ class FakeSTT:
         self.keyterms = terms
 
     async def finish(self) -> None:
+        await asyncio.sleep(self.finish_delay)
         for message in self.pending:
             await self.queue.put(message)
         await self.queue.put(None)
@@ -358,3 +363,62 @@ async def test_a_hangup_still_runs_the_guard_over_turns_the_agent_talked_over(sp
     assert call.escalated["rule"] == "fall"
     assert "guard_hit" in [e["type"] for e in call.trace]
     assert "patient_hung_up" in [e["type"] for e in call.trace]
+
+
+async def test_a_hangup_mid_question_sends_nothing_to_the_closed_twilio_socket(speech) -> None:
+    from app import orchestrator
+    from app.llm import ScriptedLLM
+
+    channel, ws, stt = await started_channel()
+    call = channel.call
+    stt.finish_delay = 0.3
+    stt.pending = [turn("I fell yesterday", words=3, start_ms=10_000)]
+
+    async def patient() -> None:
+        while not any(e.get("phase") == "converse" for e in call.trace):
+            await asyncio.sleep(0.01)
+        await asyncio.sleep(0.03)
+        ws.gone = True
+        await ws.inbox.put(json.dumps({"event": "stop"}))
+        await asyncio.sleep(0.05)
+        await stt.queue.put(turn("I fell", words=3, final=False, start_ms=10_000))
+
+    await asyncio.gather(orchestrator.run_call(call, channel, ScriptedLLM(), None, 0.2), patient())
+    kinds = [e["type"] for e in call.trace]
+
+    assert call.escalated is not None
+    assert call.escalated["rule"] == "fall"
+    assert "phase_failed" not in kinds
+    assert "warning" not in kinds
+    assert "summary" in kinds
+
+
+async def test_a_failed_converse_still_runs_the_guard_and_closes_the_call(speech) -> None:
+    from app import orchestrator
+    from app.llm import ScriptedLLM
+
+    channel, _, stt = await started_channel()
+    call = channel.call
+
+    class FailingLLM(ScriptedLLM):
+        async def reply(self, system, history, emit=None):
+            if len(self.prompts) == 2:
+                await stt.queue.put(turn("oh and I fell yesterday", words=1))
+                await asyncio.sleep(0.02)
+                raise RuntimeError("gemini gave up")
+            return await super().reply(system, history, emit)
+
+    async def patient() -> None:
+        for _ in range(2):
+            while not channel.speaking:
+                await asyncio.sleep(0.01)
+            while channel.speaking:
+                await asyncio.sleep(0.01)
+            await stt.queue.put(turn("all fine thanks", words=3))
+
+    await asyncio.gather(orchestrator.run_call(call, channel, FailingLLM(), None, 1.0), patient())
+
+    assert "phase_failed" in [e["type"] for e in call.trace]
+    assert call.escalated is not None
+    assert call.escalated["rule"] == "fall"
+    assert call.ended_at is not None

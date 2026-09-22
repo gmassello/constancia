@@ -82,6 +82,7 @@ class LiveChannel:
         self.tts_task: asyncio.Task | None = None
         self.tasks: list[asyncio.Task] = []
         self.closed = False
+        self.stopped = False
         self.barge_min_words = get_settings().barge_min_words
 
     async def start(self) -> None:
@@ -102,6 +103,8 @@ class LiveChannel:
             self.turns.put_nowait(None)
 
     async def _send(self, message: dict) -> None:
+        if self.stopped:
+            return
         await self.ws.send_text(json.dumps(message))
 
     async def _twilio_reader(self) -> None:
@@ -126,6 +129,7 @@ class LiveChannel:
                 elif event == "mark":
                     self.mark_event.set()
                 elif event == "stop":
+                    self.stopped = True
                     await self.stt.finish()
                     await asyncio.wait(self.tasks[1:], timeout=FLUSH_S)
                     break

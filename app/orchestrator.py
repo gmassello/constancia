@@ -161,21 +161,23 @@ async def run_call(call: Call, channel, llm, store=None, silence_s: float = SILE
     call.emit("call_started", patient=call.patient_name, pack=call.pack.key, memory=call.memory)
     for name, fn, critical in PHASES:
         call.emit("phase_started", phase=name)
+        failed = False
         try:
             await fn(call, channel, llm, store, silence_s)
         except CallEnded:
             call.emit("patient_hung_up", phase=name)
         except Exception as exc:
             call.emit("phase_failed", phase=name, critical=critical, error=repr(exc))
-            if critical:
-                break
+            failed = critical
         else:
             call.emit("phase_done", phase=name)
-        if name == "converse":
+        if name == "converse" or failed:
             if not call.escalated:
                 flagged(call, channel.take_dropped())
             await channel.close()
             call.ended_at = call.trace[-1]["at"]
+        if failed:
+            break
     # ponytail: `store` and `summarize` both write the row, and a critical phase breaks out of the
     # loop before either runs — so without this a call that died in `greet` leaves no trace the
     # professional can see. `save_call` is an upsert on the id, so running it again is free.
