@@ -422,3 +422,15 @@ async def test_a_failed_converse_still_runs_the_guard_and_closes_the_call(speech
     assert call.escalated is not None
     assert call.escalated["rule"] == "fall"
     assert call.ended_at is not None
+
+
+async def test_nothing_is_spoken_or_recorded_while_the_hangup_flushes(speech) -> None:
+    channel, ws, stt = await started_channel()
+    stt.finish_delay = 0.3
+    ws.gone = True
+    await ws.inbox.put(json.dumps({"event": "stop"}))
+    await asyncio.sleep(0.05)
+
+    assert await channel.say("Are you still there?") is False
+    assert [t for t in channel.call.transcript if t["speaker"] == "agent"] == []
+    await channel.close()

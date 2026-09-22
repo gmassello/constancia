@@ -10,7 +10,7 @@ each one is for.
 |---|---:|---|
 | [`app/main.py`](../app/main.py) | 350 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
 | [`app/memory.py`](../app/memory.py) | 349 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader and the `keyterms` computation. |
-| [`app/channel.py`](../app/channel.py) | 277 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
+| [`app/channel.py`](../app/channel.py) | 279 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
 | [`app/packs.py`](../app/packs.py) | 269 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
 | [`app/orchestrator.py`](../app/orchestrator.py) | 190 | The phase machine. Decides what is said, what is stored and when a call escalates. |
 | [`app/llm.py`](../app/llm.py) | 142 | `retrying`, the shared backoff every Gemini call site goes through; `GeminiLLM`; and `ScriptedLLM`, its deterministic double. |
@@ -77,7 +77,7 @@ A hang-up does not cut the patient off mid-sentence. On Twilio's `stop`, `LiveCh
 AssemblyAI `Terminate` and waits up to `FLUSH_S` (2 s) for the STT reader to finish, so a turn
 still finalizing lands in the queue ahead of the hang-up marker. Twilio has closed its side by
 then, so from the `stop` on nothing more is sent to it: speech in flight goes nowhere instead of
-raising. When `converse` ends, for any reason — including a critical phase failing on the way —
+raising, and a line that would start in that window is neither spoken nor recorded. When `converse` ends, for any reason — including a critical phase failing on the way —
 `run_call` runs the guard over every turn still pending before it closes the channel: a patient
 who says something alarming and hangs up still escalates the call, without the spoken escalation
 line nobody is left to hear.

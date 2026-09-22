@@ -202,6 +202,8 @@ class LiveChannel:
     async def say(self, text: str) -> bool:
         if self.hung_up.is_set():
             raise CallEnded
+        if self.stopped:
+            return False
         self._drain_turns()
         self.barge.clear()
         self.mark_event.clear()
