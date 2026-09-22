@@ -30,6 +30,7 @@ type Strings = {
   liveLost: string
   liveLostDetail: string
   liveUnanswered: string
+  liveFailed: string
   turnUnheard: string
   railErrorDetail: string
   agent: string
@@ -144,6 +145,7 @@ const en = {
   liveLost: "lost",
   liveLostDetail: "Lost the live feed for this call. Reload to see what was recorded.",
   liveUnanswered: "Nobody picked up. Twilio ended the call as",
+  liveFailed: "The call ended before the audio stream started:",
   turnUnheard: "the agent was talking and did not answer this",
   railErrorDetail: "the technical detail is in the call trace",
   agent: "agent",
@@ -256,6 +258,11 @@ const en = {
     tts: "the voice",
   },
   reason: {
+    "no-answer": "no answer",
+    busy: "busy",
+    failed: "failed",
+    canceled: "canceled",
+    "media-stream-timeout": "audio stream timeout",
     "not grounded": "no verbatim quote backs it",
     "memory disabled for this call": "memory disabled for this call",
     "no memory store configured": "no memory store configured",
@@ -293,6 +300,7 @@ const es = {
   liveLost: "sin señal",
   liveLostDetail: "Se perdió el seguimiento en vivo de esta llamada. Recargá para ver lo que quedó registrado.",
   liveUnanswered: "Nadie atendió. Twilio terminó la llamada como",
+  liveFailed: "La llamada terminó antes de que arrancara el audio:",
   turnUnheard: "el agente estaba hablando y no respondió a esto",
   railErrorDetail: "el detalle técnico está en la traza de la llamada",
   agent: "agente",
@@ -405,6 +413,11 @@ const es = {
     tts: "la voz",
   },
   reason: {
+    "no-answer": "sin respuesta",
+    busy: "ocupado",
+    failed: "falló",
+    canceled: "cancelada",
+    "media-stream-timeout": "el stream de audio agotó el tiempo de espera",
     "not grounded": "ninguna cita textual lo respalda",
     "memory disabled for this call": "memoria desactivada en esta llamada",
     "no memory store configured": "no hay almacén de memoria configurado",

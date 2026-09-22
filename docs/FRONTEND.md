@@ -41,7 +41,7 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/landing/Landing.tsx` | 480 | The seven sections, with the design's inline styles kept. |
+| `web/src/landing/Landing.tsx` | 479 | The seven sections, with the design's inline styles kept. |
 | `web/src/landing/DemoCard.tsx` | 744 | The scripted demo card: two scripts, the fact chain, the player and its controls. |
 | `web/src/landing/copy.ts` | 517 | Four sets — two languages × two registers. |
 | `web/src/landing/landing.css` | 123 | Six keyframes, the pause rule and the reduced-motion block. |
@@ -52,11 +52,11 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 | File | Lines | What it is |
 |---|---:|---|
 | `web/src/panel/panel.css` | 347 | Layout and styles, on the aliases. |
-| `web/src/panel/copy.ts` | 464 | Two languages, one register, plus the maps for raw backend values. |
+| `web/src/panel/copy.ts` | 477 | Two languages, one register, plus the maps for raw backend values. |
 | `web/src/panel/ActivityRail.tsx` | 151 | Turns each trace event into a labelled line. |
 | `web/src/panel/PatientView.tsx` | 153 | Loads the patient's data and composes the five cards. |
 | `web/src/panel/content.ts` | 109 | The ES→EN table for canned patient data. |
-| `web/src/panel/App.tsx` | 97 | Shell: sidebar, backend status, the two toggles, patient list. |
+| `web/src/panel/App.tsx` | 96 | Shell: sidebar, backend status, the two toggles, patient list. |
 | `web/src/panel/api.ts` | 133 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
 | `web/src/panel/FactChain.tsx` | 79 | The patient file: current facts and what they retired. |
 | `web/src/panel/Calls.tsx` | 102 | One row per past call: tags, the summary, and the transcript behind a `<details>`. |
@@ -119,7 +119,7 @@ unquoted version of it is how the gate spent a long time passing without running
 ## Two languages
 
 Every visible string comes from a `copy.ts`. English is the annotated, authoritative set and Spanish
-the translation. The two pages share **no string**: one 116-key type across both surfaces would only
+the translation. The two pages share **no string**: one shared type across both surfaces would only
 guarantee that every error lands in the same enormous file.
 
 ### The landing: two languages × two registers
@@ -216,9 +216,9 @@ list refresh from the API the moment the call finishes.
 explicitly: five are already visible in the transcript, and `twilio_frame` is stream plumbing that
 belongs in `/trace`, not on screen. The four failure types — `phase_failed`, `warning`,
 `extract_failed`, `analysis_failed` — share one branch that names the phase through `c.phase` and
-prints the backend's `error` verbatim as the detail: it is a `repr(exc)`, a measurement, so it is not
-translated. The `default` branch prints the raw event type — reachable only if the backend starts
-emitting something new.
+uses the translated technical-detail label. Call-ending reasons use the bilingual `reason` map too.
+The `default` branch prints the raw event type — reachable only if the backend starts emitting
+something new.
 
 The `flash` highlight is not a timer. A line gets `.fresh` when its frame did **not** carry
 `replayed` — the flag the SSE generator puts on everything it sends from the buffer — and the
@@ -246,7 +246,7 @@ pixel is read, because `getComputedStyle().color` returns `color(srgb r g b / a)
 for anything from `color-mix()`, and a regex parser reads that as nearly black. The measurements and
 the light-theme derivation are in [`LANDING.md`](LANDING.md).
 
-Also present: `:focus-visible` rings, `aria-label` and `aria-pressed` on the theme toggles, `role="img"`
+Also present: `:focus-visible` rings, action `aria-label` values on the theme toggles, `role="img"`
 plus a translated `aria-label` on the meaningful SVGs, a labelled `← Home` link rather than relying on
 the wordmark, and `documentElement.lang` kept in sync with the chosen language.
 

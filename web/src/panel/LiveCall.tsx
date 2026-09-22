@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 
 import ActivityRail from "./ActivityRail"
 import { subscribe, type Event } from "./api"
-import type { Copy } from "./copy"
+import { label, type Copy } from "./copy"
 
 export default function LiveCall({
   callId,
@@ -41,7 +41,7 @@ export default function LiveCall({
   }, [callId, onEnded])
 
   const turns = events.filter((e) => e.type === "agent_turn" || e.type === "patient_turn")
-  const unanswered = events.find((e) => e.type === "call_ended" && e.reason)
+  const ended = events.find((e) => e.type === "call_ended" && e.reason)
 
   return (
     <section className="card live">
@@ -54,11 +54,11 @@ export default function LiveCall({
       <div className="live-body">
         <div className="transcript">
           {turns.length === 0 && (
-            <p className={lost || unanswered ? "error" : "empty"}>
+            <p className={lost || ended ? "error" : "empty"}>
               {lost
                 ? c.liveLostDetail
-                : unanswered
-                  ? `${c.liveUnanswered} ${c.data(String(unanswered.reason))}`
+                : ended
+                  ? `${ended.unanswered ? c.liveUnanswered : c.liveFailed} ${label(c.reason, ended.reason)}`
                   : c.liveDialling}
             </p>
           )}

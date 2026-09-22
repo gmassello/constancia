@@ -36,12 +36,13 @@ class ScriptedPatient:
         if self.delay_s:
             await asyncio.sleep(self.delay_s)
 
-    async def say(self, text: str) -> None:
+    async def say(self, text: str) -> bool:
         if self.closed:
             raise CallEnded
         await self._pace()
         self.said.append(text)
         self.call.add_turn("agent", text, interrupted=False)
+        return False
 
     async def listen(self, timeout: float) -> str | None:
         if self.closed:
@@ -191,7 +192,7 @@ class LiveChannel:
         dropped, self.dropped = self.dropped, []
         return dropped
 
-    async def say(self, text: str) -> None:
+    async def say(self, text: str) -> bool:
         if self.hung_up.is_set():
             raise CallEnded
         self._drain_turns()
@@ -236,6 +237,7 @@ class LiveChannel:
         # it with a `spoken=False` flag instead once anything downstream is ready to read one.
         if spoken:
             self.call.add_turn("agent", text, interrupted=interrupted)
+        return interrupted
 
     async def listen(self, timeout: float) -> str | None:
         if self.hung_up.is_set():

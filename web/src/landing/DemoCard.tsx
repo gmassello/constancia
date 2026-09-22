@@ -722,7 +722,7 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
         <button
           className="btn btn-ghost"
           onClick={() => {
-            setStep(0)
+            setStep(still ? script.length : 0)
             setPaused(false)
           }}
           style={{ fontSize: 12 }}

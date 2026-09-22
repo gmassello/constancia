@@ -33,7 +33,7 @@ class Fact(BaseModel):
     term: str
     category: Literal[CATEGORIES]
     value: float | None = None
-    quote: str
+    quote: str = Field(min_length=1)
     turn_id: int
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
     supersedes: str | None = None

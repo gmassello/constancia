@@ -70,7 +70,8 @@ async def test_run_keeps_grounded_facts_and_drops_the_rest() -> None:
 
 
 async def test_run_retries_when_the_reply_does_not_validate() -> None:
-    call, llm = build(['{"facts": [{"fact": "no quote"}]}', json.dumps({"facts": [VALID]})])
+    invalid = json.dumps({"facts": [{**VALID, "quote": ""}]})
+    call, llm = build([invalid, json.dumps({"facts": [VALID]})])
 
     facts = await extract.run(call, llm, [])
 

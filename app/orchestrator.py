@@ -1,3 +1,5 @@
+import contextlib
+
 from app import extract, guard
 from app.calls import Call
 from app.channel import CallEnded
@@ -75,10 +77,14 @@ async def converse(call: Call, channel, llm, store, silence_s: float) -> None:
             goodbye = pack.goodbye_silent
             break
         call.answers[question.key] = answer
-    await channel.say(goodbye)
-    # ponytail: the call ends here, so whatever the patient said over the goodbye has no later
-    # phase to catch it. One last pass empties the queue through the guard.
-    await escalated(call, channel, llm, None)
+    interrupted = await channel.say(goodbye)
+    # ponytail: only an interrupted goodbye waits for a final turn; waiting after every goodbye
+    # adds a full silence window to calls where the patient has already stopped speaking.
+    answer = None
+    if interrupted:
+        with contextlib.suppress(CallEnded):
+            answer = await channel.listen(silence_s)
+    await escalated(call, channel, llm, answer)
 
 
 async def extract_facts(call: Call, channel, llm, store, silence_s: float) -> None:

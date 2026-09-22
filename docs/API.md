@@ -12,10 +12,10 @@ from it (`include_in_schema=False`).
 | Method | Path | Handler | Returns |
 |---|---|---|---|
 | `POST` | `/calls` | `create_call` — `main.py:75` | `{call_id, mode, twilio_sid}`. Starts the call in the requested mode. |
-| `GET` | `/calls/{call_id}/trace` | `trace` — `main.py:291` | The whole live call: `answers`, `summary`, `escalated`, `transcript` and the event trace. |
-| `GET` | `/calls/{call_id}/events` | `call_events` — `main.py:279` | **SSE.** The event stream of one call. See below. |
-| `GET` | `/calls/{call_id}/export` | `call_export` — `main.py:142` | The call as a replayable fixture, timestamps relative to the first event. `404` on an unknown call. |
-| `GET` | `/calls/{call_id}/keyterms` | `call_keyterms` — `main.py:191` | The key terms that were current **when that call started**, not today's. |
+| `GET` | `/calls/{call_id}/trace` | `trace` — `main.py:303` | The whole live call: `answers`, `summary`, `escalated`, `transcript` and the event trace. |
+| `GET` | `/calls/{call_id}/events` | `call_events` — `main.py:289` | **SSE.** The event stream of one call. See below. |
+| `GET` | `/calls/{call_id}/export` | `call_export` — `main.py:143` | The call as a replayable fixture, timestamps relative to the first event. `404` on an unknown call. |
+| `GET` | `/calls/{call_id}/keyterms` | `call_keyterms` — `main.py:192` | The key terms that were current **when that call started**, not today's. |
 
 ### `POST /calls`
 
@@ -42,9 +42,9 @@ watch the call is the SSE stream.
 
 ### The SSE stream
 
-`GET /calls/{call_id}/events`, generator at `event_stream` (`main.py:249`). The contract:
+`GET /calls/{call_id}/events`, generator at `event_stream` (`main.py:259`). The contract:
 
-- Every event carries a monotonic `seq`, sent as the SSE `id:` field (`sse_frame`, `main.py:245`).
+- Every event carries a monotonic `seq`, sent as the SSE `id:` field (`sse_frame`, `main.py:255`).
 - The first frame is `retry: 3000`, so the browser owns the reconnect and the client needs no backoff
   of its own.
 - A subscriber that arrives late gets the whole buffer first, then live events. `Last-Event-ID` is
@@ -54,7 +54,7 @@ watch the call is the SSE stream.
   way the client can tell history from now — the panel's activity rail uses it to flash what is
   landing and leave the backlog alone. The flag is on the frame only: `call.trace`, `GET
   /calls/{call_id}/trace` and the exported fixtures never carry it.
-- If the buffered snapshot already ends in `call_ended`, the stream closes immediately instead of
+- If the buffered snapshot already contains `call_ended`, the stream closes immediately instead of
   hanging.
 - Silence is broken by a `: keep-alive` comment every 15 seconds (`KEEPALIVE_S`, `main.py:27`).
 - The stream closes itself when `call_ended` goes by.
@@ -101,10 +101,10 @@ does not match. The body is only read after the signature passes.
 
 | Method | Path | Handler | Returns |
 |---|---|---|---|
-| `POST` | `/voice?call_id=` | `voice` — `main.py:203` | TwiML `<Connect><Stream>` pointing at `wss://.../media/{call_id}`. `404` on an unknown call. |
-| `POST` | `/voice/status` | `voice_status` — `main.py:214` | `204`. Ends a call Twilio could not connect (`no-answer`, `busy`, `failed`, `canceled`) with a `call_ended` carrying the reason. |
-| `POST` | `/voice/recording` | `voice_recording` — `main.py:231` | `204`. Stores the recording URL and queues the post-call analysis. `400` if the URL is not a Twilio URL. |
-| `WS` | `/media/{call_id}` | `media` — `main.py:311` | The Twilio Media Stream. This socket is where a live call actually happens. |
+| `POST` | `/voice?call_id=` | `voice` — `main.py:204` | TwiML `<Connect><Stream>` pointing at `wss://.../media/{call_id}`. `404` on an unknown call. |
+| `POST` | `/voice/status` | `voice_status` — `main.py:221` | `204`. Ends a call Twilio could not connect (`no-answer`, `busy`, `failed`, `canceled`) with a `call_ended` carrying the reason and `unanswered: true`. |
+| `POST` | `/voice/recording` | `voice_recording` — `main.py:241` | `204`. Stores the recording URL and queues the post-call analysis. `400` if the URL is not a Twilio URL. |
+| `WS` | `/media/{call_id}` | `media` — `main.py:321` | The Twilio Media Stream. This socket is where a live call actually happens. |
 
 `is_twilio_recording` (`app/config.py:51`) is the reason `/voice/recording` cannot be used to make
 the service fetch an arbitrary URL.
@@ -124,8 +124,8 @@ Served only when `web/dist` exists (the guard in `main.py`), so the API boots wi
 
 | Method | Path | Handler | Returns |
 |---|---|---|---|
-| `GET` | `/` | `landing` — `main.py:333` | The public landing. |
-| `GET` | `/panel` | `panel` — `main.py:337` | The professional's panel. |
+| `GET` | `/` | `landing` — `main.py:343` | The public landing. |
+| `GET` | `/panel` | `panel` — `main.py:347` | The professional's panel. |
 | `GET` | `/*` | `StaticFiles` mount — `main.py` | Hashed assets. Mounted **last**, after every API route. |
 
 The two HTML entries are served by explicit routes rather than by the mount so they can carry

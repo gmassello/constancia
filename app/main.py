@@ -210,6 +210,13 @@ async def voice(call_id: str, form: Annotated[FormData, Depends(twilio_form)]) -
 UNANSWERED = ("no-answer", "busy", "failed", "canceled")
 
 
+def call_for_twilio_sid(form: FormData):
+    sid = form.get("CallSid")
+    if not sid:
+        return None
+    return next((call for call in CALLS.values() if call.twilio_sid == sid), None)
+
+
 @app.post("/voice/status")
 async def voice_status(form: Annotated[FormData, Depends(twilio_form)]) -> Response:
     # ponytail: a live call that nobody answers never opens the WebSocket, so `run_call` never
@@ -218,12 +225,15 @@ async def voice_status(form: Annotated[FormData, Depends(twilio_form)]) -> Respo
     status = form.get("CallStatus", "")
     if status not in UNANSWERED:
         return Response(status_code=204)
-    call = next((c for c in CALLS.values() if c.twilio_sid == form.get("CallSid")), None)
+    call = call_for_twilio_sid(form)
     if call and not any(event["type"] == "call_ended" for event in call.trace):
-        call.emit("call_ended", escalated=False, answers={}, reason=status)
+        call.emit("call_ended", escalated=False, answers={}, reason=status, unanswered=True)
         call.ended_at = call.trace[-1]["at"]
         if STORE is not None:
-            await STORE.save_call(call)
+            try:
+                await STORE.save_call(call)
+            except Exception as exc:
+                call.emit("warning", phase="store", error=repr(exc))
     return Response(status_code=204)
 
 
@@ -234,7 +244,7 @@ async def voice_recording(
     url = form.get("RecordingUrl", "")
     if not is_twilio_recording(url):
         raise HTTPException(status_code=400, detail="recording url is not a Twilio url")
-    call = next((c for c in CALLS.values() if c.twilio_sid == form.get("CallSid")), None)
+    call = call_for_twilio_sid(form)
     if call:
         call.recording_url = url
         call.emit("recording_ready", url=url)
@@ -258,7 +268,7 @@ async def event_stream(
         for event in snapshot:
             if event["seq"] > last_id:
                 yield sse_frame({**event, "replayed": True})
-        if snapshot and snapshot[-1]["type"] == "call_ended":
+        if any(event["type"] == "call_ended" for event in snapshot):
             return
         while True:
             try:
@@ -319,7 +329,7 @@ async def media(websocket: WebSocket, call_id: str) -> None:
         await channel.start()
         await run_call(call, channel, GeminiLLM(), STORE, get_settings().silence_s)
     except CallEnded:
-        call.emit("call_ended", reason="media stream never started")
+        call.emit("call_ended", reason="media-stream-timeout")
     finally:
         await channel.close()
 

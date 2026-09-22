@@ -8,11 +8,11 @@ each one is for.
 
 | Module | Lines | What it is |
 |---|---:|---|
-| [`app/main.py`](../app/main.py) | 340 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
+| [`app/main.py`](../app/main.py) | 350 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
 | [`app/memory.py`](../app/memory.py) | 349 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader and the `keyterms` computation. |
-| [`app/channel.py`](../app/channel.py) | 268 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
+| [`app/channel.py`](../app/channel.py) | 270 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
 | [`app/packs.py`](../app/packs.py) | 269 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
-| [`app/orchestrator.py`](../app/orchestrator.py) | 175 | The phase machine. Decides what is said, what is stored and when a call escalates. |
+| [`app/orchestrator.py`](../app/orchestrator.py) | 181 | The phase machine. Decides what is said, what is stored and when a call escalates. |
 | [`app/llm.py`](../app/llm.py) | 142 | `retrying`, the shared backoff every Gemini call site goes through; `GeminiLLM`; and `ScriptedLLM`, its deterministic double. |
 | [`app/replay.py`](../app/replay.py) | 109 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
 | [`app/extract.py`](../app/extract.py) | 104 | Structured extraction and the grounding check. |
@@ -69,9 +69,13 @@ when it began speaking (`app/channel.py`). Without that comparison the tail of o
 the next question and every later answer lands one question late — silently, since the call still
 completes.
 
+An interrupted goodbye waits for the patient's formatted final turn before the channel closes. A
+turn that finalized while the agent was speaking is kept in the transcript with `heard=false`: its
+words still reach the guard and extractor, but it is not attributed as an answer to that question.
+
 ### The guard
 
-Thirty-two lines, and the rule that governs it is in [`../AGENTS.md`](../AGENTS.md): **the guard is
+The rule that governs it is in [`../AGENTS.md`](../AGENTS.md): **the guard is
 deterministic code; the LLM phrases the escalation, it never decides on one.**
 
 It runs on **every** patient turn, through `escalated()` — the greeting's included. That is not

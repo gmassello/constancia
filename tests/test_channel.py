@@ -283,7 +283,7 @@ async def test_a_turn_that_lands_mid_question_still_reaches_the_transcript_and_t
     await channel.close()
 
 
-async def drive_to_the_goodbye(flag: str, words: int) -> tuple[Call, LiveChannel]:
+async def drive_to_the_goodbye(flag: str, words: int, partial: bool) -> tuple[Call, LiveChannel]:
     from app import orchestrator
     from app.llm import ScriptedLLM
 
@@ -295,17 +295,22 @@ async def drive_to_the_goodbye(flag: str, words: int) -> tuple[Call, LiveChannel
             await asyncio.sleep(0.04)
             await stt.queue.put(turn("all fine thanks", words=3))
         await asyncio.sleep(0.04)
-        await stt.queue.put(turn(flag, words=words))
+        await stt.queue.put(turn(flag, words=words, final=not partial))
+        if partial:
+            await asyncio.sleep(0.04)
+            await stt.queue.put(turn(flag, words=words))
 
     await asyncio.gather(orchestrator.converse(call, channel, ScriptedLLM(), None, 1.0), patient())
     return call, channel
 
 
-@pytest.mark.parametrize(("flag", "words"), [("fell", 1), ("I had a fall yesterday", 5)])
+@pytest.mark.parametrize(
+    ("flag", "words", "partial"), [("fell", 1, False), ("I had a fall yesterday", 5, True)]
+)
 async def test_a_red_flag_over_the_goodbye_still_reaches_the_guard(
-    speech, flag: str, words: int
+    speech, flag: str, words: int, partial: bool
 ) -> None:
-    call, channel = await drive_to_the_goodbye(flag, words)
+    call, channel = await drive_to_the_goodbye(flag, words, partial)
 
     assert call.escalated is not None
     assert call.escalated["rule"] == "fall"

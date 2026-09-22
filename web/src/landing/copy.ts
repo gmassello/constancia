@@ -166,8 +166,8 @@ const en = {
   demoForward: "Next step",
   demoEnded: "call ended · 2 facts stored, 2 retired",
   demoEndedFirst: "call ended · 2 facts stored, nothing to retire",
-  demoStreaming: (turn) => `turn ${turn} · streaming`,
-  demoPaused: (turn) => `turn ${turn} · paused`,
+  demoStreaming: (turn) => `${turn} turns shown · streaming`,
+  demoPaused: (turn) => `${turn} turns shown · paused`,
 
   railRecall: "recall",
   railRecallText: "4 facts on file",
@@ -292,8 +292,8 @@ const es = {
   demoForward: "Paso siguiente",
   demoEnded: "llamada terminada · 2 datos nuevos, 2 retirados",
   demoEndedFirst: "llamada terminada · 2 datos nuevos, nada que retirar",
-  demoStreaming: (turn) => `turno ${turn} · en curso`,
-  demoPaused: (turn) => `turno ${turn} · pausado`,
+  demoStreaming: (turn) => `${turn} turnos visibles · en curso`,
+  demoPaused: (turn) => `${turn} turnos visibles · pausado`,
 
   railRecall: "memoria",
   railRecallText: "4 datos en ficha",

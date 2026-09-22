@@ -77,6 +77,14 @@ def test_recording_callback_rejects_a_foreign_url(client: TestClient, call) -> N
 def test_recording_callback_stores_a_twilio_url(client: TestClient, call) -> None:
     call.twilio_sid = "CA123"
     url = "https://api.twilio.com/2010-04-01/Accounts/AC1/Recordings/RE1"
+    missing_sid = {"RecordingUrl": url}
+    response = client.post(
+        "/voice/recording", data=missing_sid, headers=signed("/voice/recording", missing_sid)
+    )
+
+    assert response.status_code == 204
+    assert call.recording_url is None
+
     form = {"CallSid": "CA123", "RecordingUrl": url}
     response = client.post("/voice/recording", data=form, headers=signed("/voice/recording", form))
 
@@ -146,8 +154,23 @@ def test_live_dials_the_demo_phone_when_the_patient_row_has_none(
     assert dialled == ["+541199999999"]
 
 
-def test_status_callback_ends_a_call_nobody_answered(client: TestClient, call) -> None:
+def test_status_callback_ends_a_call_nobody_answered(
+    client: TestClient, call, monkeypatch: pytest.MonkeyPatch
+) -> None:
     call.twilio_sid = "CA123"
+    missing_sid = {"CallStatus": "failed"}
+    response = client.post(
+        "/voice/status", data=missing_sid, headers=signed("/voice/status", missing_sid)
+    )
+
+    assert response.status_code == 204
+    assert not call.trace
+
+    class BrokenStore:
+        async def save_call(self, call) -> None:
+            raise RuntimeError("store unavailable")
+
+    monkeypatch.setattr("app.main.STORE", BrokenStore())
     form = {"CallSid": "CA123", "CallStatus": "no-answer"}
     response = client.post("/voice/status", data=form, headers=signed("/voice/status", form))
 
@@ -155,7 +178,9 @@ def test_status_callback_ends_a_call_nobody_answered(client: TestClient, call) -
     ended = [e for e in call.trace if e["type"] == "call_ended"]
     assert len(ended) == 1
     assert ended[0]["reason"] == "no-answer"
+    assert ended[0]["unanswered"] is True
     assert call.ended_at
+    assert call.trace[-1]["type"] == "warning"
 
 
 def test_status_callback_leaves_an_answered_call_alone(client: TestClient, call) -> None:

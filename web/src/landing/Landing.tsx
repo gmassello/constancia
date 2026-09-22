@@ -140,7 +140,6 @@ export default function Landing() {
           className="btn btn-secondary btn-icon"
           onClick={() => setTheme(dark ? "light" : "dark")}
           aria-label={dark ? c.themeToLight : c.themeToDark}
-          aria-pressed={!dark}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
             <path d={dark ? SUN : MOON} strokeLinecap="round" strokeLinejoin="round" />

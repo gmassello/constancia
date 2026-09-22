@@ -23,7 +23,8 @@ The LLM writes sentences and extracts structure; it never chooses.
 1. `POST /calls` (`app/main.py`) resolves the patient, picks the vertical pack, registers a `Call`
    and branches on `mode`.
 2. In `live` mode, `place_call` (`app/telephony.py`) asks Twilio to dial, pointing its webhook at
-   `POST /voice` with `record=True`.
+   `POST /voice` with recording, recording-status and call-status callbacks. It rings for at most
+   30 seconds; an unanswered status callback ends the trace without opening a Media Stream.
 3. Twilio calls `POST /voice` (`app/main.py`). After the signature check it gets back TwiML that
    connects a bidirectional Media Stream to `wss://.../media/{call_id}`.
 4. Twilio opens that socket (`app/main.py`). A `LiveChannel` (`app/channel.py`) connects to
@@ -66,7 +67,7 @@ gets extracted, stored and summarised. Any other exception in a critical phase b
 non-critical one it emits `phase_failed` and moves on. `call_ended` is always emitted once a
 call reaches `run_call`. A live call that nobody answers never gets there — the WebSocket only
 opens when somebody picks up — so `/voice/status` emits it instead, carrying Twilio's
-`CallStatus` as the reason.
+`CallStatus` as the reason and `unanswered=true`.
 
 `memory=false` short-circuits exactly two phases, `recall` and `store` (`_memory_off`,
 `app/orchestrator.py`), and emits `memory_off` with the reason so the panel can say which. Nothing
