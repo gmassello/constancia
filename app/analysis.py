@@ -43,9 +43,9 @@ def summarize(payload: dict) -> dict:
 
 
 async def hosted(client: httpx.AsyncClient, url: str, headers: dict) -> str:
-    settings = get_settings()
     if not is_twilio_recording(url):
         return url
+    settings = get_settings()
     media = await client.get(
         f"{url}.mp3",
         auth=(settings.twilio_account_sid, settings.twilio_auth_token),

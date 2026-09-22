@@ -292,3 +292,18 @@ async def test_a_turn_the_channel_dropped_still_goes_through_the_guard() -> None
 
     assert call.escalated["rule"] == "fall"
     assert "guard_hit" in types_of(call)
+
+
+async def test_a_hangup_in_the_greeting_skips_the_live_phases_and_still_summarizes() -> None:
+    class RateLimitedLLM(ScriptedLLM):
+        async def reply(self, system, history, emit=None):
+            if ASK_MARKER in system:
+                raise RuntimeError("429 after every retry")
+            return await super().reply(system, history, emit)
+
+    call = Call(patient_id="test", patient_name="Ana", pack=get_pack("rehab"))
+    await orchestrator.run_call(call, ScriptedPatient(call, []), RateLimitedLLM(), silence_s=0.01)
+
+    assert "phase_failed" not in types_of(call)
+    assert phases_done(call) == ["recall", "extract", "store", "summarize"]
+    assert call.ended_at is not None

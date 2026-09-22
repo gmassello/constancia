@@ -203,7 +203,9 @@ class LiveChannel:
         if self.hung_up.is_set():
             raise CallEnded
         if self.stopped:
-            return False
+            with contextlib.suppress(TimeoutError):
+                await asyncio.wait_for(self.hung_up.wait(), FLUSH_S)
+            raise CallEnded
         self._drain_turns()
         self.barge.clear()
         self.mark_event.clear()

@@ -159,12 +159,19 @@ PHASES = (
 
 async def run_call(call: Call, channel, llm, store=None, silence_s: float = SILENCE_S) -> Call:
     call.emit("call_started", patient=call.patient_name, pack=call.pack.key, memory=call.memory)
+    # ponytail: only a hang-up seen inside a phase stops the next live one. A patient who answers
+    # the greeting and then hangs up still costs `converse` one question from the model, because
+    # `hung_up` waits for the STT flush; cutting on Twilio's `stop` instead would lose that turn.
+    ended = False
     for name, fn, critical in PHASES:
         call.emit("phase_started", phase=name)
         failed = False
         try:
+            if ended and critical:
+                raise CallEnded
             await fn(call, channel, llm, store, silence_s)
         except CallEnded:
+            ended = True
             call.emit("patient_hung_up", phase=name)
         except Exception as exc:
             call.emit("phase_failed", phase=name, critical=critical, error=repr(exc))

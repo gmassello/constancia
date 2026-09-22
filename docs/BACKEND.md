@@ -10,9 +10,9 @@ each one is for.
 |---|---:|---|
 | [`app/main.py`](../app/main.py) | 350 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
 | [`app/memory.py`](../app/memory.py) | 349 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader and the `keyterms` computation. |
-| [`app/channel.py`](../app/channel.py) | 279 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
+| [`app/channel.py`](../app/channel.py) | 281 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
 | [`app/packs.py`](../app/packs.py) | 269 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
-| [`app/orchestrator.py`](../app/orchestrator.py) | 190 | The phase machine. Decides what is said, what is stored and when a call escalates. |
+| [`app/orchestrator.py`](../app/orchestrator.py) | 197 | The phase machine. Decides what is said, what is stored and when a call escalates. |
 | [`app/llm.py`](../app/llm.py) | 142 | `retrying`, the shared backoff every Gemini call site goes through; `GeminiLLM`; and `ScriptedLLM`, its deterministic double. |
 | [`app/replay.py`](../app/replay.py) | 109 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
 | [`app/extract.py`](../app/extract.py) | 105 | Structured extraction and the grounding check. |
@@ -77,10 +77,14 @@ A hang-up does not cut the patient off mid-sentence. On Twilio's `stop`, `LiveCh
 AssemblyAI `Terminate` and waits up to `FLUSH_S` (2 s) for the STT reader to finish, so a turn
 still finalizing lands in the queue ahead of the hang-up marker. Twilio has closed its side by
 then, so from the `stop` on nothing more is sent to it: speech in flight goes nowhere instead of
-raising, and a line that would start in that window is neither spoken nor recorded. When `converse` ends, for any reason — including a critical phase failing on the way —
-`run_call` runs the guard over every turn still pending before it closes the channel: a patient
-who says something alarming and hangs up still escalates the call, without the spoken escalation
-line nobody is left to hear.
+raising. A `say()` called once the socket has stopped waits for that same flush and then raises
+`CallEnded` instead of speaking — it never returns, so nothing downstream can call `listen()` and
+serve the turn sitting in the queue as the answer to a question the patient never heard. When
+`converse` ends, for any reason — including a critical phase failing on the way — `run_call` runs
+the guard over every turn still pending before it closes the channel: a patient who says something
+alarming and hangs up still escalates the call, without the spoken escalation line nobody is left
+to hear. A hang-up seen in `greet` also skips `converse`: no question is generated for a
+line that is already dead, and the post-call phases still run.
 
 ### The guard
 

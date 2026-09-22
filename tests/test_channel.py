@@ -431,6 +431,38 @@ async def test_nothing_is_spoken_or_recorded_while_the_hangup_flushes(speech) ->
     await ws.inbox.put(json.dumps({"event": "stop"}))
     await asyncio.sleep(0.05)
 
-    assert await channel.say("Are you still there?") is False
+    with pytest.raises(CallEnded):
+        await channel.say("Are you still there?")
     assert [t for t in channel.call.transcript if t["speaker"] == "agent"] == []
+    await channel.close()
+
+
+class DelayedFlushSTT(FakeSTT):
+    async def finish(self) -> None:
+        await asyncio.sleep(0.05)
+        for message in self.pending:
+            await self.queue.put(message)
+        await asyncio.sleep(0.3)
+        await self.queue.put(None)
+
+
+async def test_a_turn_that_arrives_during_the_hangup_flush_is_not_served_as_the_next_answer(
+    speech,
+) -> None:
+    call = Call(patient_id="test", patient_name="Ana", pack=get_pack("rehab"))
+    ws, stt = FakeWS(), DelayedFlushSTT()
+    stt.pending = [turn("because I had a lot of work", words=1, start_ms=0)]
+    channel = LiveChannel(ws, call, stt)
+    await ws.inbox.put(START)
+    await channel.start()
+
+    await ws.inbox.put(json.dumps({"event": "stop"}))
+    await asyncio.sleep(0.1)
+
+    with pytest.raises(CallEnded):
+        await channel.say("Any new discomfort?")
+
+    assert channel.take_dropped() == ["because I had a lot of work"]
+    with pytest.raises(CallEnded):
+        await channel.listen(0.05)
     await channel.close()

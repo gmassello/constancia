@@ -79,14 +79,26 @@ async def test_a_twilio_recording_is_relayed_instead_of_handed_over(monkeypatch)
     get_settings.cache_clear()
 
 
-async def test_a_url_that_is_not_twilios_is_passed_straight_through() -> None:
+async def test_a_url_that_is_not_twilios_is_passed_straight_through(
+    monkeypatch,
+) -> None:
     import httpx
+
+    from app.config import get_settings
+
+    for key in ENV:
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.chdir("/")
+    get_settings.cache_clear()
 
     async def handler(request: httpx.Request) -> httpx.Response:
         raise AssertionError("nothing should be fetched")
 
-    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
-        url = await analysis.hosted(client, "https://example.com/a.mp3", {})
+    try:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            url = await analysis.hosted(client, "https://example.com/a.mp3", {})
+    finally:
+        get_settings.cache_clear()
 
     assert url == "https://example.com/a.mp3"
 
