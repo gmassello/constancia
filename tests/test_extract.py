@@ -69,8 +69,19 @@ async def test_run_keeps_grounded_facts_and_drops_the_rest() -> None:
     assert "fact_rejected" in types_of(call)
 
 
+async def test_a_blank_quote_is_rejected_without_losing_the_other_facts() -> None:
+    blank = {**VALID, "fact": "fell over", "quote": " "}
+    call, llm = build([json.dumps({"facts": [VALID, blank]})])
+
+    facts = await extract.run(call, llm, [])
+
+    assert [fact.fact for fact in facts] == [VALID["fact"]]
+    assert "fact_rejected" in types_of(call)
+    assert "extract_retry" not in types_of(call)
+
+
 async def test_run_retries_when_the_reply_does_not_validate() -> None:
-    invalid = json.dumps({"facts": [{**VALID, "quote": ""}]})
+    invalid = json.dumps({"facts": [{k: v for k, v in VALID.items() if k != "quote"}]})
     call, llm = build([invalid, json.dumps({"facts": [VALID]})])
 
     facts = await extract.run(call, llm, [])

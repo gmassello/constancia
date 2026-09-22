@@ -70,7 +70,7 @@ No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 166 tests, no network and no database
+make test          # 169 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session

@@ -23,13 +23,18 @@ async def ask(call: Call, channel, llm, text: str, silence_s: float) -> str | No
     return answer
 
 
-async def escalated(call: Call, channel, llm, answer: str | None) -> bool:
-    turns = (*channel.take_dropped(), answer)
+def flagged(call: Call, turns) -> dict | None:
     hit = next((h for t in turns if t and (h := guard.check(call.pack, t))), None)
+    if hit:
+        call.escalated = hit
+        call.emit("guard_hit", **hit)
+    return hit
+
+
+async def escalated(call: Call, channel, llm, answer: str | None) -> bool:
+    hit = flagged(call, (*channel.take_dropped(), answer))
     if not hit:
         return False
-    call.escalated = hit
-    call.emit("guard_hit", **hit)
     message = next(f.message for f in call.pack.red_flags if f.rule == hit["rule"])
     await channel.say(await phrase(call, llm, call.pack.escalation.format(message=message)))
     return True
@@ -167,6 +172,8 @@ async def run_call(call: Call, channel, llm, store=None, silence_s: float = SILE
         else:
             call.emit("phase_done", phase=name)
         if name == "converse":
+            if not call.escalated:
+                flagged(call, channel.take_dropped())
             await channel.close()
             call.ended_at = call.trace[-1]["at"]
     # ponytail: `store` and `summarize` both write the row, and a critical phase breaks out of the

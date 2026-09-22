@@ -56,10 +56,14 @@ class StreamingSTT:
                 continue
             yield json.loads(raw)
 
+    async def finish(self) -> None:
+        if self.ws:
+            with contextlib.suppress(Exception):
+                await self.ws.send(json.dumps({"type": "Terminate"}))
+
     async def terminate(self) -> None:
         if not self.ws:
             return
-        with contextlib.suppress(Exception):
-            await self.ws.send(json.dumps({"type": "Terminate"}))
+        await self.finish()
         await self.ws.close()
         self.ws = None

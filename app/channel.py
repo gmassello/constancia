@@ -13,6 +13,7 @@ BYTES_PER_SECOND = 8000
 FRAME_MS = FRAME_BYTES * 1000 // BYTES_PER_SECOND
 MARK_GRACE_S = 2.0
 START_TIMEOUT_S = 10.0
+FLUSH_S = 2.0
 LOGGED_FRAMES = 3
 
 
@@ -125,6 +126,8 @@ class LiveChannel:
                 elif event == "mark":
                     self.mark_event.set()
                 elif event == "stop":
+                    await self.stt.finish()
+                    await asyncio.wait(self.tasks[1:], timeout=FLUSH_S)
                     break
         except asyncio.CancelledError:
             raise

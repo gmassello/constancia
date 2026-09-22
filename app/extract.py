@@ -33,7 +33,7 @@ class Fact(BaseModel):
     term: str
     category: Literal[CATEGORIES]
     value: float | None = None
-    quote: str = Field(min_length=1)
+    quote: str
     turn_id: int
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
     supersedes: str | None = None
@@ -68,7 +68,8 @@ def ground(fact: Fact, transcript: list[dict]) -> bool:
     turn = next((t for t in transcript if t["turn_id"] == fact.turn_id), None)
     if not turn or turn["speaker"] != "patient":
         return False
-    return normalize(fact.quote) in normalize(turn["text"])
+    quote = normalize(fact.quote).strip()
+    return bool(quote) and quote in normalize(turn["text"])
 
 
 async def run(call, llm, current_facts: list[dict]) -> list[Fact]:

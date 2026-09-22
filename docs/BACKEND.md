@@ -10,16 +10,16 @@ each one is for.
 |---|---:|---|
 | [`app/main.py`](../app/main.py) | 350 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
 | [`app/memory.py`](../app/memory.py) | 349 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader and the `keyterms` computation. |
-| [`app/channel.py`](../app/channel.py) | 270 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
+| [`app/channel.py`](../app/channel.py) | 273 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
 | [`app/packs.py`](../app/packs.py) | 269 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
-| [`app/orchestrator.py`](../app/orchestrator.py) | 181 | The phase machine. Decides what is said, what is stored and when a call escalates. |
+| [`app/orchestrator.py`](../app/orchestrator.py) | 188 | The phase machine. Decides what is said, what is stored and when a call escalates. |
 | [`app/llm.py`](../app/llm.py) | 142 | `retrying`, the shared backoff every Gemini call site goes through; `GeminiLLM`; and `ScriptedLLM`, its deterministic double. |
 | [`app/replay.py`](../app/replay.py) | 109 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
-| [`app/extract.py`](../app/extract.py) | 104 | Structured extraction and the grounding check. |
+| [`app/extract.py`](../app/extract.py) | 105 | Structured extraction and the grounding check. |
 | [`app/queries.py`](../app/queries.py) | 96 | Pure reducers over fact rows: the chain, the weekly series, the key terms of a past call. |
 | [`app/analysis.py`](../app/analysis.py) | 99 | Post-call entity detection and sentiment on the recording. |
 | [`app/calls.py`](../app/calls.py) | 76 | The `Call` dataclass, the `emit`/`subscribe` event bus, and the global `CALLS` registry. |
-| [`app/stt.py`](../app/stt.py) | 65 | AssemblyAI Universal-Streaming v3 over WebSocket, with hot key-term updates. |
+| [`app/stt.py`](../app/stt.py) | 69 | AssemblyAI Universal-Streaming v3 over WebSocket, with hot key-term updates. |
 | [`app/db.py`](../app/db.py) | 60 | The psycopg async pool, the query helpers and `init_schema()`. |
 | [`app/config.py`](../app/config.py) | 53 | `Settings`, `get_settings()`, `settings_or_none()`. |
 | [`app/telephony.py`](../app/telephony.py) | 37 | The TwiML and the outbound Twilio call. |
@@ -73,6 +73,13 @@ An interrupted goodbye waits for the patient's formatted final turn before the c
 turn that finalized while the agent was speaking is kept in the transcript with `heard=false`: its
 words still reach the guard and extractor, but it is not attributed as an answer to that question.
 
+A hang-up does not cut the patient off mid-sentence. On Twilio's `stop`, `LiveChannel` sends
+AssemblyAI `Terminate` and waits up to `FLUSH_S` (2 s) for the STT reader to finish, so a turn
+still finalizing lands in the queue ahead of the hang-up marker. When `converse` ends, for any
+reason, `run_call` runs the guard over every turn still pending before it closes the channel: a
+patient who says something alarming and hangs up still escalates the call, without the spoken
+escalation line nobody is left to hear.
+
 ### The guard
 
 The rule that governs it is in [`../AGENTS.md`](../AGENTS.md): **the guard is
@@ -103,17 +110,18 @@ are not asked.
 
 ### Grounding
 
-`ground` (`app/extract.py`) is eleven lines and it is the reason the memory claim is checkable:
+`ground` (`app/extract.py`) is six lines and it is the reason the memory claim is checkable:
 
 ```python
 turn = next((t for t in transcript if t["turn_id"] == fact.turn_id), None)
 if not turn or turn["speaker"] != "patient":
     return False
-return normalize(fact.quote) in normalize(turn["text"])
+quote = normalize(fact.quote).strip()
+return bool(quote) and quote in normalize(turn["text"])
 ```
 
-Three conditions, all required: the turn exists, it is the patient's, and the quote is a literal
-substring of it. Anything else is dropped with `fact_rejected`. A `supersedes` pointing at an id the
+Three conditions, all required: the turn exists, it is the patient's, and the quote is a non-blank
+literal substring of it. Anything else is dropped with `fact_rejected`. A `supersedes` pointing at an id the
 call was not shown is silently nulled (`app/extract.py`) rather than trusted.
 
 `run` retries up to three times, feeding Pydantic's own validation error back into the prompt

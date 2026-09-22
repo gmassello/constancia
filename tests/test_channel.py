@@ -69,6 +69,7 @@ class FakeSTT:
         self.fed = 0
         self.frames = 0
         self.keyterms: list[str] = []
+        self.pending: list[dict] = []
 
     async def connect(self) -> None:
         return None
@@ -86,6 +87,11 @@ class FakeSTT:
 
     async def update_keyterms(self, terms: list[str]) -> None:
         self.keyterms = terms
+
+    async def finish(self) -> None:
+        for message in self.pending:
+            await self.queue.put(message)
+        await self.queue.put(None)
 
     async def terminate(self) -> None:
         await self.queue.put(None)
@@ -317,3 +323,38 @@ async def test_a_red_flag_over_the_goodbye_still_reaches_the_guard(
     assert flag in [t["text"] for t in call.transcript if t["speaker"] == "patient"]
     assert channel.turns.empty()
     await channel.close()
+
+
+async def test_a_turn_still_finalizing_at_the_hangup_reaches_the_transcript() -> None:
+    channel, ws, stt = await started_channel()
+    stt.pending = [turn("I fell in the shower yesterday.", words=5)]
+    await stt.queue.put(turn("I fell", words=2, final=False))
+    await ws.inbox.put(json.dumps({"event": "stop"}))
+
+    assert await channel.listen(1.0) == "I fell in the shower yesterday."
+    with pytest.raises(CallEnded):
+        await channel.listen(0.05)
+    await channel.close()
+
+
+async def test_a_hangup_still_runs_the_guard_over_turns_the_agent_talked_over(speech) -> None:
+    from app import orchestrator
+    from app.llm import ScriptedLLM
+
+    channel, ws, stt = await started_channel()
+    call = channel.call
+
+    async def patient() -> None:
+        while not any(e.get("phase") == "converse" for e in call.trace):
+            await asyncio.sleep(0.01)
+        await asyncio.sleep(0.03)
+        await stt.queue.put(turn("I fell in the shower yesterday", words=1, start_ms=0))
+        await asyncio.sleep(0.15)
+        await ws.inbox.put(json.dumps({"event": "stop"}))
+
+    await asyncio.gather(orchestrator.run_call(call, channel, ScriptedLLM(), None, 0.2), patient())
+
+    assert call.escalated is not None
+    assert call.escalated["rule"] == "fall"
+    assert "guard_hit" in [e["type"] for e in call.trace]
+    assert "patient_hung_up" in [e["type"] for e in call.trace]
