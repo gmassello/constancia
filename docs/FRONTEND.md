@@ -1,6 +1,6 @@
 # Frontend reference
 
-React 19 + Vite + TypeScript in [`../web/`](../web). Twenty files, about 4,000 lines, and **no UI
+React 19 + Vite + TypeScript in [`../web/`](../web). Twenty files, about 4,150 lines, and **no UI
 library, no router, no state library, no date library and no charting library**. The chart is `div`s
 with a percentage height; the dates are `Intl.DateTimeFormat`; the segmented control is native radios
 styled with `:has()`.
@@ -8,12 +8,16 @@ styled with `:has()`.
 Two pages, built as two HTML entries: the public landing at `/` and the professional's panel at
 `/panel`.
 
+This file describes the front end **as it is**. [`DESIGN.md`](DESIGN.md) describes the design system
+as it is **meant to become**, and the gap between the two is tracked in
+[`PENDINGS.md`](PENDINGS.md).
+
 ## Build and serving
 
 | | |
 |---|---|
-| Build | `pnpm build` = `tsc -b && vite build`, wrapped as `make web` |
-| Entries | `landing: index.html` and `panel: panel/index.html` (`web/vite.config.ts:8-15`) |
+| Build | `pnpm build` = `tsc -b && vite build`. `make web` wraps it with `pnpm install --frozen-lockfile` first |
+| Entries | `landing: index.html` and `panel: panel/index.html` (`web/vite.config.ts:10-13`) |
 | Output | `web/dist/` — `index.html`, `panel/index.html`, hashed assets in `assets/` |
 | Dev | `make web-dev` on port 5173, proxying the API routes to `localhost:8001` |
 
@@ -34,16 +38,16 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 
 | File | Lines | What it is |
 |---|---:|---|
-| [`web/src/tokens.css`](../web/src/tokens.css) | 263 | The design system: tokens, the derived dark theme, the semantic aliases, the reset, the type scale and the four shared classes. |
+| [`web/src/tokens.css`](../web/src/tokens.css) | 263 | The design system: the tokens with light canonical and dark as the override, the semantic aliases, the reset, the `h1`–`h6` sizes and the five shared classes — `.text-muted`, `.hr`, `.btn`, `.tag` and `.seg`. |
 | [`web/src/prefs.ts`](../web/src/prefs.ts) | 75 | `usePrefs()`, the three initial readers, `localStorage` persistence and `prefersReducedMotion()`. |
 
 ### Landing
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/landing/Landing.tsx` | 514 | The eight sections, with the design's inline styles kept. |
+| `web/src/landing/Landing.tsx` | 514 | A header, seven sections and a footer, with the design's inline styles kept. |
 | `web/src/landing/DemoCard.tsx` | 744 | The scripted demo card: two scripts, the fact chain, the player and its controls. |
-| `web/src/landing/copy.ts` | 553 | Four sets — two languages × two registers. |
+| `web/src/landing/copy.ts` | 553 | Two full sets, one per language, plus two partial plain-register overrides merged over them. |
 | `web/src/landing/landing.css` | 123 | Six keyframes, the pause rule and the reduced-motion block. |
 | `web/src/landing/main.tsx` | 12 | Mount. |
 
@@ -54,8 +58,8 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 | `web/src/panel/panel.css` | 347 | Layout and styles, on the aliases. |
 | `web/src/panel/copy.ts` | 477 | Two languages, one register, plus the maps for raw backend values. |
 | `web/src/panel/ActivityRail.tsx` | 151 | Turns each trace event into a labelled line. |
-| `web/src/panel/PatientView.tsx` | 153 | Loads the patient's data and composes the five cards. |
-| `web/src/panel/content.ts` | 109 | The ES→EN table for canned patient data. |
+| `web/src/panel/PatientView.tsx` | 153 | Loads the patient's data and composes four cards, plus the live one while a call runs. |
+| `web/src/panel/content.ts` | 109 | The EN→ES table for canned patient data, keyed by the English string the call produces. |
 | `web/src/panel/App.tsx` | 96 | Shell: sidebar, backend status, the two toggles, patient list. |
 | `web/src/panel/api.ts` | 133 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
 | `web/src/panel/FactChain.tsx` | 79 | The patient file: current facts and what they retired. |
@@ -88,20 +92,22 @@ both. Every pair, with its ratio in each theme, is in [`DESIGN.md`](DESIGN.md).
 
 ## The ramp rule
 
-**Nothing outside `tokens.css` may name a ramp step or a text opacity.** Ten semantic aliases exist
-so that it does not have to:
+**Nothing outside `tokens.css` may name a ramp step or a text opacity.** The ten entries below are
+what exists so that it does not have to. Six of them are aliases in the strict sense — they resolve
+to a ramp step, which is the indirection the rule is about. The rest are per-theme values with no
+ramp equivalent, listed here because the rule covers them too: use the name, never the hex.
 
 | Alias | For |
 |---|---|
 | `--text-secondary` | body text that is not primary |
 | `--text-muted` | labels, metadata, footers |
 | `--text-accent` | accented text that has to clear the accent base |
-| `--section-ink` | **identical in both themes** — the metrics band is dark in both |
+| `--section-ink` | the same declaration in both themes — the metrics band is dark in both, so the ink stays light |
 | `--tone-dim` | the "retired" border and label |
 | `--fill-subtle` | tinted fills |
 | `--color-divider-strong` | the outline of an input or a secondary button, where the hairline is not enough |
 | `--color-accent-hover` + `--color-accent-active` | a pair per theme, because the states run **opposite ways**: light darkens on press, dark lightens |
-| `--orb-mint` / `--orb-sky` / `--orb-amber` | atmosphere only — a radial bloom behind content, never a fill, a border or a text colour |
+| `--orb-mint` / `--orb-sky` / `--orb-amber` | atmosphere only, never a fill, a border or a text colour. **Declared and not yet consumed**: the two blooms on the landing are `color-mix()` on the accent. [`PENDINGS.md`](PENDINGS.md) § A3 |
 | `--color-danger` + `--danger-fill` | a pair, because no single hex clears both grounds |
 
 A step that reads on one ground does not read on the other; the indirection is what makes two themes
@@ -131,9 +137,13 @@ Technical or plain — the same page written for a judge and for the physiothera
 it. Only the prose changes register; nav labels, button text and service names read the same either
 way.
 
-The typing is what keeps the four sets in sync, and `tsc` is the only check:
+Two full sets and two partial override maps, and the typing is what keeps them in sync — `tsc` is
+the only check. `copy()` merges the register over the language, `{ ...base[lang], ...plain[lang] }`,
+so a key with no plain variant falls through to the prose of that same language:
 
-- `const es: Copy` with an explicit annotation — a missing Spanish key fails the build.
+- `const en = {...} satisfies Copy` and `const es = {...} satisfies Copy` — `satisfies` still
+  requires every key of `Copy`, so a missing Spanish one fails the build, and unlike an annotation it
+  keeps the literal key types the two lines below depend on.
 - `const enPlain = {...} satisfies Partial<Copy>` keeps both the check against `Copy` **and** the
   literal key type.
 - `type PlainKey = keyof typeof enPlain` then `const esPlain: Record<PlainKey, string>` closes the
@@ -157,6 +167,10 @@ compile and let `label()` fall through to `raw.replace(/_/g, " ")` — the Spani
 `sudden sharp pain`. `en` and `es` are therefore declared with `satisfies Strings` rather than an
 annotation, which keeps their literal keys, and the `parity` block at the end of the file asserts
 that each of the eight maps carries the same keys in both languages.
+
+The landing has the same gate on a smaller surface: one map, `demoCategory`, and its own `parity`
+block at the end of `landing/copy.ts`. Both are type-level assertions — they cost nothing at runtime
+and fail the build, which is the only check this side of the repo has.
 
 `speech()` ([`web/src/panel/content.ts`](../web/src/panel/content.ts)) is keyed by the English
 string — the one the call actually produces — and carries a `ponytail:` marker saying so: a fact a
@@ -188,7 +202,7 @@ own pre-paint script and reads the same three keys.
 | Component | Shows | Fed by |
 |---|---|---|
 | `App` | Sidebar, backend status line, patient list | `GET /patients`, `GET /health` |
-| `PatientView` | Header, the call controls, and the five cards | `GET /patients/{id}/chain`, `/weekly`, `/calls`, then `/calls/{id}/keyterms` |
+| `PatientView` | Header, the call controls, four cards, and the live one while a call runs | `GET /patients/{id}/chain`, `/weekly`, `/calls`, then `/calls/{id}/keyterms` |
 | `LiveCall` | The call in progress and its transcript | SSE `GET /calls/{id}/events` |
 | `ActivityRail` | One line per trace event | props, from `LiveCall` |
 | `WeeklyChart` | One series per measure: previous → current, verdict, bars, real dates | props |
@@ -241,16 +255,21 @@ card has two clocks:
   forward **are** rendered, because with no timer they are the only way that visitor sees the call.
 
 Pausing normally has to stop both clocks too: the effect stops scheduling, and `animation-play-state`
-stops the looping CSS — scoped to the two animations that actually loop, because pausing an entrance
-animation inside its 0.34 s window would leave that row invisible.
+stops the looping CSS — scoped to the two the card owns, `noc-pulse` and `noc-wave`, because pausing
+an entrance animation inside its 0.34 s window would leave that row invisible. A third animation
+loops, `noc-breathe` on the two background blooms, and `.is-paused` does not cover it: it is page
+atmosphere rather than part of the card, and `DESIGN.md` has it slated for removal
+([`PENDINGS.md`](PENDINGS.md) § A3).
 
 Contrast is measured, not assumed, and the method matters: colours are composited on a canvas and the
 pixel is read, because `getComputedStyle().color` returns `color(srgb r g b / a)` with 0–1 components
-for anything from `color-mix()`, and a regex parser reads that as nearly black. The measurements and
-the light-theme derivation are in [`LANDING.md`](LANDING.md).
+for anything from `color-mix()`, and a regex parser reads that as nearly black. Every pair and its
+ratio per theme are in [`DESIGN.md`](DESIGN.md); [`LANDING.md`](LANDING.md) keeps only the method,
+and its hex values are the old palette.
 
 Also present: `:focus-visible` rings, action `aria-label` values on the theme toggles, `role="img"`
-plus a translated `aria-label` on the meaningful SVGs, a labelled `← Home` link rather than relying on
+plus a translated `aria-label` on the one SVG that carries meaning — the category glyph in
+`FactChain`, while `Keyterms`' drawing is `aria-hidden` — a labelled `← Home` link rather than relying on
 the wordmark, and `documentElement.lang` kept in sync with the chosen language.
 
 ---

@@ -1,6 +1,8 @@
 # Deck
 
-The content of the submitted slides, kept here so the claims stay next to the code that backs them.
+The content of the slides, kept here so the claims stay next to the code that backs them. They are
+written and not yet submitted — [`SUBMISSION.md`](SUBMISSION.md) has the state, and sharing and
+uploading them is row 8 of [`PENDINGS.md`](PENDINGS.md).
 Eleven slides. The market numbers come from [`INTENT.md`](INTENT.md) §3 and §4, with the citations;
 everything about the system is checkable in this repo today.
 
@@ -76,11 +78,13 @@ are deterministic Python. The LLM writes sentences.
 ## 6 · Why the memory claim is checkable
 
 1. **No quote, no fact.** Every stored fact carries a literal span of something the patient actually
-   said, in a turn that was theirs. The extractor drops anything else — three conditions, eleven
-   lines (`app/extract.py:66`).
+   said, in a turn that was theirs. The extractor drops anything else — `ground()` in
+   `app/extract.py` is six lines with three conditions: the turn exists, it was the patient's, and
+   the quote is a non-blank literal substring of it.
 2. **Nothing is deleted.** A contradiction retires the old fact; it never removes it. The
    professional can always see what was believed, when, and what replaced it.
-3. **The escalation is code.** The red-flag guard is 32 deterministic lines with a negation window.
+3. **The escalation is code.** `app/guard.py` is 36 lines of deterministic matching with a
+   negation window.
    The model phrases the escalation; it never decides on one.
 
 ---
@@ -124,7 +128,7 @@ before the first call — not a generic "I accept the terms".
 
 ## 10 · What is actually built
 
-- The full pipeline runs **with no keys and no database**: `make test` runs 174 tests with no
+- The full pipeline runs **with no keys and no database**: `make test` runs 177 tests with no
   environment variable set, and the panel's buttons run the real orchestrator against a scripted
   patient.
 - **AssemblyAI in two places:** Universal-Streaming v3 live over the phone call, and Speech

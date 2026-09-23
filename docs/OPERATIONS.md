@@ -8,7 +8,7 @@ The service degrades on purpose. Pick the shallowest one that shows what you nee
 
 ```bash
 uv sync
-make test          # 174 tests, no network and no database
+make test          # 177 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session
@@ -77,8 +77,8 @@ print a secret value, not even truncated.**
 ### Required
 
 Without all eight, `settings_or_none()` returns `None`: the service still boots, still serves both
-pages, still runs `scripted` and `replay` calls and still answers every read endpoint. Only
-`mode=live` is refused, with `503`.
+pages, still runs `scripted` and `replay` calls, and still answers every read endpoint the seed store
+can serve. `mode=live` is refused with `503`, and so is `GET /search`, which needs pgvector.
 
 | Variable | Notes |
 |---|---|
@@ -135,6 +135,10 @@ The schema is [`../schema.sql`](../schema.sql), 46 lines, three tables. There is
 
 ## Deploying
 
+> **Nothing here has been applied yet.** `constancia-voice.onrender.com` answers `404` with
+> `x-render-routing: no-server`: no service, no database. This section is the runbook for when it
+> is, and the deploy is row 1 of [`PENDINGS.md`](PENDINGS.md).
+
 A multi-stage [`../Dockerfile`](../Dockerfile): a `node:24-slim` stage builds `web/dist`, then a `uv`
 stage installs the Python deps, copies `app/`, `schema.sql`, `seed/` and the built front end, and runs
 as a non-root user. One image, one service, one public URL — the API serves the pages.
@@ -142,15 +146,16 @@ as a non-root user. One image, one service, one public URL — the API serves th
 [`../render.yaml`](../render.yaml) declares the Render service — `constancia-voice`, Docker runtime,
 free plan, `healthCheckPath: /health` — **and the database**: `constancia-db`, free plan, Postgres 17, the same
 major as `make db`. `DATABASE_URL` comes from it with `fromDatabase`, so there is no connection
-string to copy. The nine credentials stay `sync: false` and are typed into the dashboard; none of
-them is in the repo.
+string to copy. Nine entries stay `sync: false` and are typed into the dashboard — the eight required
+variables plus `GEMINI_MODEL`, which is a pin rather than a credential; none of them is in the repo.
 
 The container binds `${PORT:-8000}`; Render sets `PORT`. Local development uses 8001.
 
-**The schema applies itself at boot.** When the store is Postgres, the lifespan runs `schema.sql`
+**The schema will apply itself at boot.** When the store is Postgres, the lifespan runs `schema.sql`
 before serving (`app/main.py`) — it is idempotent end to end, so every boot after the first is a
-no-op, and `tests/test_db.py` asserts exactly that. A fresh Render database therefore comes up with
-its three tables and the `vector` extension already there. If the database is unreachable the service
+no-op, and `tests/test_db.py` asserts exactly that. A fresh Render database will therefore come up
+with its three tables and the `vector` extension already there. If the database is unreachable the
+service
 fails to start and the deploy goes red, which is the loud version of the problem: before this, the
 health check passed and every screen with data returned `500`.
 
@@ -170,7 +175,8 @@ unrelated application, and Render would have answered by appending a random suff
 which the endcard burns into the last frame of the video. Confirm in step 4 that the URL Render
 assigned is the expected one before rendering the card.
 
-**Leave `DEMO_PHONE` unset on Render.** The nine credentials make `/health` report `live: true`, so
+**Leave `DEMO_PHONE` unset on Render.** The eight required variables make `/health` report
+`live: true`, so
 the deployed panel renders the two live buttons; with no demo phone they answer `400` instead of
 dialling. That is the intended outcome for a public URL — the alternative is a stranger ringing your
 phone. The scripted pair above them is the primary one and works with no phone at all.
@@ -186,7 +192,7 @@ the external connection string Render shows for the database and run it once.
   a loading page in between. A judge opening a cold URL waits that minute. Either keep a ping every
   ten minutes from a free uptime service, or upgrade the instance for the judging window.
 - **A free Postgres expires 30 days after it is created**, then has a 14-day grace period before
-  Render deletes it. Created for this submission it outlives the deadline, but it is not a place to
+  Render deletes it. Created now it would outlive the deadline comfortably, but it is not a place to
   leave anything you want to keep.
 
 ## Checkpoints that need a person

@@ -11,14 +11,27 @@ PUBLISHED = (
     "docs/OPERATIONS.md",
     "docs/WORKING.md",
     "docs/SUBMISSION.md",
+    "docs/PENDINGS.md",
     "docs/LANDING.md",
     "docs/deck.md",
     "docs/API.md",
+    "docs/ARCHITECTURE.md",
     "docs/BACKEND.md",
     "docs/FRONTEND.md",
+    "docs/DESIGN.md",
+    "docs/PRODUCT.md",
     "docs/README.md",
+    "docs/video-script.md",
     "web/src/landing/copy.ts",
 )
+MARKED = {
+    # doc -> the pathspec whose count it publishes, as `git grep` takes it
+    "docs/WORKING.md": ("app/*.py", "web/src", "scripts", "tests", "schema.sql"),
+    "docs/BACKEND.md": ("app/*.py", "schema.sql"),
+}
+MARKER = re.compile(r"There are \*\*(\d+)\*\* (?:in the code|on this side)")
+LINK = re.compile(r"\]\(([^)#]+?)(?:#[^)]*)?\)")
+INDEXED = ("docs/README.md",)
 SIZED = ("docs/BACKEND.md", "docs/FRONTEND.md")
 SIZED_ROW = re.compile(r"^\|\s*\[?`([^`]+)`(?:\]\([^)]*\))?\s*\|\s*(\d+)\s*\|")
 # ponytail: every pattern here is checked against the collected total, so a doc may publish that
@@ -161,3 +174,48 @@ def test_the_target_table_lists_every_target_in_the_makefile() -> None:
     table = set(re.findall(r"^\| `make ([a-z-]+)", working, re.M))
 
     assert table == targets
+
+
+# Split so that this file does not match the very thing it counts.
+MARK = "ponytail" + ":"
+
+
+def markers(pathspec: tuple[str, ...]) -> int:
+    run = subprocess.run(
+        ["git", "grep", "-o", MARK, "--", *pathspec],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+    )
+    return len(run.stdout.splitlines())
+
+
+@pytest.mark.parametrize("doc", MARKED)
+def test_every_published_ponytail_count_is_the_one_git_reports(doc: str) -> None:
+    # The same rule as the test-count gate, on the number the conventions section publishes. It
+    # rotted in two documents at once and neither gate saw it, because both wrote it out in words
+    # where the digit-only reader is blind. They are digits now, in a fixed phrase this reads.
+    real = markers(MARKED[doc])
+    published = MARKER.findall(ROOT.joinpath(doc).read_text())
+
+    assert published == [str(real)]
+
+
+def test_every_doc_is_indexed_and_every_relative_link_resolves() -> None:
+    # A document nobody links is a document nobody opens, and a link that 404s in a text editor is
+    # the cheapest kind of rot to catch. docs/README.md is the index, so it does not index itself.
+    index = ROOT.joinpath(INDEXED[0]).read_text()
+    orphans = [
+        path.name
+        for path in sorted(ROOT.glob("docs/*.md"))
+        if path.name not in index and f"docs/{path.name}" != INDEXED[0]
+    ]
+    broken = [
+        f"{path.relative_to(ROOT)}:{number} -> {target}"
+        for path in [*sorted(ROOT.glob("docs/*.md")), ROOT / "README.md", ROOT / "AGENTS.md"]
+        for number, line in enumerate(path.read_text().splitlines(), start=1)
+        for target in LINK.findall(line)
+        if not target.startswith(("http", "mailto")) and not (path.parent / target).exists()
+    ]
+
+    assert (orphans, broken) == ([], [])

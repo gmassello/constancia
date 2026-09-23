@@ -29,6 +29,22 @@ virtualenv activated.
 Anything that needs a key is a `make smoke-*` or a `scripts/` file run by hand. That is the rule, not
 a coincidence — see below.
 
+The four lines that are not targets, because they take an argument or belong to another tool:
+
+```bash
+uv sync                                     # install; there is no virtualenv to activate
+uv run pytest tests/test_guard.py::test_red_flags_fire      # one test, the 90% case
+uv run pytest -k supersede                  # or by name, across files
+cd web && pnpm build                        # the type-check: tsc -b && vite build
+```
+
+Deploying is not a target either: it is a Render Blueprint applied from the dashboard, and the
+runbook is [`OPERATIONS.md`](OPERATIONS.md) § *The order*.
+
+**There is no Python type-checker in this repo.** `pyproject.toml` pins pytest, pytest-asyncio and
+ruff, and nothing else. `tsc` covers the front end; the back end is covered by tests and by `ruff`,
+and that is a deliberate ceiling rather than an oversight.
+
 Two more live in [`../video/`](../video/), for the demo recording: `bash video/reset.sh --check`
 reports the demo state without touching it and `bash video/reset.sh` puts it back, against either
 store; `video/endcard.sh` renders the video's last frame. [`video-script.md`](video-script.md) is
@@ -39,9 +55,9 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 174 tests, the 3 that need a database skipped
+uv run pytest -q          # 177 tests, the 3 that need a database skipped
 make db && DATABASE_URL=postgresql://constancia:constancia@localhost:5432/constancia \
-  uv run pytest -q        # 174 passed, nothing skipped — run this before touching app/memory.py
+  uv run pytest -q        # 177 passed, nothing skipped — run this before touching app/memory.py
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
@@ -59,7 +75,7 @@ missing translation fails the build, and presentational components do not earn a
 
 ## Tests
 
-Fourteen test files, 174 collected with no environment variable set. Every one of them passes
+Fourteen test files, 177 collected with no environment variable set. Every one of them passes
 except the three Postgres integration tests, which skip themselves.
 
 | File | Covers |
@@ -76,7 +92,7 @@ except the three Postgres integration tests, which skip themselves.
 | `tests/test_replay.py` | Scripted week1→week2 with supersession, automatic script choice, the `week2-off` script never quoting last week, the `alarm` script cutting the protocol short, monotonic `export`, fixture playback |
 | `tests/test_guard.py` | Rehab's fourteen phrases that must escalate and eighteen that must not, accents and capitals, then the postpartum and chronic rules with their own tables — including the baby's fever, which must not escalate |
 | `tests/test_llm.py` | The history the model is handed in all three shapes, and the shared backoff: a rate limit that clears on the third try, and an error that is not retriable |
-| `tests/test_docs.py` | The documentation gates: every published test count matches the suite, every line anchor in `API.md` still points at what it names, and no ramp step survives outside `tokens.css` |
+| `tests/test_docs.py` | The documentation gates, seven of them: every published test count matches the suite, every line anchor in `API.md` still points at what it names, no ramp step survives outside `tokens.css`, every line count in the module tables matches the file, the target table lists every target in the `Makefile`, the published `ponytail:` counts match a real count, and every `docs/*.md` is indexed with no broken relative link |
 | `tests/test_import_safety.py` | That importing `app.main` with no environment does not raise, and the `Settings` validation |
 | `tests/test_db.py` | **Integration.** A real Postgres round trip. Skips without `DATABASE_URL`. |
 
@@ -106,10 +122,16 @@ The hard rules are in [`../AGENTS.md`](../AGENTS.md). The ones that bite most of
   both content rather than code: what the patient hears (`app/packs.py`) and the Spanish half of the
   bilingual interface (the two `copy.ts` and `panel/content.ts`), where English is the annotated base
   and Spanish the translation.
-- **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path. There
-  are thirty-two in the code; `git grep -c 'ponytail:' -- 'app/*.py' web/src scripts tests schema.sql`
-  counts them and they are the honest list of what was knowingly left simple. The docs quote a few
-  more, which is why the unscoped `git grep` returns a larger number.
+- **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.
+  There are **37** in the code and they are the honest list of what was knowingly left simple:
+
+  ```bash
+  git grep -o 'ponytail:' -- 'app/*.py' web/src scripts tests schema.sql | wc -l
+  ```
+
+  `-o` rather than `-c`, because `-c` prints a count per file and the number published here is the
+  total. `tests/test_docs.py` runs the same count and fails when this figure drifts, which it had,
+  twice. Leave the pathspec off and the number grows: the docs quote markers too.
 - **Exact versions.** `==` in `pyproject.toml`, no `^`/`~` in `package.json`. `uv.lock` and
   `pnpm-lock.yaml` are committed.
 - **No secrets in git.** `.env` is ignored, `.env.example` lists every key with an empty value, and no

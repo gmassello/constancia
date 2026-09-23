@@ -1,5 +1,14 @@
 # Cadence — the constancia design system
 
+> **This is the target, not a description of what is built.** The colour tokens in *Tokens* below are
+> live — `web/src/tokens.css` matches them line for line — but a good part of the typography, the
+> component states, the layout numbers and both effects are specified here and not implemented yet.
+> When this file and the code disagree, **the code is what ships and this file is what it should
+> become**; the gap is tracked item by item in [`PENDINGS.md`](PENDINGS.md) § *The Cadence build
+> programme*, and four open questions it does not answer are in § *Decisions the programme needs*.
+> For the tokens as they resolve today, `web/src/tokens.css` is the source, and
+> [`FRONTEND.md`](FRONTEND.md) describes the front end as it stands.
+
 ## Context
 
 **Project.** constancia: a voice agent that phones rehabilitation patients once a week, asks a fixed
@@ -217,6 +226,11 @@ rather than mirrored, because a warm off-white and a cool near-black are not eac
 Two families, both from Google Fonts, plus the system mono — which is not loaded, so it costs
 nothing.
 
+> Not built yet: the scale below exists as a table here and as literal pixel sizes in the code —
+> there is no token or class for any of its thirteen steps. The fonts load through an `@import` at
+> the top of `tokens.css` rather than the links below, so there is no preconnect, and Inter's 700 is
+> downloaded without being declared here. [`PENDINGS.md`](PENDINGS.md) § C.
+
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -264,8 +278,15 @@ Responsive display: clamp the two largest steps rather than stepping them at bre
 
 ## Spacing, grid, radii and shadows
 
+> Not built yet: the container is 1180px and the panel's 980px, the minimum gutter is 20px, no rule
+> caps prose at `68ch`, and elevation levels 2 and 3 have no implementation — the live call card
+> carries a `.live` class that is defined nowhere. [`PENDINGS.md`](PENDINGS.md) § D.
+
 **Spacing.** 4px base. `--space-1` 4 · `--space-2` 8 · `--space-3` 12 · `--space-4` 16 ·
-`--space-6` 24 · `--space-8` 32 · `--space-8` 48 · `96px` 96.
+`--space-6` 24 · `--space-8` 32 · `--space-12` 48 · `--space-16` 96.
+
+The first six are declared in `tokens.css`; `--space-12` and `--space-16` are not yet, and the two
+section rhythms below use literals until they are.
 
 - Card interior padding: `--space-6` (24px); `--space-8` (32px) on the hero and the live call card.
 - Button padding: 8px vertical, 14px horizontal.
@@ -279,9 +300,10 @@ a measure, not a pixel width, because it has to hold in both languages and Spani
 Section padding scales rather than stepping:
 `padding: clamp(3rem, 6vw, 6rem) clamp(1rem, 5vw, 4rem);`
 
-**Radii.** `--radius-sm` 4 (status chips) · `--radius-sm` 6 (inline tags) · `--radius-md` 8 (buttons,
-inputs) · `--radius-lg` 12 (cards) · `--radius-xl` 16 (the live call card, the demo card) ·
-`--radius-xl` 24 (orb cards) · `9999px` (toggles, state pills, avatars).
+**Radii.** `--radius-sm` 6 (status chips, inline tags) · `--radius-md` 8 (buttons) · `--radius-lg` 12
+(cards) · `--radius-xl` 16 (the live call card, the demo card) · `9999px` (toggles, state pills).
+
+Four steps and one constant, no more. All four are declared; `--radius-xl` has no consumer yet.
 
 **Elevation.** Five levels, and only two of them use a shadow — and only in light.
 
@@ -299,6 +321,11 @@ shadow to say the same thing twice.
 ## Components
 
 Every state is specified. A component without a `:focus-visible` is not finished.
+
+> Not built yet: the `loading` state, the real `disabled` treatment, the card hover, the pill
+> geometry, the rail timestamp, and `.input` — which has no consumer in the product at all. The
+> `.btn-ghost` the panel uses three times is missing from this table. See
+> [`PENDINGS.md`](PENDINGS.md) § B and § *Decisions*, items 3 and 4.
 
 **Button — primary.**
 
@@ -371,13 +398,18 @@ whole video is one agent sentence quoting last week. A quote inside a fact is `m
 
 ## Screens
 
+> The landing matches this today except for the metrics band's background and the two orbs. The
+> panel does not: it has seven call buttons in three rows rather than six in two, its live call card
+> has no elevation of its own, the chart tiles are bar columns rather than sparklines, and there is
+> no waveform. See [`PENDINGS.md`](PENDINGS.md) § A, § D and § E.
+
 **Landing (`/`)** — eight blocks, in order:
 
 1. **Header** — sticky nav, theme / language / register toggles, a link into the panel.
 2. **Hero** — `display-xl` headline left, body and two buttons under it; the **demo card** right,
    playing a scripted call. One orb (`--orb-mint`) blooms behind the headline.
 3. **Metrics band** — four figures on `--fill-subtle`: 70% non-adherence, 3 verticals, 333 free
-   streaming hours, 174 tests. **Animated counters.**
+   streaming hours, 177 tests. **Animated counters.**
 4. **How it works** — four steps, 4-up at desktop, each an eyebrow index plus a card title and body.
 5. **Memory** — four pillars, 2×2.
 6. **Stack** — five service cards, the AssemblyAI one at level 2 to mark it as the protagonist, with
@@ -407,6 +439,11 @@ components and the protagonist effect on one page.
 
 Two, and no more. Everything else in the system holds still.
 
+> **Neither is built.** Today the only wave is eight decorative bars in the landing's demo card, the
+> metrics figures are static strings, the orb tokens have no consumer, and seven keyframes run where
+> this section allows two. Where the waveform's level comes from is an open question — the browser
+> never has the call audio. [`PENDINGS.md`](PENDINGS.md) § A and § *Decisions*, item 1.
+
 **1. The live waveform — the protagonist.** It sits along the bottom of the live call card and it is
 a readout, not an ornament: 96 bars, each scaled by the audio level of the turn being spoken, in
 `--color-accent` at 70% opacity, with the bar under the playhead at full opacity. Bars are
@@ -420,7 +457,7 @@ floor.
 ```css
 .wave-bar {
   width: 4px;
-  border-radius: var(9999px);
+  border-radius: 9999px;
   background: var(--color-accent);
   transform-origin: bottom;
   transition: transform 90ms linear;
@@ -491,8 +528,10 @@ make web        # tsc -b && vite build — the only front-end gate; there is no 
 make test       # includes the token gate and the bilingual parity gate
 ```
 
-- [ ] **Dark mode** — every screen, both `prefers-color-scheme: dark` and an explicit
-      `data-theme="dark"`, and an explicit `data-theme="light"` inside a dark system preference.
+- [ ] **Dark mode** — every screen under `data-theme="dark"`, and every screen under
+      `data-theme="light"` with the system preference set to dark. There is no
+      `prefers-color-scheme` query to test: the pre-paint script always writes the attribute, which
+      is why the system preference only ever decides the **default**.
 - [ ] **Responsive** — 390px, 768px, 1280px, 1920px. 16px side gutter at 390px, no horizontal
       scroll, no text under 12px.
 - [ ] **Keyboard** — tab through every screen. Focus is visible on every stop, the order follows the

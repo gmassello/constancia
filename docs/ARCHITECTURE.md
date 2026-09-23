@@ -69,9 +69,11 @@ call reaches `run_call`. A live call that nobody answers never gets there — th
 opens when somebody picks up — so `/voice/status` emits it instead, carrying Twilio's
 `CallStatus` as the reason and `unanswered=true`.
 
-`memory=false` short-circuits exactly two phases, `recall` and `store` (`_memory_off`,
-`app/orchestrator.py`), and emits `memory_off` with the reason so the panel can say which. Nothing
-else about the call changes — that is what makes the A/B honest.
+`memory=false` short-circuits `recall` entirely and empties `store` of its only interesting half:
+the call row is still written, so the call appears in the patient's history, but no fact is extracted
+and nothing is superseded (`_memory_off`, `app/orchestrator.py`). Both emit `memory_off` with the
+reason, so the panel can say which. Nothing else about the call changes — that is what makes the A/B
+honest.
 
 ## Memory
 
@@ -108,14 +110,18 @@ what lets the test suite run with no network.
 | | `live` | `scripted` | `replay` |
 |---|---|---|---|
 | Channel | `LiveChannel` | `ScriptedPatient` | none |
-| LLM | `GeminiLLM` | `GeminiLLM` if a key exists, else `ScriptedLLM` | none |
+| LLM | `GeminiLLM` | `GeminiLLM` if the environment is complete, else `ScriptedLLM` | none |
 | Store | the process store | the process store | none |
 | Runs the orchestrator | yes | **yes** | no |
 | Needs credentials | yes | no | no |
 
 `scripted` is not a mock of the call — it is the real pipeline with a scripted patient on the other
 end (`app/channel.py`), so the phase order, the guard, the extraction and the supersession are all
-exercised. `build_llm` (`app/replay.py`) is the switch; with no Gemini key the agent's lines come
+exercised. `build_llm` (`app/replay.py`) is the switch, and its condition is stricter than it looks:
+it asks `settings_or_none()` first, so **all eight required variables** have to validate before the
+Gemini key is even consulted. Setting `GEMINI_API_KEY` alone leaves `scripted` on `ScriptedLLM`, and
+a fully filled `.env` puts the real model behind every keyless button — which is why the test suite
+blanks the key rather than trusting that nobody has one. Without it the agent's lines come
 from `seed/scripts.json`, keyed by the pack's question ids so that reordering a question raises
 `KeyError` instead of silently pairing the wrong sentence with the wrong question. A script that escalates
 speaks in a different order — the questions after the red flag are never asked — so it declares its own
@@ -168,6 +174,9 @@ These are limits of the current design, not bugs:
   Sentence-level streaming is the marked upgrade path.
 - **No authentication anywhere.** Anything that can reach the URL can read every patient's history
   and place a call.
+- **The trace buffer holds 500 events.** `call.trace` is a bounded `deque` (`TRACE_BUFFER`,
+  `app/calls.py`), so a long enough call drops its oldest events from `GET /calls/{id}/trace`, from
+  the SSE snapshot a late subscriber receives, and from the exported fixture. It drops them quietly.
 - **English only.** The packs are content, so another language is a translation rather
   than a rewrite.
 

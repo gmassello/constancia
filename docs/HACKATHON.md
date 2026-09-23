@@ -23,10 +23,13 @@ Source: <https://lablab.ai/ai-hackathons/assemblyai-voice-agent-hackathon> (tran
 
 ## Mandatory deliverables
 
-- [ ] Public GitHub repo with MIT license
-- [ ] Demo video, 5 minutes maximum
-- [ ] Deck / slide presentation
-- [ ] Deployed app with a public URL
+Four, transcribed as the rules state them. **This is not a tracker** — where each one stands is
+[`SUBMISSION.md`](SUBMISSION.md), and what is left to do is [`PENDINGS.md`](PENDINGS.md).
+
+- Public GitHub repo with MIT license
+- Demo video, 5 minutes maximum
+- Deck / slide presentation
+- Deployed app with a public URL
 
 ## Judging criteria
 

@@ -1,6 +1,6 @@
 # Backend reference
 
-Python 3.12, FastAPI, `uv`. Eighteen modules, about 2,300 lines, no framework beyond FastAPI and no
+Python 3.12, FastAPI, `uv`. Eighteen modules, 2,389 lines, no framework beyond FastAPI and no
 ORM. [`ARCHITECTURE.md`](ARCHITECTURE.md) has the flow these modules implement; this file is what
 each one is for.
 
@@ -16,8 +16,8 @@ each one is for.
 | [`app/llm.py`](../app/llm.py) | 142 | `retrying`, the shared backoff every Gemini call site goes through; `GeminiLLM`; and `ScriptedLLM`, its deterministic double. |
 | [`app/replay.py`](../app/replay.py) | 109 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
 | [`app/extract.py`](../app/extract.py) | 105 | Structured extraction and the grounding check. |
-| [`app/queries.py`](../app/queries.py) | 96 | Pure reducers over fact rows: the chain, the weekly series, the key terms of a past call. |
 | [`app/analysis.py`](../app/analysis.py) | 99 | Post-call entity detection and sentiment on the recording. |
+| [`app/queries.py`](../app/queries.py) | 96 | Pure reducers over fact rows: the chain, the weekly series, the key terms of a past call. |
 | [`app/calls.py`](../app/calls.py) | 76 | The `Call` dataclass, the `emit`/`subscribe` event bus, and the global `CALLS` registry. |
 | [`app/stt.py`](../app/stt.py) | 69 | AssemblyAI Universal-Streaming v3 over WebSocket, with hot key-term updates. |
 | [`app/db.py`](../app/db.py) | 60 | The psycopg async pool, the query helpers and `init_schema()`. |
@@ -48,8 +48,8 @@ that is not on file, because a model told it has memory will otherwise invent on
 
 `converse` is the protocol: one pass over `pack.questions`, in declaration order, no planner.
 `phrase()` hands the LLM the system prompt plus a fragment naming the goal; the model writes
-the sentence, it does not pick the question. Silence gets exactly one re-prompt (`ask`, `:15`), then
-the call says goodbye.
+the sentence, it does not pick the question. Silence gets exactly one re-prompt (`ask`,
+`orchestrator.py:17`), then the call says goodbye.
 
 Two things about `GeminiLLM` are counter-intuitive enough to be worth stating, because both were
 live-call failures before they were documented. First, `MAX_OUTPUT_TOKENS` is **not** a length
@@ -130,8 +130,8 @@ Three conditions, all required: the turn exists, it is the patient's, and the qu
 literal substring of it. Anything else is dropped with `fact_rejected`. A `supersedes` pointing at an id the
 call was not shown is silently nulled (`app/extract.py`) rather than trusted.
 
-`run` retries up to three times, feeding Pydantic's own validation error back into the prompt
-on each failure. `Fact.category` is a `Literal` over `CATEGORIES`, which is what makes that retry
+`run` makes at most three attempts — the first plus two retries, `MAX_ATTEMPTS` in
+`app/extract.py` — feeding Pydantic's own validation error back into the prompt on each failure. `Fact.category` is a `Literal` over `CATEGORIES`, which is what makes that retry
 reachable for the error the model is likeliest to make: Pydantic turns the literal into an `enum` in
 the schema Gemini receives, so an invented category is refused at the provider, and the retry is the
 net underneath. Unconstrained, such a fact used to persist fine and then vanish from the keyterms,
@@ -187,7 +187,8 @@ Two accessors, and the difference matters:
 - `settings_or_none()` swallows the `ValidationError` and returns `None`.
 
 The second one is the degraded mode: with no credentials the service still boots, serves the pages,
-runs `scripted` and `replay` calls and answers every read endpoint. Only `mode=live` is refused.
+runs `scripted` and `replay` calls, and answers every read endpoint that the seed store can serve.
+`mode=live` is refused, and so is `GET /search`, which needs pgvector and answers `503` without it.
 
 `DEMO_PHONE` is the one optional setting that `POST /calls` reads on the request path: the number a
 seeded patient is dialled at, last in the chain after `request.phone` and the patient row
@@ -218,9 +219,12 @@ Two consequences visible throughout the code, and both are deliberate:
 
 ## Conventions
 
-- **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path. There
-  are five on this side and each one is worth reading: `app/guard.py`, `app/memory.py`,
-  `app/memory.py`, `app/main.py`, `schema.sql:44`.
+- **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.
+  There are **25** on this side — 24 in `app/` plus one in `schema.sql` — and they are the honest
+  list of what was knowingly left simple. The densest are the six in `app/orchestrator.py`, which
+  are where the phase machine explains itself, then five in `app/memory.py`, four in `app/main.py`
+  and three in `app/llm.py`. `git grep -c 'ponytail:' -- 'app/*.py' schema.sql` prints them per
+  file.
 - **Exact versions** (`==`) in `pyproject.toml`; `uv.lock` is committed.
 - **The transcript is data, never instructions.** Nothing the patient says is executed or treated as
   a directive to the model.

@@ -184,8 +184,10 @@ Track lengths are what `video/out/timing.txt` measured; the recording can be lon
 **Screen:** the landing at `http://localhost:8001/`, top of the page, plain register.
 **You:** nothing. Slow scroll to the problem statement, one pause on the number.
 
-INTENT §9 called for a slide here. The landing says the same thing, was designed for exactly this
-audience, and is already deployed — a slide would be a second copy to keep in sync.
+INTENT §9 called for a slide here. The landing says the same thing and was designed for exactly this
+audience, so a slide would be a second copy to keep in sync. It is filmed locally: the public deploy
+does not exist yet ([`PENDINGS.md`](PENDINGS.md) row 1), which changes nothing on camera — the URL
+bar is not in frame.
 
 ---
 
@@ -393,7 +395,14 @@ print(f"OUTRO_REPLACE={float(end) - start:.1f}")
 EOF
 ```
 
-At 3:34.6 of narration that is `2.4`. Assemble with:
+> **The numbers in the rest of this section are stale.** `video/out/` was built on 20 Sep from a
+> narration that has since changed — 44 captions against the 45 rows `narration.tsv` carries today,
+> with a line gone from beat 1 and the two AssemblyAI ones added to beat 6. Re-run `build-audio.sh`
+> first ([`PENDINGS.md`](PENDINGS.md) row 3); then the snippet above prints the `OUTRO_REPLACE` that
+> matches, and `timing.txt` prints the total that goes with it. What follows is the shape of the
+> command, not its arguments.
+
+At 3:34.6 of the previous narration that was `2.4`. Assemble with:
 
 ```bash
 VIDEO_DIR=$PWD/video MAX_SECONDS=300 \
@@ -401,8 +410,9 @@ VIDEO_DIR=$PWD/video MAX_SECONDS=300 \
   bash ~/.claude/skills/personal-record-video/scripts/build-video.sh video/out/raw-fitted.mov
 ```
 
-Verified end to end against a synthetic recording: 1920x1080, **217.2 s = 3:37.2**, under the cap,
-the card up from 3:32.2 with the final caption on it and 2.6 s of quiet after.
+Verified end to end against a synthetic recording, on that same previous narration: 1920x1080,
+**217.2 s = 3:37.2**, under the cap, the card up from 3:32.2 with the final caption on it and 2.6 s
+of quiet after. What the pipeline does was proved; the durations move with the track.
 
 **One constraint this puts on the take:** `build-video.sh` refuses a recording that is not within
 0.75x–1.30x of `narration − OUTRO_REPLACE`, which is 212.2 s. Anywhere between about 2:39 and 4:36

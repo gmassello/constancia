@@ -26,7 +26,7 @@ Stage 3 of four plus the public landing (see [`docs/PLAN.md`](docs/PLAN.md) and 
   `valid_until`) instead of deleting it. `memory=false` on a call disables recall and store, nothing else.
 - `GET /patients/{id}/chain` returns the whole chain, current facts with the ones they retired
   hanging off them; `/facts` returns the same rows flat. Every route is in [`docs/API.md`](docs/API.md).
-- **A public landing** at `/`, built on the Nocturne design system, with three reader preferences: light or
+- **A public landing** at `/`, built on the Cadence design system, with three reader preferences: light or
   dark theme, English or Spanish, and a technical or plain register — the same page written for a judge and
   for the physiotherapist who would pay for it. It opens light and in English; `?lang=es` opens it in Spanish
   directly, and every choice is remembered.
@@ -59,6 +59,8 @@ The deploy, the video and the deliverables land in stage 4.
 | [`docs/API.md`](docs/API.md) | all twenty routes, the webhooks, the SSE contract |
 | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | running it, every environment variable, Docker and Render |
 | [`docs/WORKING.md`](docs/WORKING.md) | the Makefile, the gates, the conventions |
+| [`docs/DESIGN.md`](docs/DESIGN.md) | **Cadence**, the design system — as a target; each section says what is built |
+| [`docs/PENDINGS.md`](docs/PENDINGS.md) | everything still open, and the command that closes each one |
 
 [`docs/INTENT.md`](docs/INTENT.md), [`docs/PLAN.md`](docs/PLAN.md) and
 [`docs/LANDING.md`](docs/LANDING.md) are records rather than reference — the spec written before the
@@ -70,8 +72,9 @@ No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 174 tests, no network and no database
-make web           # builds web/dist (needs node 24 and pnpm)
+make test          # 177 tests, no network and no database
+make lint          # ruff
+make web           # builds web/dist (needs node 24 and pnpm); tsc -b is the front-end check
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session
 ```
@@ -101,8 +104,10 @@ With a Gemini key the same demo uses real phrasing:
 GEMINI_API_KEY=... make demo
 ```
 
-Memory needs Postgres with pgvector. `DATABASE_URL` is optional: without it the service runs, only the
-memory phases are skipped.
+Memory needs Postgres with pgvector. `DATABASE_URL` is optional: without it the service runs on the
+JSON seed and only the memory phases are skipped. It is read through `settings_or_none()`, so it does
+nothing on its own — the eight required variables have to validate first, or the store stays the
+seed whatever the connection string says.
 
 ```bash
 make db            # pgvector/pgvector:pg17 on localhost:5432
@@ -143,8 +148,8 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
   the English string the call actually produces, so the demo reads end to end in either language. A fact a real
   call extracts is not in that table and falls through in English — deliberately, since showing an invented
   translation of a verbatim quote is worse than showing the quote. That path needs a Gemini key and a phone,
-  and it is the one the demo video shows: the calls in it are real, so a Spanish reader sees English quotes
-  inside a Spanish panel.
+  and it is the one the demo video will show: the calls in it are real, so a Spanish reader sees
+  English quotes inside a Spanish panel.
 - **The landing's hero card is a scripted loop**, not a live call: two canned scripts with the real copy — week
   one with memory off, week two with it on — behind a selector, with step, pause and replay controls under
   them, plus a reset that takes the whole sequence back to week one. The panel is where a real call is watched.
@@ -170,7 +175,7 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
 | `app/replay.py` | the two modes that need no phone: scripted and recorded |
 | `app/analysis.py` | post-call entity detection and sentiment on the recording |
 | `web/` | both pages: React 19 + Vite multi-page, no UI, routing or charting library |
-| `web/src/tokens.css` | the Nocturne tokens, the derived light theme and the semantic aliases |
+| `web/src/tokens.css` | the Cadence tokens, light canonical and dark as the override, and the semantic aliases |
 | `web/src/*/copy.ts` | every interface string, English base and Spanish translation |
 | `schema.sql` | the whole data model, applied with `make schema` |
 | `AGENTS.md`, `app/AGENTS.md`, `web/AGENTS.md` | the hard rules, and the ones specific to each half |

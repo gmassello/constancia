@@ -2,9 +2,10 @@
 
 In addition to [`../AGENTS.md`](../AGENTS.md), which applies everywhere.
 
-- **No ramp step or text opacity outside `src/tokens.css`.** Use the semantic aliases
-  (`--text-secondary`, `--text-muted`, `--text-accent`, `--section-ink`, `--tone-dim`,
-  `--fill-subtle`, `--color-danger`). The gate, which must return nothing:
+- **No ramp step or text opacity outside `src/tokens.css`.** Use a name from the table in
+  [`../docs/FRONTEND.md`](../docs/FRONTEND.md) § *The ramp rule* — `--text-secondary`,
+  `--text-muted`, `--text-accent`, `--section-ink`, `--tone-dim`, `--fill-subtle`, `--color-danger`
+  and the rest of that list. The gate, which must return nothing:
   ```bash
   grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' src \
     --include='*.tsx' --include='*.ts' --include='*.css' | grep -v tokens.css
@@ -24,12 +25,16 @@ In addition to [`../AGENTS.md`](../AGENTS.md), which applies everywhere.
 - **English is the annotated base, Spanish the translation.** Patient data is different: the call
   happens in English, so `panel/content.ts` is keyed by the English string and translates *into*
   Spanish. Anything the extractor writes live is not in that table and falls through on purpose.
-- **`pnpm build` is the only check** — `tsc -b && vite build`. There is no test runner here and
-  presentational components do not earn one.
+- **`pnpm build` is the check here** — `tsc -b && vite build`. There is no test runner in this
+  directory and presentational components do not earn one. It is not the only gate on `web/src`
+  though: `make test` walks this tree in Python for the ramp rule and for the line counts
+  `docs/FRONTEND.md` publishes, so run both before calling a change done.
 - **Measure contrast by compositing on a canvas**, not by parsing the CSS string: `getComputedStyle`
   returns `color(srgb r g b / a)` with 0–1 components for `color-mix()` values.
 - **Respect `prefers-reduced-motion`** in CSS *and* in JS — `prefersReducedMotion()` in `src/prefs.ts`.
 - **Exact dependency versions.** No `^` or `~`; `pnpm-lock.yaml` is committed.
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.
 
-Reference: [`../docs/FRONTEND.md`](../docs/FRONTEND.md) · [`../docs/LANDING.md`](../docs/LANDING.md)
+Reference: [`../docs/FRONTEND.md`](../docs/FRONTEND.md), the front end as it is ·
+[`../docs/DESIGN.md`](../docs/DESIGN.md), as it is meant to become, with the gap in
+[`../docs/PENDINGS.md`](../docs/PENDINGS.md) · [`../docs/LANDING.md`](../docs/LANDING.md), a record

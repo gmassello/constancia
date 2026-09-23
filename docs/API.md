@@ -1,6 +1,7 @@
 # API reference
 
-Twenty routes, all of them in [`app/main.py`](../app/main.py). No versioning prefix, no
+Twenty routes, all of them in [`app/main.py`](../app/main.py) — the twenty-first row in the tables
+below is the `StaticFiles` mount, which is not a route. No versioning prefix, no
 authentication — see the warning in [`../README.md`](../README.md). Path parameters typed `UUID` are
 validated by FastAPI and answer `422` when malformed.
 
@@ -47,8 +48,10 @@ watch the call is the SSE stream.
 - Every event carries a monotonic `seq`, sent as the SSE `id:` field (`sse_frame`, `main.py:255`).
 - The first frame is `retry: 3000`, so the browser owns the reconnect and the client needs no backoff
   of its own.
-- A subscriber that arrives late gets the whole buffer first, then live events. `Last-Event-ID` is
-  honoured: anything at or below it is skipped.
+- A subscriber that arrives late gets the buffer first, then live events. `Last-Event-ID` is
+  honoured: anything at or below it is skipped. The buffer is bounded: `TRACE_BUFFER` (`calls.py:9`)
+  is 500, and `call.trace` is a `deque` with that `maxlen`, so on a long enough call the snapshot is
+  the last 500 events rather than the whole trace.
 - Those buffered frames carry `replayed: true`; frames for events that happen while the subscriber is
   connected do not carry the field at all. Both arrive through the same `onmessage`, so it is the only
   way the client can tell history from now — the panel's activity rail uses it to flash what is
@@ -62,9 +65,10 @@ watch the call is the SSE stream.
 Headers are `Cache-Control: no-cache, no-transform` and `X-Accel-Buffering: no` (`SSE_HEADERS`, `main.py:28`) — the
 second one stops a reverse proxy from buffering the stream into uselessness.
 
-The client side is thirty lines of `EventSource` with de-duplication by `seq`
-([`../web/src/panel/api.ts`](../web/src/panel/api.ts), `subscribe`), which is what makes the
-automatic reconnect harmless.
+The client side is thirty lines of `EventSource`
+([`../web/src/panel/api.ts`](../web/src/panel/api.ts), `subscribe`), which parses and forwards.
+De-duplication by `seq` lives one level up, in `LiveCall`, which keeps a `Set` of the ones it has
+seen — that is what makes the automatic reconnect harmless.
 
 ## Patients and memory
 
@@ -81,8 +85,8 @@ automatic reconnect harmless.
 `analysis` is what `app/analysis.py` wrote after the recording webhook — `{transcript_id, entities,
 sentiment, negative}` — or `null` on any call with no Twilio recording, which is every scripted and
 replayed one. It is the only path the panel has to it: `analysis_ready` is emitted on the SSE stream
-**after** `call_ended`, where both ends have already hung up, and the event carries a count rather
-than the payload. When the row is missing, the `UPDATE` matches nothing and `analysis.run` emits a
+**after** `call_ended`, where both ends have already hung up, and the event carries counts rather
+than the payload: how many entities were found, and the sentiment tally per label. When the row is missing, the `UPDATE` matches nothing and `analysis.run` emits a
 `warning` with `phase: analysis`.
 
 `/chain` and `/facts` read the same rows; the difference is the shape.
@@ -97,7 +101,12 @@ the pack, which is what lets the panel say "3 fewer · better" instead of printi
 
 All three depend on `twilio_form` ([`app/security.py`](../app/security.py)), which validates the
 `X-Twilio-Signature` HMAC against the URL rebuilt from `PUBLIC_BASE_URL` and answers `403` when it
-does not match. The body is only read after the signature passes.
+does not match. The form is parsed **before** the check, not after: Twilio signs the POST parameters,
+so validating one means having read them. Nothing downstream sees the body unless the check passes.
+
+The check is conditional on the `VALIDATE_TWILIO_SIGNATURE` setting, which defaults to true.
+Turning it off is for replaying a captured webhook by hand, and has no business being off anywhere
+the URL is reachable.
 
 | Method | Path | Handler | Returns |
 |---|---|---|---|
@@ -106,7 +115,7 @@ does not match. The body is only read after the signature passes.
 | `POST` | `/voice/recording` | `voice_recording` — `main.py:241` | `204`. Stores the recording URL and queues the post-call analysis. `400` if the URL is not a Twilio URL. |
 | `WS` | `/media/{call_id}` | `media` — `main.py:321` | The Twilio Media Stream. This socket is where a live call actually happens. |
 
-`is_twilio_recording` (`app/config.py:51`) is the reason `/voice/recording` cannot be used to make
+`is_twilio_recording` (`app/config.py:52`) is the reason `/voice/recording` cannot be used to make
 the service fetch an arbitrary URL.
 
 ## Service
