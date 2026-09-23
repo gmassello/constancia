@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cadence — constancia design system</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+
+  --color-bg: #f4f4f2;
+  --color-surface: #ffffff;
+  --color-text: #0c0a09;
+  --color-accent: #046a63;
+  --color-accent-2: #035c56;
+  --color-accent-hover: #03544f;
+  --color-accent-active: #10302e;
+  --color-divider: #e4e2df;
+  --color-divider-strong: #d3d0cc;
+
+  --color-neutral-100: #fafaf9;
+  --color-neutral-200: #f0efed;
+  --color-neutral-300: #e4e2df;
+  --color-neutral-400: #d3d0cc;
+  --color-neutral-500: #a8a29e;
+  --color-neutral-600: #847d76;
+  --color-neutral-700: #78716c;
+  --color-neutral-800: #44403c;
+  --color-neutral-900: #0c0a09;
+
+  --color-accent-100: #e4f0ef;
+  --color-accent-200: #c3e0dd;
+  --color-accent-300: #92cbc4;
+  --color-accent-400: #5ad3c4;
+  --color-accent-500: #3fbfae;
+  --color-accent-600: #0f8a80;
+  --color-accent-700: #046a63;
+  --color-accent-800: #03544f;
+  --color-accent-900: #10302e;
+
+  --color-section: #053f3a;
+  --color-section-glow: #0a5a54;
+
+  --text-secondary: var(--color-neutral-800);
+  --text-muted: var(--color-neutral-700);
+  --text-accent: var(--color-accent-700);
+  --section-ink: var(--color-neutral-100);
+  --tone-dim: var(--color-neutral-600);
+  --fill-subtle: var(--color-neutral-200);
+  --color-danger: #b3261e;
+  --danger-fill: #fbeae9;
+
+  --orb-mint: #a9e0d2;
+  --orb-sky: #a6c6e4;
+  --orb-amber: #f0cfa4;
+
+  --font-heading: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --font-heading-weight: 600;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-sm: 0 0 0 1px var(--color-divider);
+  --shadow-md: 0 0 0 1px var(--color-divider-strong), 0 4px 16px rgba(12, 10, 9, 0.04);
+  --shadow-lg: 0 0 0 1px var(--color-divider-strong), 0 8px 28px rgba(12, 10, 9, 0.07);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: #0b0d0f;
+  --color-surface: #14171a;
+  --color-text: #f2f4f5;
+  --color-accent: #3fbfae;
+  --color-accent-2: #6fdccd;
+  --color-accent-hover: #5ad3c4;
+  --color-accent-active: #92cbc4;
+  --color-divider: #23282d;
+  --color-divider-strong: #333a41;
+
+  --color-neutral-100: #f2f4f5;
+  --color-neutral-200: #d8dde2;
+  --color-neutral-300: #c3c9cf;
+  --color-neutral-400: #949ba3;
+  --color-neutral-500: #6f767e;
+  --color-neutral-600: #545b63;
+  --color-neutral-700: #3d444b;
+  --color-neutral-800: #23282d;
+  --color-neutral-900: #14171a;
+
+  --color-section: #04302d;
+  --color-section-glow: #0a4a45;
+
+  --text-secondary: var(--color-neutral-300);
+  --text-muted: var(--color-neutral-400);
+  --text-accent: var(--color-accent-400);
+  --section-ink: var(--color-neutral-100);
+  --tone-dim: var(--color-neutral-500);
+  --fill-subtle: var(--color-neutral-800);
+  --color-danger: #ff8a80;
+  --danger-fill: #331b19;
+
+  --orb-mint: #1e4a44;
+  --orb-sky: #1c3549;
+  --orb-amber: #3d3220;
+
+  --shadow-sm: 0 0 0 1px var(--color-divider);
+  --shadow-md: 0 0 0 1px var(--color-divider-strong);
+  --shadow-lg: 0 0 0 1px var(--color-neutral-700);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: 400 1rem/1.5 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1280px; margin: 0 auto; padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 5vw, 4rem); }
+header { position: relative; overflow: hidden; border-bottom: 1px solid var(--color-divider); }
+.orb {
+  position: absolute; pointer-events: none; border-radius: 50%;
+  filter: blur(120px); opacity: 0.4;
+}
+.orb-a { top: -180px; right: -80px; width: 420px; height: 420px; background: var(--orb-mint); }
+.orb-b { bottom: -240px; left: -120px; width: 380px; height: 380px; background: var(--orb-sky); }
+.eyebrow {
+  font-size: 0.8125rem; font-weight: 500; line-height: 1.3; letter-spacing: 0.03em;
+  text-transform: uppercase; color: var(--text-muted); margin: 0 0 var(--space-3);
+}
+h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 600; line-height: 1.05; letter-spacing: -0.04em;
+  margin: 0 0 var(--space-4);
+}
+h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 600; line-height: 1.15; letter-spacing: -0.025em;
+  margin: 0 0 var(--space-6);
+}
+h3 {
+  font-family: var(--font-heading);
+  font-size: 1.375rem; font-weight: 500; line-height: 1.25; letter-spacing: -0.018em;
+  margin: 0 0 var(--space-2);
+}
+.lead { font-size: 1.125rem; color: var(--text-secondary); max-width: 68ch; margin: 0 0 var(--space-6); }
+p { max-width: 68ch; }
+.muted { color: var(--text-muted); font-size: 0.875rem; }
+.subtle { color: var(--tone-dim); font-size: 0.875rem; }
+section { border-top: 1px solid var(--color-divider); }
+section:first-of-type { border-top: 0; }
+
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-4); list-style: none; margin: 0; padding: 0; }
+.swatch { border: 1px solid var(--color-divider); border-radius: var(--radius-lg); overflow: hidden; background: var(--color-surface); }
+.chip-fill { height: 64px; }
+.swatch code { display: block; font: 400 0.8125rem/1.5 var(--font-mono); padding: var(--space-2) var(--space-3) 0; }
+.swatch span { display: block; font-size: 0.75rem; color: var(--text-muted); padding: 0 var(--space-3) var(--space-3); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6); }
+.card {
+  background: var(--color-surface); border: 1px solid var(--color-divider); border-radius: var(--radius-lg);
+  padding: var(--space-6); transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.card:hover { border-color: var(--color-divider-strong); box-shadow: var(--shadow-md); }
+
+.btn {
+  font: 500 0.875rem/1.2 var(--font-body);
+  padding: 8px 14px; border-radius: var(--radius-md); border: 1px solid transparent;
+  cursor: pointer; transition: background 120ms ease, border-color 120ms ease;
+}
+.btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.btn-primary { background: var(--color-accent); color: var(--color-bg); }
+.btn-primary:hover { background: var(--color-accent-hover); }
+.btn-primary:active { background: var(--color-accent-active); }
+.btn-secondary { background: transparent; color: var(--color-text); border-color: var(--color-divider-strong); }
+.btn-secondary:hover { background: var(--color-surface); border-color: var(--tone-dim); }
+.btn:disabled { background: var(--fill-subtle); color: var(--tone-dim); border-color: transparent; cursor: not-allowed; }
+
+.input {
+  font: 400 1rem/1.5 var(--font-body);
+  padding: 8px 12px; border-radius: var(--radius-md);
+  background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-divider-strong);
+  width: 100%; max-width: 320px;
+}
+.input::placeholder { color: var(--tone-dim); }
+.input:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; border-color: var(--color-accent); }
+
+.pill {
+  display: inline-block; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.03em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 9999px;
+}
+.pill-neutral { background: var(--fill-subtle); color: var(--text-muted); }
+.pill-accent { background: var(--color-accent-100); color: var(--color-accent-800); }
+.pill-danger { background: var(--danger-fill); color: var(--color-danger); }
+
+.turn { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); margin-bottom: var(--space-3); }
+.turn-agent { background: var(--color-surface); border: 1px solid var(--color-divider); }
+.turn-patient { background: var(--color-accent-100); border-left: 2px solid var(--color-accent); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+.turn .who { font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 2px; }
+.quote { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--text-secondary); }
+
+.rail { list-style: none; margin: 0; padding: 0; }
+.rail li { display: flex; gap: var(--space-3); align-items: baseline; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-divider); }
+.rail .phase { font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; color: var(--color-accent-800); min-width: 96px; }
+.rail .failed { color: var(--color-danger); }
+.rail .detail { font-size: 0.75rem; color: var(--text-muted); flex: 1; }
+.rail .at { font-family: var(--font-mono); font-size: 0.75rem; color: var(--tone-dim); }
+
+.callcard { background: var(--fill-subtle); border: 1px solid var(--color-divider-strong); border-radius: var(--radius-xl); padding: var(--space-8); box-shadow: var(--shadow-lg); }
+.callhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); }
+.dot { display: inline-flex; align-items: center; gap: var(--space-2); font-size: 0.75rem; color: var(--text-muted); }
+.dot::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent); }
+
+.wave { display: flex; align-items: flex-end; justify-content: center; gap: 3px; height: 32px; margin-top: var(--space-6); }
+.wave-bar {
+  width: 4px; height: 32px; border-radius: 9999px; background: var(--color-accent);
+  opacity: 0.7; transform: scaleY(0.15); transform-origin: bottom;
+  transition: transform 90ms linear, opacity 90ms linear, background 90ms linear;
+}
+.wave-bar.at-play { opacity: 1; }
+.wave[data-who="agent"] .wave-bar { background: var(--tone-dim); }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-6); }
+.stat .n { font-family: var(--font-heading); font-size: 2.5rem; font-weight: 600; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; display: block; }
+.stat .l { font-size: 0.875rem; color: var(--text-muted); }
+
+.scale > div { margin-bottom: var(--space-4); }
+.scale .t { font-family: var(--font-mono); font-size: 0.75rem; color: var(--tone-dim); }
+
+.bar { position: fixed; top: var(--space-4); right: var(--space-4); z-index: 10; }
+.row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-bar { transition: none; }
+  .card { transition: none; }
+  .btn { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="bar"><button class="btn btn-secondary" id="theme" type="button">Dark</button></div>
+
+<header>
+  <div class="orb orb-a"></div>
+  <div class="wrap">
+    <p class="eyebrow">Cadence · constancia design system</p>
+    <h1>The follow-up call nobody makes.</h1>
+    <p class="lead">Linear's structure on ElevenLabs' editorial light canvas, with a deep teal accent
+      and a waveform that reads the call instead of decorating it.</p>
+    <div class="row">
+      <button class="btn btn-primary" type="button">Call with memory</button>
+      <button class="btn btn-secondary" type="button">Open the panel</button>
+      <button class="btn btn-primary" type="button" disabled>Dialling…</button>
+    </div>
+  </div>
+</header>
+
+<section><div class="wrap">
+  <h2>Tokens</h2>
+  <p class="muted">Two ratios where a pair is read: light, then dark.</p>
+  <ul class="swatches">
+    <li class="swatch"><div class="chip-fill" style="background:var(--color-bg)"></div><code>--color-bg</code><span>Page floor</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--color-surface)"></div><code>--color-surface</code><span>Cards</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--fill-subtle)"></div><code>--fill-subtle</code><span>Bands, level 3</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--color-text)"></div><code>--color-text</code><span>17.9:1 · 17.7:1</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--text-secondary)"></div><code>--text-secondary</code><span>9.3:1 · 11.7:1</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--text-muted)"></div><code>--text-muted</code><span>4.4:1 · 6.9:1</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--tone-dim)"></div><code>--tone-dim</code><span>3.7:1 · 4.2:1 — large only</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--color-accent)"></div><code>--color-accent</code><span>5.9:1 · 8.6:1</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--color-accent-100)"></div><code>--color-accent-100</code><span>Patient turns</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--color-danger)"></div><code>--color-danger</code><span>5.9:1 · 8.5:1</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--color-accent-700)"></div><code>--color-accent-700</code><span>Verdict up</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--color-divider-strong)"></div><code>--color-divider-strong</code><span>Inputs, level 2</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--orb-mint)"></div><code>--orb-mint</code><span>Atmosphere only</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--orb-sky)"></div><code>--orb-sky</code><span>Atmosphere only</span></li>
+    <li class="swatch"><div class="chip-fill" style="background:var(--orb-amber)"></div><code>--orb-amber</code><span>Atmosphere only</span></li>
+  </ul>
+</div></section>
+
+<section><div class="wrap scale">
+  <h2>Type</h2>
+  <div><span class="t">display-lg · Bricolage Grotesque 600 · −0.032em</span>
+    <h2 style="margin:0">Week one it knows nothing.</h2></div>
+  <div><span class="t">subhead · Inter 400 · 1.25rem</span>
+    <p class="lead" style="margin:0">Week two it opens by asking about the knee she mentioned.</p></div>
+  <div><span class="t">body · Inter 400 · 1rem</span>
+    <p style="margin:0">Every fact the agent stores carries the sentence the patient said it in, and
+      the turn of the call it was said on. Without a literal quote the extractor drops it.</p></div>
+  <div><span class="t">mono · verbatim only</span>
+    <p class="quote" style="margin:0">«My right knee hurts seven out of ten» · said on Sep 15 · turn 4</p></div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Components</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Right knee · pain</h3>
+      <p class="muted" style="margin:0 0 var(--space-4)">Week over week, from the calls.</p>
+      <div class="row">
+        <span class="pill pill-accent">7/10 → 4/10</span>
+        <span class="pill pill-neutral">with memory</span>
+        <span class="pill pill-danger">⚑ escalated</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Activity</h3>
+      <ul class="rail">
+        <li><span class="phase">Recall</span><span class="detail">4 facts on file</span><span class="at">00:02</span></li>
+        <li><span class="phase">Converse</span><span class="detail">question 2 of 4</span><span class="at">00:19</span></li>
+        <li><span class="phase">Extract</span><span class="detail">2 facts from the transcript</span><span class="at">01:44</span></li>
+        <li><span class="phase failed">Analysis</span><span class="detail">no call row to attach it to</span><span class="at">01:51</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Add a patient</h3>
+      <p class="muted" style="margin:0 0 var(--space-3)">Phone number, E.164.</p>
+      <label class="muted" for="ph">Phone</label>
+      <input class="input" id="ph" placeholder="+54 9 11 …" style="margin-top:var(--space-1)">
+      <p class="subtle" style="margin:var(--space-2) 0 0">Never committed, never printed.</p>
+    </div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>The waveform</h2>
+  <p class="muted">The protagonist effect. Bars are the audio level of the turn being spoken: teal
+    while the patient has the floor, grey while the agent does. With reduced motion they render their
+    level without easing.</p>
+  <div class="callcard" style="margin-top:var(--space-6)">
+    <div class="callhead">
+      <strong>Ana · rehab · week 2</strong>
+      <span class="dot" id="who">patient speaking</span>
+    </div>
+    <div class="turn turn-agent"><span class="who">Agent</span>Hi Ana. Last week you told me your knee hurt 7 out of 10 climbing stairs. How has this week been?</div>
+    <div class="turn turn-patient"><span class="who">Ana</span>My knee is a lot better, it is four out of ten on the stairs now.</div>
+    <div class="wave" id="wave" data-who="patient" aria-hidden="true"></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Counters</h2>
+  <div class="stats">
+    <div class="stat"><span class="n" data-count="70" data-suffix="%">0%</span><span class="l">of home-rehab patients quit</span></div>
+    <div class="stat"><span class="n" data-count="3">0</span><span class="l">verticals, one engine</span></div>
+    <div class="stat"><span class="n" data-count="333" data-suffix=" h">0 h</span><span class="l">free streaming STT</span></div>
+    <div class="stat"><span class="n" data-count="174">0</span><span class="l">tests, no network, no database</span></div>
+  </div>
+  <div class="orb orb-b"></div>
+</div></section>
+
+<script>
+const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
+function readTheme() {
+  try { return localStorage.getItem("constancia.theme") } catch { return null }
+}
+function writeTheme(v) {
+  try { localStorage.setItem("constancia.theme", v) } catch { /* private window */ }
+}
+const stored = readTheme()
+if (stored === "dark" || stored === "light") document.documentElement.dataset.theme = stored
+else if (window.matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.dataset.theme = "dark"
+
+const toggle = document.getElementById("theme")
+function label() { toggle.textContent = document.documentElement.dataset.theme === "dark" ? "Light" : "Dark" }
+label()
+toggle.addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark"
+  document.documentElement.dataset.theme = next
+  writeTheme(next)
+  label()
+})
+
+const wave = document.getElementById("wave")
+const BARS = 96
+const bars = Array.from({ length: BARS }, () => {
+  const b = document.createElement("span")
+  b.className = "wave-bar"
+  wave.appendChild(b)
+  return b
+})
+const levels = bars.map((_, i) => 0.2 + 0.8 * Math.abs(Math.sin(i / 3.1) * Math.cos(i / 7.7)))
+bars.forEach((b, i) => { b.style.transform = `scaleY(${levels[i].toFixed(3)})` })
+
+if (!reduce) {
+  let head = 0
+  setInterval(() => {
+    head = (head + 1) % BARS
+    bars.forEach((b, i) => {
+      const d = Math.abs(i - head)
+      const swell = d < 4 ? 1 + (4 - d) * 0.09 : 1
+      b.style.transform = `scaleY(${Math.min(levels[i] * swell, 1).toFixed(3)})`
+      b.classList.toggle("at-play", i === head)
+    })
+    if (head === 0) {
+      const who = wave.dataset.who === "patient" ? "agent" : "patient"
+      wave.dataset.who = who
+      document.getElementById("who").textContent = who + " speaking"
+    }
+  }, 90)
+}
+
+const counters = document.querySelectorAll("[data-count]")
+function run(el) {
+  const final = Number(el.dataset.count)
+  const suffix = el.dataset.suffix || ""
+  if (reduce) { el.textContent = final + suffix; return }
+  const started = performance.now()
+  function step(now) {
+    const t = Math.min((now - started) / 900, 1)
+    const eased = 1 - Math.pow(1 - t, 3)
+    el.textContent = Math.round(final * eased) + suffix
+    if (t < 1) requestAnimationFrame(step)
+    else el.textContent = final + suffix
+  }
+  requestAnimationFrame(step)
+}
+const seen = new WeakSet()
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (e.isIntersecting && !seen.has(e.target)) { seen.add(e.target); run(e.target) }
+  })
+}, { threshold: 0.5 })
+counters.forEach((c) => io.observe(c))
+</script>
+</body>
+</html>

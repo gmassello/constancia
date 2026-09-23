@@ -19,7 +19,8 @@ Start here. The repo carries two kinds of document and mixing them up wastes tim
 | run it, get keys working, or deploy it | [`OPERATIONS.md`](OPERATIONS.md) |
 | run the tests, or know what the conventions are | [`WORKING.md`](WORKING.md) |
 | know **why** something was built this way | [`PLAN.md`](PLAN.md), the deviation register at the top |
-| know why the landing looks like that | [`LANDING.md`](LANDING.md) |
+| change a colour, a size or a component | [`DESIGN.md`](DESIGN.md) |
+| know why the landing looked like that before | [`LANDING.md`](LANDING.md) |
 | know what the hackathon asked for | [`HACKATHON.md`](HACKATHON.md), [`SUBMISSION.md`](SUBMISSION.md) |
 | shoot the demo video | [`video-script.md`](video-script.md) |
 | pitch it, or reuse the claims | [`deck.md`](deck.md) |
@@ -32,6 +33,7 @@ Start here. The repo carries two kinds of document and mixing them up wastes tim
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | One call end to end, the six phases, the three modes, how memory and supersession work, and the system's limits. |
 | [`BACKEND.md`](BACKEND.md) | The eighteen modules, the four pieces worth reading first, configuration and the import-time rule. |
 | [`FRONTEND.md`](FRONTEND.md) | Build and serving, the design system and its gate, the bilingual machinery, the panel's components. |
+| [`DESIGN.md`](DESIGN.md) | **Cadence**, the design system: every token in both themes with its measured contrast, the type scale, the components and their states, the two effects, and the rules a change has to obey. `design-preview.html` beside it shows the whole thing on one page. |
 | [`API.md`](API.md) | All twenty routes, the Twilio webhooks and the SSE contract. |
 | [`OPERATIONS.md`](OPERATIONS.md) | The three ways to run it, every environment variable, the database, Docker and Render. |
 | [`WORKING.md`](WORKING.md) | The Makefile, the four gates, why the tests never touch the network, the conventions, and how to add things. |
@@ -45,7 +47,7 @@ about the code.
 |---|---|---|
 | [`INTENT.md`](INTENT.md) | The **pre-code specification**. Market research with citations, the business case, and the design contract. Its last section is called *Before writing code* — which is when it was written. Where it and the code disagree, the code is right and [`PLAN.md`](PLAN.md)'s deviation register usually says why. | 2026-09-02 |
 | [`PLAN.md`](PLAN.md) | The four-stage build order, the four human checkpoints, and — at the top, lines 26 to 68 — **the deviation register**: twenty numbered entries recording what was built differently from `INTENT.md` and why. That register is the real decision log of this project. | during the build |
-| [`LANDING.md`](LANDING.md) | Written as a spec for one piece of work, half-converted into a log. Contains the densest technical content in the repo: the OKLCH derivation of the light theme with measured contrast ratios, and the design of the copy types. | stage 4 |
+| [`LANDING.md`](LANDING.md) | Written as a spec for one piece of work, half-converted into a log, and superseded as a palette by [`DESIGN.md`](DESIGN.md). What survives is the method: how a light theme is derived and measured rather than mirrored, and the design of the copy types. | stage 4 |
 
 ## Hackathon
 

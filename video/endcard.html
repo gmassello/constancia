@@ -9,7 +9,7 @@
       body {
         background: var(--color-bg);
         color: var(--color-text);
-        font-family: Inter, system-ui, sans-serif;
+        font-family: var(--font-body);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -17,10 +17,10 @@
         gap: 18px;
         text-align: center;
       }
-      h1 { margin: 0; font-size: 84px; font-weight: 600; letter-spacing: -0.02em; }
-      p { margin: 0; font-size: 26px; color: var(--color-neutral-400); }
-      .url { font-size: 26px; color: var(--color-accent-2); }
-      .repo { font-size: 20px; color: var(--color-neutral-500); font-family: ui-monospace, monospace; }
+      h1 { margin: 0; font-family: var(--font-heading); font-size: 84px; font-weight: 600; letter-spacing: -0.04em; }
+      p { margin: 0; font-size: 26px; color: var(--text-secondary); }
+      .url { font-size: 26px; color: var(--color-accent); }
+      .repo { font-size: 20px; color: var(--text-muted); font-family: var(--font-mono); }
     </style>
   </head>
   <body>

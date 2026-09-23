@@ -23,8 +23,11 @@ mkdir -p "$VIDEO_DIR/out"
 page="$VIDEO_DIR/.endcard.rendered.html"
 sed "s|PUBLIC_URL|$PUBLIC_URL|" "$VIDEO_DIR/endcard.html" > "$page"
 
+# --virtual-time-budget: without it the shot is taken before the Google Fonts request
+# lands, and the card renders the display face in the system fallback. The title is the
+# last frame of the video, so that is the one place the typeface has to be right.
 "$CHROME" --headless --disable-gpu --hide-scrollbars --window-size=1280,800 \
-  --screenshot="$OUT" "file://$page" 2>/dev/null
+  --virtual-time-budget=4000 --screenshot="$OUT" "file://$page" 2>/dev/null
 
 rm -f "$page"
 echo "wrote $OUT"

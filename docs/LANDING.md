@@ -2,9 +2,11 @@
 
 > **This is a record, not a reference.** Written as a spec before the landing was built, and since
 > half-converted into a log — the *Deviations from the design* section is past tense, the rest is
-> not. What it still owns is the reasoning: the OKLCH derivation of the light theme with measured
-> contrast ratios, and the design of the copy types. For the front end as it is today, read
-> [`FRONTEND.md`](FRONTEND.md).
+> not. **Nocturne has since been replaced by Cadence** ([`DESIGN.md`](DESIGN.md)): every hex value
+> below is the old palette and none of it is live. What this file still owns is the *method* — how a
+> light theme gets derived and measured rather than mirrored, why six `color-mix()` percentages
+> collapse into one alias — and the design of the copy types. For the tokens as they are today read
+> [`DESIGN.md`](DESIGN.md); for the front end as it is today read [`FRONTEND.md`](FRONTEND.md).
 
 Stage 4 work, written up before it is built. Implements the Claude Design file **`Constancia Landing.dc.html`** (project `a0ec86f1-c514-4b03-b8b0-2404abd0f7f2`, design system **Nocturne** `nocturne-487bbaa7`), brings the professional's panel under the same tokens, and gives both pages three reader preferences: **theme**, **language** and **register**.
 
@@ -24,7 +26,7 @@ Nocturne is **CSS only**. `_ds_bundle.js` is empty (`components: []`) and `suppo
 
 From `styles.css` we take the tokens — `--color-bg #161826`, `--color-surface #232532`, `--color-text #e9e9ed`, the blurple accent `--color-accent #9184d9`, the `neutral-100..900` and `accent-100..900` ramps, `--color-section` / `--color-section-glow`, Inter, `--radius-*`, `--shadow-*`, `--space-*` — and the classes `.btn`, `.tag`, `.hr`, and `.seg` + `.seg-opt`, the system's own segmented control on native radios with no script. That last one is what the toggles are built from.
 
-The landing is seven blocks: sticky header; hero with copy left and a live demo card right; a metrics band on the section gradient (70% / 3 verticals / 333 h / 174 tests); *How it works* in four steps; *Memory* in four cards; *Stack* with the five services and the honest limits; a closing CTA; a footer. Six own keyframes: `noc-in`, `noc-slide`, `noc-pulse`, `noc-strike`, `noc-breathe`, `noc-wave`.
+The landing is eight blocks: sticky header; hero with copy left and a live demo card right; a metrics band on the section gradient (70% / 3 verticals / 333 h / 174 tests); *How it works* in four steps; *Memory* in four cards; *Stack* with the five services and the honest limits; *The model* in three columns — who pays, what it costs, what it costs to run; a closing CTA; a footer. Six own keyframes: `noc-in`, `noc-slide`, `noc-pulse`, `noc-strike`, `noc-breathe`, `noc-wave`.
 
 The demo card is a scripted loop (`SCRIPTS.week1` and `SCRIPTS.week2`, each a list of beats with delays) behind a week selector, played at `PACE` (1.6) times the delays written into the beats, with two views: `call` (transcript plus activity rail) and `chain` (the facts as dated links, the retired one struck through). Step back, pause, step forward and replay sit under both.
 
@@ -140,7 +142,7 @@ The panel gets its own `copy.ts` with its own type and **one register**. The two
                              writes data-theme and documentElement.lang; reads ?lang= at boot
     src/landing/
       main.tsx
-      Landing.tsx            the seven sections, aliases in place of ramp steps
+      Landing.tsx            the eight sections, aliases in place of ramp steps
       DemoCard.tsx           SCRIPT + CHAIN + renderVals — colours live here as DATA
       copy.ts                en / es, plus the plain overrides
       landing.css            the six noc-* keyframes, under prefers-reduced-motion
@@ -165,7 +167,7 @@ The panel gets its own `copy.ts` with its own type and **one register**. The two
 
 6. **`web/src/landing/copy.ts`** — the four sets in the shape described above. The technical register is the design's own copy, verbatim; the plain register is written fresh for a professional who does not know what a WebSocket is.
 
-7. **`web/index.html` and `web/src/landing/`** — the seven sections in JSX, keeping the design's inline styles (each encodes a `clamp()` or a `color-mix()` decided there) with every ramp step and text opacity swapped for an alias, and every string from `copy()`. **`DemoCard.tsx` needs the same treatment on its data, not just its styles**: `SCRIPT`, `CHAIN` and `renderVals()` carry `var(--color-accent-300)` and `var(--color-neutral-500)` as *values*. Rewriting only the styles leaves the agent's turn at 1.4:1 and the supersession line at 2.4:1 on light — the two things the landing exists to show. `landing.css` puts the six keyframes under `prefers-reduced-motion`, and `DemoCard` renders the final step without scheduling when the query matches: ten infinite animations is exactly what that query is for.
+7. **`web/index.html` and `web/src/landing/`** — the eight sections in JSX, keeping the design's inline styles (each encodes a `clamp()` or a `color-mix()` decided there) with every ramp step and text opacity swapped for an alias, and every string from `copy()`. **`DemoCard.tsx` needs the same treatment on its data, not just its styles**: `SCRIPT`, `CHAIN` and `renderVals()` carry `var(--color-accent-300)` and `var(--color-neutral-500)` as *values*. Rewriting only the styles leaves the agent's turn at 1.4:1 and the supersession line at 2.4:1 on light — the two things the landing exists to show. `landing.css` puts the six keyframes under `prefers-reduced-motion`, and `DemoCard` renders the final step without scheduling when the query matches: ten infinite animations is exactly what that query is for.
 
 8. **The controls** — language and theme in the header (`.seg` and `.btn-icon`, with `aria-label` and `aria-pressed`); the register toggle under the hero paragraph, not in the header, because it changes the prose rather than the chrome and that is where the reader first meets prose. All three inherit Nocturne's hover, pressed and `:focus-visible` states, which follow `--color-accent` and therefore need no theme work of their own.
 

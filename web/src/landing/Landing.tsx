@@ -122,6 +122,7 @@ export default function Landing() {
           <a href="#how">{c.navHow}</a>
           <a href="#memory">{c.navMemory}</a>
           <a href="#stack">{c.navStack}</a>
+          <a href="#business">{c.navBusiness}</a>
         </nav>
         <div className="seg">
           {(["en", "es"] as Lang[]).map((option) => (
@@ -402,6 +403,40 @@ export default function Landing() {
           <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)", maxWidth: "70ch" }}>
             {c.stackLimits}
           </p>
+        </div>
+      </section>
+
+      <section
+        id="business"
+        style={{
+          padding: "clamp(48px, 6vw, 86px) clamp(20px, 5vw, 64px)",
+          scrollMarginTop: 80,
+          borderTop: "1px solid var(--color-divider)",
+        }}
+      >
+        <div style={{ maxWidth: 1180, margin: "0 auto" }}>
+          <Kicker text={c.businessKicker} />
+          <h2
+            style={{
+              fontSize: "clamp(26px, 3vw, 36px)",
+              letterSpacing: "-0.025em",
+              margin: "0 0 32px",
+              maxWidth: "26ch",
+            }}
+          >
+            {c.businessTitle}
+          </h2>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: 28,
+            }}
+          >
+            <Pillar title={c.businessWhoTitle} body={c.businessWhoBody} />
+            <Pillar title={c.businessPriceTitle} body={c.businessPriceBody} />
+            <Pillar title={c.businessCostTitle} body={c.businessCostBody} />
+          </div>
         </div>
       </section>
 

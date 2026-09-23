@@ -197,9 +197,13 @@ in a dashboard. They are tracked in [`PLAN.md`](PLAN.md):
 | | After | What it proves |
 |---|---|---|
 | C1 | Stage 1 | `make smoke` rings; a real call greets, asks the four questions in order, honours barge-in and says goodbye; the trace shows both sides. |
-| C2 | Stage 2 | Two real calls: the second opens on the knee, the 7/10 is superseded by the 4/10 in the database, and `memory=off` does not ask about the knee. |
+| C2 | Stage 2 | Three real calls back to back with no reset: the third opens on the knee, the 7/10 is superseded by the 4/10 in the store, and `memory=off` does not ask about the knee. The seed store is enough — the supersession is what C2 proves, not which store holds it. |
 | C3 | Stage 3 | The panel during a live call: transcript, rail with the highlight, the chain, the chart. |
 | C4 | Stage 4 | A public URL reachable from another network, the video, the deck. |
+
+**Where each one stands:** C1 closed on live calls. C2 and C3 are open and close together during the
+recording session — the three-call sequence is C2 and the panel that films it is C3, which is why
+[`video-script.md`](video-script.md) puts the sequence before the final reset. C4 waits on the deploy.
 
 [`../app/analysis.py`](../app/analysis.py) has met real recordings: C1 closed on live calls, and the
 401 it answered the first time is why the mp3 is relayed through AssemblyAI's `/v2/upload` instead of

@@ -1,15 +1,15 @@
 :root {
-  --turn-agent-bg: color-mix(in srgb, var(--color-accent) 10%, transparent);
-  --turn-patient-bg: color-mix(in srgb, var(--color-text) 6%, transparent);
-  --flash-bg: color-mix(in srgb, var(--color-accent) 26%, transparent);
-  --rail-ground: color-mix(in srgb, var(--color-bg) 55%, transparent);
-}
-
-:root[data-theme="light"] {
   --turn-agent-bg: color-mix(in srgb, var(--color-accent) 9%, transparent);
   --turn-patient-bg: color-mix(in srgb, var(--color-text) 5%, transparent);
   --flash-bg: color-mix(in srgb, var(--color-accent) 18%, transparent);
   --rail-ground: color-mix(in srgb, var(--color-surface) 70%, transparent);
+}
+
+:root[data-theme="dark"] {
+  --turn-agent-bg: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  --turn-patient-bg: color-mix(in srgb, var(--color-text) 6%, transparent);
+  --flash-bg: color-mix(in srgb, var(--color-accent) 26%, transparent);
+  --rail-ground: color-mix(in srgb, var(--color-bg) 55%, transparent);
 }
 
 h1 { font-size: 22px; margin: 0; }

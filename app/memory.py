@@ -2,6 +2,7 @@ import json
 import math
 import uuid
 from datetime import UTC, datetime, timedelta
+from functools import cached_property
 from pathlib import Path
 
 from app import db
@@ -40,12 +41,18 @@ def normalize(vector: list[float]) -> list[float]:
 
 class MemoryStore:
     def __init__(self) -> None:
-        from google import genai
-
         settings = get_settings()
         self.embedding_model = settings.gemini_embedding_model
         self.embedding_dims = settings.embedding_dims
-        self.client = genai.Client(api_key=settings.gemini_api_key)
+
+    # ponytail: built on first use, because everything else here is SQL. A store that opened a
+    # network client in its constructor could not be exercised against a real database without a
+    # real key, which is how three integration tests ended up unable to pass.
+    @cached_property
+    def client(self):
+        from google import genai
+
+        return genai.Client(api_key=get_settings().gemini_api_key)
 
     async def embed(self, text: str, emit=None) -> list[float]:
         from google.genai import types

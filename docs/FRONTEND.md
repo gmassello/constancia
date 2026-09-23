@@ -34,16 +34,16 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 
 | File | Lines | What it is |
 |---|---:|---|
-| [`web/src/tokens.css`](../web/src/tokens.css) | 225 | The design system: tokens, the derived light theme, the semantic aliases, the reset, the type scale and the four shared classes. |
+| [`web/src/tokens.css`](../web/src/tokens.css) | 263 | The design system: tokens, the derived dark theme, the semantic aliases, the reset, the type scale and the four shared classes. |
 | [`web/src/prefs.ts`](../web/src/prefs.ts) | 75 | `usePrefs()`, the three initial readers, `localStorage` persistence and `prefersReducedMotion()`. |
 
 ### Landing
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/landing/Landing.tsx` | 479 | The seven sections, with the design's inline styles kept. |
+| `web/src/landing/Landing.tsx` | 514 | The eight sections, with the design's inline styles kept. |
 | `web/src/landing/DemoCard.tsx` | 744 | The scripted demo card: two scripts, the fact chain, the player and its controls. |
-| `web/src/landing/copy.ts` | 517 | Four sets — two languages × two registers. |
+| `web/src/landing/copy.ts` | 553 | Four sets — two languages × two registers. |
 | `web/src/landing/landing.css` | 123 | Six keyframes, the pause rule and the reduced-motion block. |
 | `web/src/landing/main.tsx` | 12 | Mount. |
 
@@ -72,9 +72,9 @@ There is no `prefers-color-scheme` query anywhere. **The theme is an attribute.*
 1. An inline pre-paint script in both HTML entries (`web/index.html:8-18`) reads `localStorage` and
    writes `documentElement.dataset.theme` and `documentElement.lang` before the CSS arrives, so
    nothing flashes.
-2. `tokens.css:3` is the dark `:root`; `:root[data-theme="light"]` at `:66` redeclares **only what
-   changes**. Each block sets its own `color-scheme`, which is what makes the panel's native
-   `<select>` and `<input>` follow the theme.
+2. The `:root` in `tokens.css` is the **light** theme — the canonical one, the one the demo video
+   records — and `:root[data-theme="dark"]` redeclares **only what changes**. Each block sets its own
+   `color-scheme`, which is what makes the panel's native `<select>` and `<input>` follow the theme.
 3. `usePrefs()` rewrites the attribute on change, and its initial state is lazy and reads the same
    source as the pre-paint script, so the first effect does not stomp on what the script already
    applied.
@@ -82,13 +82,13 @@ There is no `prefers-color-scheme` query anywhere. **The theme is an attribute.*
 The default is **light**, and that is three lines that have to agree: `web/src/prefs.ts:31` and
 `:12` in each of the two `index.html` files.
 
-The light theme is derived from the system's own OKLCH ramps, not mirrored: the inversion is not
-symmetric, because `#161826` sits much closer to black than `#e4e7f5` does to white. The measured
-derivation, contrast ratios included, is in [`LANDING.md`](LANDING.md).
+The two themes are measured separately rather than mirrored: a warm off-white canvas and a cool
+near-black one are not each other's inverse, and a token with one value cannot clear 4.5:1 against
+both. Every pair, with its ratio in each theme, is in [`DESIGN.md`](DESIGN.md).
 
 ## The ramp rule
 
-**Nothing outside `tokens.css` may name a ramp step or a text opacity.** Seven semantic aliases exist
+**Nothing outside `tokens.css` may name a ramp step or a text opacity.** Ten semantic aliases exist
 so that it does not have to:
 
 | Alias | For |
@@ -99,6 +99,9 @@ so that it does not have to:
 | `--section-ink` | **identical in both themes** — the metrics band is dark in both |
 | `--tone-dim` | the "retired" border and label |
 | `--fill-subtle` | tinted fills |
+| `--color-divider-strong` | the outline of an input or a secondary button, where the hairline is not enough |
+| `--color-accent-hover` + `--color-accent-active` | a pair per theme, because the states run **opposite ways**: light darkens on press, dark lightens |
+| `--orb-mint` / `--orb-sky` / `--orb-amber` | atmosphere only — a radial bloom behind content, never a fill, a border or a text colour |
 | `--color-danger` + `--danger-fill` | a pair, because no single hex clears both grounds |
 
 A step that reads on one ground does not read on the other; the indirection is what makes two themes

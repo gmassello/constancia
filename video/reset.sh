@@ -6,7 +6,8 @@
 #
 # Either way it ends by censing what fails in silence on camera: a dead
 # Gemini or AssemblyAI quota, and a PUBLIC_BASE_URL that is not the ngrok
-# that is running. Both cost one request each; neither prints a key.
+# that is running. Gemini costs one request; AssemblyAI opens the streaming
+# socket instead of spending a transcript; neither prints a key.
 #
 # Every invariant is read through the API, so it works the same against the
 # in-memory seed and against Postgres.
@@ -158,11 +159,11 @@ https = [t["public_url"] for t in tunnels if t["public_url"].startswith("https")
 print(https[0] if https else "")
 ' 2>/dev/null)
 if [ -z "$running" ]; then
-  red "no ngrok tunnel on localhost:4040 — every Twilio webhook 403s in app/security.py:12 and the phone rings, then goes silent"
+  red "no ngrok tunnel on localhost:4040 — every Twilio webhook 403s in twilio_form() and the phone rings, then goes silent"
 elif [ "$running" = "$configured" ]; then
   green "PUBLIC_BASE_URL is the tunnel that is running"
 else
-  red "PUBLIC_BASE_URL is stale: the service expects $configured, ngrok is serving $running (403 in app/security.py:12)"
+  red "PUBLIC_BASE_URL is stale: the service expects $configured, ngrok is serving $running (403 in twilio_form())"
 fi
 
 echo

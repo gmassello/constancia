@@ -4,6 +4,7 @@ export type Copy = {
   navHow: string
   navMemory: string
   navStack: string
+  navBusiness: string
   navPanel: string
 
   heroKicker: string
@@ -102,6 +103,15 @@ export type Copy = {
   stackPostgres: string
   stackLimits: string
 
+  businessKicker: string
+  businessTitle: string
+  businessWhoTitle: string
+  businessWhoBody: string
+  businessPriceTitle: string
+  businessPriceBody: string
+  businessCostTitle: string
+  businessCostBody: string
+
   closingTitle: string
   closingBody: string
   closingCtaDemo: string
@@ -115,6 +125,7 @@ const en = {
   navHow: "How it works",
   navMemory: "Memory",
   navStack: "Stack",
+  navBusiness: "Model",
   navPanel: "Open the panel",
 
   heroKicker: "Voice agent · longitudinal memory",
@@ -227,6 +238,18 @@ const en = {
   stackLimits:
     "Honest limits: extraction runs after hangup, not during the call. About 1–1.5 s of silence per turn while the sentence is written before the voice starts — sentence-level streaming is the next step. One worker: calls live in process.",
 
+  businessKicker: "The model",
+  businessTitle: "Sold per professional, not per patient.",
+  businessWhoTitle: "Who pays",
+  businessWhoBody:
+    "An independent physiotherapist carrying 30 to 40 patients in follow-up. The tools that do anything like this start at clinic size and clinic price, so nobody is selling to them.",
+  businessPriceTitle: "What it costs",
+  businessPriceBody:
+    "A monthly subscription per professional, tiered by patients in active follow-up: up to 20, up to 50, unlimited. Synthflow, the nearest comparable, starts at US$99 a month and aims at mid-size clinics — the entry tier here sits below it.",
+  businessCostTitle: "What it costs to run",
+  businessCostBody:
+    "Cents per call. The recogniser is billed by the hour and a weekly check-in is minutes of audio per patient, so the variable cost stays well under the subscription as a practice grows.",
+
   closingTitle: "Two calls. One patient. That is the whole demo.",
   closingBody:
     "Week one with memory off, week two with it on. Same patient, same questions — and the 7/10 knee struck through by the 4/10.",
@@ -241,6 +264,7 @@ const es = {
   navHow: "Cómo funciona",
   navMemory: "Memoria",
   navStack: "Stack",
+  navBusiness: "Modelo",
   navPanel: "Abrir el panel",
 
   heroKicker: "Agente de voz · memoria longitudinal",
@@ -352,6 +376,18 @@ const es = {
   stackPostgres: "El almacén de datos y su cadena de supersesión",
   stackLimits:
     "Límites honestos: la extracción corre después de cortar, no durante la llamada. Alrededor de 1 a 1,5 s de silencio por turno mientras se escribe la frase antes de que arranque la voz — el streaming por oraciones es el paso siguiente. Un solo worker: las llamadas viven en el proceso.",
+
+  businessKicker: "El modelo",
+  businessTitle: "Se vende por profesional, no por paciente.",
+  businessWhoTitle: "Quién paga",
+  businessWhoBody:
+    "Un kinesiólogo independiente con 30 a 40 pacientes en seguimiento. Las herramientas que hacen algo parecido arrancan en tamaño y precio de clínica, así que nadie le vende a él.",
+  businessPriceTitle: "Cuánto cuesta",
+  businessPriceBody:
+    "Suscripción mensual por profesional, por tramos de pacientes en seguimiento activo: hasta 20, hasta 50, ilimitado. Synthflow, lo más comparable, arranca en US$99 por mes y apunta a clínicas medianas — acá el tramo de entrada queda por debajo.",
+  businessCostTitle: "Cuánto cuesta operarlo",
+  businessCostBody:
+    "Centavos por llamada. El reconocedor se factura por hora y un control semanal son minutos de audio por paciente, así que el costo variable queda muy por debajo de la suscripción a medida que el consultorio crece.",
 
   closingTitle: "Dos llamadas. Un paciente. Esa es toda la demo.",
   closingBody:

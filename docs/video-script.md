@@ -20,15 +20,17 @@ bash video/reset.sh --check     # every line green, or do not record
 
 `reset.sh --check` is the gate. Past the demo state it censes the three things that fail in silence
 on camera: a Gemini quota that is gone, an AssemblyAI key that is rejected, and a `PUBLIC_BASE_URL`
-that is not the ngrok that is running. It spends one request on each service and prints no key. Each
+that is not the ngrok that is running. Gemini costs one request; AssemblyAI opens the streaming
+socket rather than spending a transcript; neither prints a key. Each
 of them reads as a model bug from the other side of the camera, which is why none of them is left to
 be noticed during a take.
 
-`.env` needs `DEMO_PHONE` set to the phone that will be answered off camera, and `PUBLIC_BASE_URL`
-set to the tunnel URL **before** `make take`. A stale tunnel URL makes every webhook 403 in
-`app/security.py:12`, and the symptom is a phone that rings and then goes silent — it reads as a
-model bug and it is not one. With `.env` complete but `DEMO_PHONE` empty the live buttons still
-render and answer `400 unknown patient` in the panel's error line: a dead button on camera.
+`.env` needs `DEMO_PHONE` set to the phone Anita will answer off camera, and `PUBLIC_BASE_URL` set
+to the tunnel URL **before** `make take`. A stale tunnel URL makes every webhook 403 in
+`twilio_form()` (`app/security.py`), and the symptom is a phone that rings and then goes silent — it
+reads as a model bug and it is not one. With `.env` complete but `DEMO_PHONE` empty the live buttons
+still render, and the panel prints *The service answered 400: unknown patient: send patient_name and
+phone*: a dead button on camera, legible in the frame.
 
 **Record against `make take`, not `make dev`.** `make dev` runs uvicorn with `--reload`: any save
 under the repo — an editor's autosave is enough — restarts it, the lifespan runs `load_seed()` again,
@@ -39,6 +41,16 @@ recording.
 Window mode (`Cmd+Shift+5` → *Record Selected Window*), 1280x800, mic off, phone off camera, the
 browser in **English** and the **light** theme — both are the defaults, and English is what the
 judges read. Between takes: `bash video/reset.sh`, then delete the old `video/raw.mov`.
+
+Three things about the window itself, each of which cost something the first time:
+
+- **Take Chrome out of full screen first.** A full-screen window ignores the resize and stays at the
+  display's size — the discarded take is 1512×787, not 1280×800.
+- **Relaunch Chrome with the debugger banner off, with Chrome fully quit first** — if it is already
+  running the flag is ignored in silence:
+  `open -a "Google Chrome" --args --silent-debugger-extension-api`
+- **Let the panel hydrate before the first click.** A click straight after `navigate` does not fire
+  the `onClick`. It happened twice in one rehearsal.
 
 **The recorded window has exactly one tab, and nothing the human reads lives in it.** A window
 capture records whichever *tab* is in front, and Claude's screenshots do not: the extension
@@ -67,6 +79,60 @@ signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-" -f null - 2>/dev/n
   paste - - | sed -E 's/.*pts_time:([0-9.]+).*YAVG=([0-9.]+)/\1 \2/'
 ```
 
+## The day, in order
+
+Nothing below is optional and the order is the whole point. Three of these steps are rehearsals, and
+they exist because the expensive thing here is not the recording — it is the quota. **Each live call
+spends about seven Gemini requests**, so a rehearsal plus a take plus a verification is more than
+sixty, and an exhausted quota does not fail cleanly: it answers with a generic error that reads, on
+camera, as a bug in the agent.
+
+**Rehearsal 1 — the choreography. No phone, no Anita, nothing spent.**
+
+```bash
+GEMINI_API_KEY= make take     # ScriptedLLM: the keyless buttons are free and repeatable
+```
+
+Walk the whole shot list with the keyless buttons: every click, every scroll, the order of the cards,
+the window at 1280×800, the debugger banner gone, the hydration pause before the first click. Record
+it and throw it away, then sweep the file for a notification or a second tab. **This is where takes
+are lost, and here they cost nothing.**
+
+**Rehearsal 2 — the phone. Anita answers; Gemini is not involved.**
+
+```bash
+make smoke PHONE=+54911...    # one <Say>, nothing else
+```
+
+Proves the geographic permissions, the trial-number verification, how the line sounds, and that she
+picks up in time. Cheapest thing in the session and the one worth repeating.
+
+**Rehearsal 3 — one full call, once.**
+
+```bash
+MEMORY=off make call          # no phone argument: it resolves DEMO_PHONE, the branch the buttons use
+curl localhost:8001/calls/<id>/trace
+```
+
+She reads the week-1 lines. The trace has to show the greeting, the four questions in order, both
+speakers in the transcript, and the facts with their quotes. **That closes C1.** It also gives her
+the rhythm — waiting for the agent to finish before answering is the part that takes practice — and
+it is where a mis-transcribed number shows up, because beats 3 and 4 run the recogniser unprimed. If
+*seven out of ten* comes out wrong here, it comes out wrong on camera.
+
+Then `make smoke-analysis URL=<recording url>` on that call, and the panel rehearsal: `bash
+video/reset.sh`, `--check` all green, press **Real phone, no memory** and watch the live card fill.
+
+**Then the sequence, and only then the take.**
+
+1. The three calls back to back — beat 3, beat 4, beat 5 — **with no reset in between**, confirming
+   that beat 5's opening quotes the 7/10 and that the file shows the strike-through and `FACT
+   RETIRED`. **That closes C2.** Check the Gemini and AssemblyAI consoles before starting it.
+2. `bash video/reset.sh`, `--check` all green, **and only now** record.
+
+> **The most expensive mistake available** is doing step 1 after step 2 instead of before. The
+> supersession runs one way per state of the seed, so re-shooting beat 5 always needs a reset first.
+
 ## The two paths
 
 **Beats 3, 4 and 5 are shot live**: three real phone calls, dialled from the panel. That is the
@@ -76,13 +142,25 @@ fall back to if a quota dies mid-session; the red flag in beat 6 stays keyless e
 | | **live** — the one to aim for | **keyless** — the fallback |
 |---|---|---|
 | Needs | `.env` filled, ngrok up, C1 and C2 done | nothing |
-| The call | a real phone rings; you answer and read the lines below | the panel's own buttons |
+| The call | a real phone rings; Anita answers and reads the lines below | the panel's own buttons |
 | AssemblyAI | Universal-Streaming on real audio | not exercised |
-| What you say | the lines in each beat, out loud | nothing — the lines are already in `seed/scripts.json` |
-| Risk | the model phrases differently every take | none; it is byte-identical every time |
+| What she says | the lines in each beat, out loud | nothing — the lines are already in `seed/scripts.json` |
+| Risk | the model phrases differently every take | **the same risk, in the recording session** |
 
 The patient lines are **the same in both paths**, because the keyless scripts were written from
 them. So the extraction, the supersession and the key terms behave identically either way.
+
+**Keyless does not mean deterministic on the day.** `build_llm` (`app/replay.py`) returns the real
+model the moment `GEMINI_API_KEY` is readable, and the live path needs a filled `.env` — so during
+the session the keyless buttons run Gemini too. They phrase differently every press and they spend
+quota, exactly like a live call minus the phone. The only lever that makes them byte-identical is
+starting the server with the key blanked:
+
+```bash
+GEMINI_API_KEY= make take     # ScriptedLLM: free, repeatable, and the live buttons cannot dial
+```
+
+That is the rehearsal server, not the take server.
 
 ## The beats
 
@@ -93,8 +171,8 @@ them. So the extraction, the supersession and the key terms behave identically e
 | 3 | `3:call-one` | 56 s | 🎯 Week 1 live. Nothing recalled, four questions, two facts extracted |
 | 4 | `4:memory-off` | 24 s | Week 2 live with memory off: the generic protocol |
 | 5 | `5:memory-on` | 42 s | 🎯 Week 2 live with memory on: the knee, and the 7/10 retired |
-| 6 | `6:panel` | 31 s | The chart, the file, the key terms, a red flag |
-| 7 | `7:close` | 18 s | Business model on the landing, then the endcard |
+| 6 | `6:panel` | 31 s | The chart, the file, the key terms, what AssemblyAI heard, a red flag |
+| 7 | `7:close` | 18 s | The model band on the landing, then the endcard |
 
 Track lengths are what `video/out/timing.txt` measured; the recording can be longer, because
 `fit-to-audio.py` keeps the moments where the screen changes at 1x and compresses the waiting.
@@ -122,12 +200,14 @@ audience, and is already deployed — a slide would be a second copy to keep in 
 ### 3 · `3:call-one` — week 1, live 🎯
 
 **Screen:** the panel at `/panel`, Ana selected, camera on the **live call card** — the transcript
-and the activity rail. The rail's first line says the agent has nothing on file for this call, which
+and the activity rail. The rail opens with `CALL · started · memory off`; the line that matters is
+the **second**, `MEMORY OFF · recall skipped`, with *memory disabled for this call* under it. That
 is what makes it week one.
 
 **live:** press **Real phone, no memory**. A call started from a terminal never reaches this card —
 the page only follows the call its own `POST /calls` returned — so every call in this video is
-pressed on screen. Answer the phone and read, one line per question, waiting for the agent to finish:
+pressed on screen. Anita answers off camera and reads one line per question, waiting for the agent
+to finish each one:
 
 | | You say |
 |---|---|
@@ -147,6 +227,10 @@ numbers out loud before the take.
 
 **What the camera must catch:** the transcript filling turn by turn, and then the activity rail:
 `MEMORY OFF recall skipped`, `EXTRACTION 2 facts from the transcript`, `MEMORY OFF storage skipped`.
+
+Those three are the ones the narration names. A live call writes more around them — `SUMMARY`,
+`RECORDING ready`, `ANALYSIS N entities`, `CALL ended`, and `RETRY` or `DISCARDED` when something
+goes wrong. None of them is a problem on camera; the beat just does not stop on them.
 
 The per-fact lines with their quotes do **not** appear here: with memory off nothing is stored, so
 `fact_stored` never fires. The quote-and-turn proof is beat 5's `NEW FACT` lines and the file in
@@ -180,9 +264,12 @@ A reset is only needed before **re-shooting** beat 5, because the supersession o
 state of the seed.
 
 They do write their **call row**, though — turning memory off stops the agent remembering, not the
-call being on the record. So by beat 6 the *Calls so far* card shows three rows, two of them tagged
-*without memory*, and that tag is the A/B in the record rather than only on screen. If the narration
-ever counts the calls out loud, that is the number.
+call being on the record. The seed already ships one call on file, dated Sep 15 and tagged *with
+memory*, and `video/reset.sh` checks for exactly that before a take — so by beat 6 the *Calls so
+far* card shows **four** rows: the seeded one, beats 3 and 4 tagged *without memory*, and beat 5
+tagged *with memory*. That tag is the A/B in the record rather than only on screen. The narration
+says *three calls* because three is what the camera watches happen; the card shows four because the
+file did not start empty.
 
 **The point of the beat is the question, not the answer.** She says the knee is at four out of ten
 and the agent has no idea that means anything: it never asks about the knee, and the rail shows
@@ -229,28 +316,48 @@ If the agent phrases the opening differently — it will — that is the take. R
 
 1. **How she is doing** — pain 7 → 4, sessions 3 → 5, with the verdict arrows.
 2. **What the agent remembers** — the chain, with the retired entry still there and its quote.
-3. **The words the agent listened for** — the three-step drawing and the chips: her own vocabulary
+3. **Words the agent listened for** — the three-step drawing and the chips: her own vocabulary
    from last week, handed to AssemblyAI as `keyterms_prompt`.
-4. **The red flag.** Press **call with a red flag** — this one stays **keyless** on purpose: a real
-   call buys nothing here and saves a fourth phone call per take. The patient reports a fall, the
-   guard stops the call, the remaining questions are never asked, and the row lands marked
-   `ESCALATED`.
+4. **Calls so far**, and inside beat 5's row, **What AssemblyAI heard in the recording**: the
+   entity chips it pulled out of the audio — `right knee`, `four out of ten`, `five times this
+   week` — and the sentiment counts beside them, with the negative one tinted. This is the
+   sponsor's second product in the same demo: Universal-Streaming carried the call, and Speech
+   Understanding read the recording Twilio kept after it. It only exists after a **live** call,
+   which is what beats 3, 4 and 5 are.
+5. **The red flag, last.** Press **call with a red flag** — this one stays **keyless** on purpose:
+   a real call buys nothing here and saves a fourth phone call per take. The patient reports a
+   fall, the guard stops the call, the remaining questions are never asked, and the row lands
+   marked `ESCALATED`.
 
-The key-terms card reads the **newest** call (`PatientView.tsx:37` takes `rows[0]`, ordered
+**The red flag has to be the last thing filmed in this beat.** Its script
+(`seed/scripts.json`, `alarm.facts`) carries `right knee pain 5/10` and `did the exercises twice`,
+so pressing it **retires the 4/10 that beat 5 just created**, puts a third point on the chart, and
+makes the alarm call the newest one — which is what the key-terms card reads. Film cards 1 to 4,
+then press it.
+
+The key-terms card reads the **newest** call (`rows[0]` in `PatientView.tsx`, ordered
 `started_at desc`) and `queries.keyterms_at` filters to the facts current *before* that call, so
-after beat 5 it still shows the four week-1 terms. Nothing to reset for it.
+after beat 5 it still shows the four week-1 terms. Nothing to reset for it — as long as the red
+flag has not been pressed yet.
 
 The red-flag call takes about 25 s of wall clock and the narration gives it about 6 s — that is what
 `fit-to-audio.py` compresses. Let it run in full on camera; do not cut it short by hand.
 
-Cut the key-terms card second if the track needs to lose more time.
+Cut the key-terms card second if the track needs to lose more time. The AssemblyAI card is not on
+that list: it is the one thing in this beat that a judge for *Application of Technology* is looking
+for.
 
 ---
 
 ### 7 · `7:close` — business and endcard
 
-**Screen:** the landing's business band, to the end of the take. **The endcard is not on camera** —
-it is a still appended at assembly, so nothing opens a `file://` URL in the address bar on screen.
+**Screen:** the landing's **model band** (`#business`), to the end of the take. **The endcard is not
+on camera** — it is a still appended at assembly, so nothing opens a `file://` URL in the address bar
+on screen.
+
+The band is three columns — *Who pays*, *What it costs*, *What it costs to run* — and it exists
+because this beat filmed it before it did: the narration said *sold per professional* over a page
+that had nothing of the sort on it. Scroll to it from the nav (**Model**), do not hunt for it.
 
 The hostname is `constancia-voice.onrender.com`, which is what `render.yaml` claims — plain
 `constancia.onrender.com` belongs to an unrelated app, so Render would have appended a random suffix
@@ -311,8 +418,9 @@ The agent is not deterministic on the live path. Things that change between take
 | The order of the facts in the rail | Nothing; the quote and the turn number are what the beat claims |
 | A question phrased as two sentences | Nothing |
 | The agent skipping a question | Stop the take. That is a bug, not a phrasing |
-| A fact landing without a quote | Impossible by construction — if it happens, stop and open an issue |
-| The patient line mis-transcribed | Re-shoot that call. The key terms exist to prevent exactly this |
+| A fact landing without a quote | Impossible by construction — `ground()` rejects a blank quote too |
+| The patient line mis-transcribed | Re-shoot that call. The key terms exist to prevent exactly this, and beats 3 and 4 do not get them |
+| Nobody answers, or the audio stream never opens | The panel says so — *Nobody picked up* / *audio stream timeout* — instead of hanging. Stop the take and dial again |
 
 ## If the track goes over 300 s
 

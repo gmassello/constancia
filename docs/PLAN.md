@@ -72,7 +72,7 @@ Roadmap for building what `INTENT.md` specifies. Four stages, each ending in a c
 | # | After | What the human does | What must happen |
 |---|---|---|---|
 | C1 ✅ | Stage 1 | Fill `.env` (Gemini, AssemblyAI, Twilio SID/token/number, ElevenLabs key/voice, `DEMO_PHONE`), `ngrok config add-authtoken`, `ngrok http 8001`, answer the phone | `make smoke` rings; `MEMORY=off make call`: greeting, 4 questions in order, barge-in, goodbye; `/calls/{id}/trace` shows both sides |
-| C2 | Stage 2 | Create a Supabase project (or use `make db` locally), set `DATABASE_URL`, answer three calls in a row with no reset | Calls 1 and 2 run with `memory=off` and write nothing, so the 7/10 stays current; call 3 opens on the knee and supersedes the 7/10 with the 4/10. The supersession evidence comes from call 3 alone |
+| C2 | Stage 2 | Answer three calls in a row with no reset. A database is optional: the seed store supersedes the same way | Calls 1 and 2 run with `memory=off` and write no facts, so the 7/10 stays current; call 3 opens on the knee and supersedes the 7/10 with the 4/10. The supersession evidence comes from call 3 alone |
 | C3 | Stage 3 | Open the panel during a call | Live transcript, rail with highlight, superseded chain, chart, replay with no keys |
 | C4 | Stage 4 | Render account, deploy, recording session with the skill, upload the video, submit the deck on lablab | Public URL from another network; `video/reset.sh --check` all green; `demo.mp4` under 300 s; `SUBMISSION.md` with evidence on every row |
 

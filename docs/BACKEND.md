@@ -9,7 +9,7 @@ each one is for.
 | Module | Lines | What it is |
 |---|---:|---|
 | [`app/main.py`](../app/main.py) | 350 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty routes and mounts `web/dist` if it exists. |
-| [`app/memory.py`](../app/memory.py) | 349 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader and the `keyterms` computation. |
+| [`app/memory.py`](../app/memory.py) | 356 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader and the `keyterms` computation. |
 | [`app/channel.py`](../app/channel.py) | 281 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
 | [`app/packs.py`](../app/packs.py) | 269 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
 | [`app/orchestrator.py`](../app/orchestrator.py) | 197 | The phase machine. Decides what is said, what is stored and when a call escalates. |
@@ -206,8 +206,11 @@ never at import time. Importing `app.main` with no environment must not raise.**
 
 Two consequences visible throughout the code, and both are deliberate:
 
-1. SDK clients are imported **inside** the function or constructor that uses them — `from google
+1. SDK clients are imported **inside** the function or property that uses them — `from google
    import genai` sits in `app/llm.py` and `app/memory.py`, not at the top of the module.
+   `MemoryStore.client` is a `cached_property` for the same reason one step further in: everything
+   else on that store is SQL, so a constructor that opened a network client made the store
+   unusable against a real database without a real key.
 2. Every module that needs a credential asks for it at call time: `app/stt.py`, `app/tts.py`,
    `app/telephony.py`, `app/security.py`, `app/analysis.py`, `app/db.py`.
 

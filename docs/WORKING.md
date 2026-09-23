@@ -40,6 +40,8 @@ Before calling anything done, all four of these:
 
 ```bash
 uv run pytest -q          # 174 tests, the 3 that need a database skipped
+make db && DATABASE_URL=postgresql://constancia:constancia@localhost:5432/constancia \
+  uv run pytest -q        # 174 passed, nothing skipped — run this before touching app/memory.py
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
@@ -62,7 +64,7 @@ except the three Postgres integration tests, which skip themselves.
 
 | File | Covers |
 |---|---|
-| `tests/conftest.py` | Not a test: one autouse fixture blanks `GEMINI_API_KEY` and `DATABASE_URL` so the suite cannot reach the network or a database through a filled `.env`. `build_llm` (`app/replay.py`) picks the real model the moment a key is readable, so without this `make test` means something different for each person who runs it. |
+| `tests/conftest.py` | Not a test: one autouse fixture blanks `GEMINI_API_KEY` so the suite cannot reach the network through a filled `.env`, and blanks `DATABASE_URL` for every test that is **not** marked `integration`. `build_llm` (`app/replay.py`) picks the real model the moment a key is readable, so without this `make test` means something different for each person who runs it. The `integration` exemption is not a detail: blanking `DATABASE_URL` for those three sent psycopg to the local socket, so they could only fail, and only for somebody with docker running. |
 | `tests/test_orchestrator.py` | The protocol: question order, the red-flag cut, the silence re-prompt, a non-critical phase failing soft, a hangup that still reaches `summarize`, all three packs end to end |
 | `tests/test_queries.py` | Multi-step supersession chains, the weekly series per measure, `keyterms_at` as a point-in-time view |
 | `tests/test_twilio_routes.py` | The webhooks: TwiML, bad signature, unknown call, a recording URL that is not Twilio's, and the phone fallback down to `DEMO_PHONE` |
@@ -90,7 +92,7 @@ global mock:
    call that would go out.
 3. `analysis.run(call, store, fetch=transcribe)` takes its fetcher as an argument; the test passes its
    own and reads a canned AssemblyAI response from `tests/fixtures/`.
-4. The three tests that do need a database mark themselves `integration` and skip without `DATABASE_URL`.
+4. The three tests that do need a database mark themselves `integration`, skip without `DATABASE_URL`, and are the one case the autouse fixture leaves that variable alone. They still need no key: `MemoryStore.client` is a `cached_property`, so a store that only runs SQL never builds the Gemini client.
 5. Anything that genuinely needs a key lives in `scripts/smoke_*.py` and is run by hand.
 
 `tests/conftest.py` holds one autouse fixture and nothing else. The rest of pytest is configured
