@@ -466,3 +466,87 @@ async def test_a_turn_that_arrives_during_the_hangup_flush_is_not_served_as_the_
     with pytest.raises(CallEnded):
         await channel.listen(0.05)
     await channel.close()
+
+
+def scored(transcript: str, words: list[tuple[str, float]]) -> dict:
+    return {
+        "type": "Turn",
+        "transcript": transcript,
+        "words": [
+            {"text": text, "start": i * 80, "end": i * 80 + 80, "confidence": score}
+            for i, (text, score) in enumerate(words)
+        ],
+        "end_of_turn": True,
+        "turn_is_formatted": True,
+    }
+
+
+CLEAR = [("my", 0.99), ("pain", 0.98), ("is", 0.99), ("seven", 0.92)]
+MUMBLED = [("my", 0.99), ("pain", 0.98), ("is", 0.99), ("seven", 0.4)]
+
+
+async def test_a_number_heard_badly_rides_along_with_the_turn() -> None:
+    channel, _, stt = await started_channel()
+    await stt.queue.put(scored("my pain is seven", MUMBLED))
+
+    heard = await channel.listen(1.0)
+
+    assert heard == "my pain is seven"
+    assert channel.call.transcript[-1]["low_conf"] == ["seven"]
+    await channel.close()
+
+
+async def test_a_number_heard_clearly_leaves_no_mark() -> None:
+    channel, _, stt = await started_channel()
+    await stt.queue.put(scored("my pain is seven", CLEAR))
+
+    await channel.listen(1.0)
+
+    assert "low_conf" not in channel.call.transcript[-1]
+    await channel.close()
+
+
+async def test_only_numbers_are_doubted() -> None:
+    channel, _, stt = await started_channel()
+    await stt.queue.put(scored("my knee aches", [("my", 0.3), ("knee", 0.2), ("aches", 0.1)]))
+
+    await channel.listen(1.0)
+
+    assert "low_conf" not in channel.call.transcript[-1]
+    await channel.close()
+
+
+async def test_a_turn_with_no_confidence_field_doubts_nothing() -> None:
+    channel, _, stt = await started_channel()
+    await stt.queue.put(turn("my pain is seven", 4))
+
+    await channel.listen(1.0)
+
+    assert "low_conf" not in channel.call.transcript[-1]
+    await channel.close()
+
+
+async def test_a_floor_of_zero_switches_the_read_back_off(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.config import get_settings
+
+    monkeypatch.setenv("STT_CONFIDENCE_FLOOR", "0")
+    get_settings.cache_clear()
+    channel, _, stt = await started_channel()
+    await stt.queue.put(scored("my pain is seven", MUMBLED))
+
+    await channel.listen(1.0)
+
+    assert "low_conf" not in channel.call.transcript[-1]
+    await channel.close()
+
+
+async def test_a_dropped_turn_keeps_its_doubted_numbers(speech) -> None:
+    channel, _, stt = await started_channel()
+    await stt.queue.put(scored("my pain is seven", MUMBLED))
+    await asyncio.sleep(0.05)
+    await channel.say("And how is the knee?")
+
+    dropped = channel.call.transcript[-2]
+    assert dropped["heard"] is False
+    assert dropped["low_conf"] == ["seven"]
+    await channel.close()

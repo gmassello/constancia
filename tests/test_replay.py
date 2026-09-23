@@ -23,9 +23,11 @@ async def test_scripted_week_2_supersedes_the_week_1_knee() -> None:
     call = build()
     await replay.run_scripted(call, store, delay_s=0.0)
 
-    assert types_of(call).count("fact_superseded") == 2
+    assert types_of(call).count("fact_superseded") == 3
     current = await store.current_facts(PATIENT)
     assert [f["value"] for f in current if f["term"] == "right knee"] == [4]
+    kept = next(f for f in current if f["term"] == "daily exercises")
+    assert kept["category"] == "adherence"
 
 
 async def test_scripted_picks_week_1_for_a_patient_with_no_history() -> None:

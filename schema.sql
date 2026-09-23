@@ -43,4 +43,22 @@ create index if not exists patient_memories_patient_reported_at
   on patient_memories (patient_id, reported_at);
 -- ponytail: no vector index. Exact search is fine below ~10k rows; add HNSW when it isn't.
 
+create table if not exists patient_questions (
+  id uuid primary key default gen_random_uuid(),
+  patient_id uuid not null references patients(id),
+  call_id uuid not null references calls(id),
+  question text not null,
+  quote text not null,
+  turn_id int not null,
+  status text not null default 'open',
+  answer text,
+  asked_at timestamptz not null,
+  answered_at timestamptz
+);
+
+create index if not exists patient_questions_patient_asked_at
+  on patient_questions (patient_id, asked_at);
+
 alter table calls add column if not exists analysis jsonb;
+alter table patient_memories add column if not exists start_ms int;
+alter table patient_memories add column if not exists end_ms int;

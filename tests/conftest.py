@@ -12,6 +12,7 @@ def offline(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch):
     if "integration" not in request.keywords:
         monkeypatch.setenv("DATABASE_URL", "")
     monkeypatch.setenv("BARGE_MIN_WORDS", "2")
+    monkeypatch.setenv("STT_CONFIDENCE_FLOOR", "0.6")
     monkeypatch.setenv("SILENCE_S", "8.0")
     monkeypatch.setenv("LANGUAGE", "en")
     monkeypatch.setenv("EMBEDDING_DIMS", "1536")

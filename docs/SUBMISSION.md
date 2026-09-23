@@ -21,16 +21,16 @@ command that runs with no credentials; the public URL that would replace several
 
 | Criterion | How we show it | Where it can be checked now | Status |
 |---|---|---|---|
-| Application of Technology | Universal-Streaming v3 live over a real phone call (µ-law 8 kHz, end-of-turn driven), Speech Understanding on the recording after hangup, and memory feeding `keyterms_prompt` for the next call | [`app/stt.py`](../app/stt.py), [`app/analysis.py`](../app/analysis.py), [`app/channel.py`](../app/channel.py); `make demo` runs the pipeline end to end with no keys; `GET /calls/{id}/keyterms` | **proved live** — C1 closed on a real call: six phases, both sides in the trace, Speech Understanding on the recording |
+| Application of Technology | Universal-Streaming v3 live over a real phone call (µ-law 8 kHz, end-of-turn driven), Speech Understanding on the recording after hangup, memory feeding `keyterms_prompt` for the next call, per-word confidence driving a targeted read-back, and the recording's word timings anchoring every stored quote to the second it was said | [`app/stt.py`](../app/stt.py), [`app/analysis.py`](../app/analysis.py), [`app/channel.py`](../app/channel.py); `make demo` runs the pipeline end to end with no keys; `GET /calls/{id}/keyterms` | **proved live** — C1 closed on a real call: six phases, both sides in the trace, Speech Understanding on the recording |
 | Business Value | 70% non-adherence in home rehab, a subscription per professional, three verticals on one engine | The model band (`#business`) and the metrics band on the landing — `make web && make dev`, then `localhost:8001`; [`deck.md`](deck.md) slides 2 and 8; [`INTENT.md`](INTENT.md) §3–§4 with citations | **written**, and demonstrable locally; not yet demonstrable over a public URL |
-| Originality | The agent recalls and acts on what the patient said weeks ago, with superseded facts retired and visible as a chain | The panel at `/panel`, *Call with memory* — the 7/10 struck through under the 4/10; `GET /patients/{id}/chain`; `make demo MEMORY=on` from a terminal | **proved offline**, deterministically and with no keys |
+| Originality | The agent recalls and **acts on** what the patient said weeks ago: a promise made in week 1 is asked about in week 2 and retired by what actually happened, and a question the agent refused to answer comes back in the next call's greeting in the professional's own words | The panel at `/panel`, *Call with memory* — the 7/10 struck through under the 4/10, the promise retired by what she managed, and the answered question read out in the greeting; `GET /patients/{id}/chain`, `GET /patients/{id}/questions`; `make demo MEMORY=on` | **proved offline**, deterministically and with no keys |
 | Presentation | Call 1 → call 2 with memory off → call 2 with memory on, same patient | The landing explains it before the demo runs; the panel's four scripted buttons run it with no keys | **proved offline**; live is C2, during the recording session |
 
 ## Definition of done (INTENT §13)
 
 - [x] Public GitHub repo, MIT license visible in the About section
-- [x] `make test` green — 177 tests, no environment variable set; the ones that need a database skip themselves
-- [x] `make test` green against a real Postgres too — `make db` and `DATABASE_URL=…`: 177 passed, nothing skipped
+- [x] `make test` green — 280 tests, no environment variable set; the ones that need a database skip themselves
+- [x] `make test` green against a real Postgres too — `make db` and `DATABASE_URL=…`: 280 passed, nothing skipped
 - [x] `scripts/test_outbound.py` places a real call — subsumed by C1: a full live call went out, which is the geographic permission proved end to end rather than with a `<Say>`
 - [x] C1 — a real call greets, asks the four questions in order, honours barge-in, says goodbye, and the trace shows both sides
 - [ ] Deployed backend with public `/health` and panel, tested from another network — [`PENDINGS.md`](PENDINGS.md) row 1

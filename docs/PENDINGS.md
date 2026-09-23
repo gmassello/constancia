@@ -4,10 +4,10 @@ Open work only, and all of it. Every row says **what is open**, **who closes it*
 or step that closes it**. Anything not on this page is done and carries its evidence in
 [`SUBMISSION.md`](SUBMISSION.md).
 
-Deadline: **30 Sep 2026, 12:00 ART** ([`HACKATHON.md`](HACKATHON.md)). Last reviewed: **2026-09-22**.
+Deadline: **30 Sep 2026, 12:00 ART** ([`HACKATHON.md`](HACKATHON.md)). Last reviewed: **2026-09-23**.
 
 Four parts: what blocks the submission, the Cadence build programme, the decisions that programme
-needs, and what is deliberately not being done.
+needs, and what the six new features left behind alongside what is deliberately not being done.
 
 ---
 
@@ -27,6 +27,14 @@ URL and the video.
 | 7 | **Assemble `demo.mp4`.** None of `raw-fitted.mov`, `demo.mp4` or `demo.en.srt` exist. The 20 Sep take is split across `raw-parte1.mov` and `raw-parte2.mov`, which the documented pipeline does not contemplate | me, after the take | `fit-to-audio.py --beats`, then `build-video.sh` with `OUTRO`/`OUTRO_REPLACE`. Under 300 s |
 | 8 | **Share the deck and submit on lablab** | you | The artifact is linked from [`SUBMISSION.md`](SUBMISSION.md); it has to be shared before it can be uploaded |
 | 9 | **The GitHub shop window.** `description` and `homepageUrl` are both empty, no topics | you or me | `gh repo edit`. The homepage waits on row 1; the description does not |
+
+**The video is now shot after the features, not before.** Three of the six changed what the agent
+says on the call, so `seed/scripts.json` and all four fixtures moved with them. The narration in
+`video/narration.tsv` was already stale against its built track (row 3); it now also describes a call
+that no longer happens that way, and has to be written against the new behaviour before
+`build-audio.sh` runs. What the panel's buttons show that they did not a day ago: a promise made in
+week 1 and asked about in week 2, a read-back of a number the recogniser was unsure of, an answer
+from the professional spoken word for word in the greeting, and a new question landing in the queue.
 
 **Checkpoints.** C1 is closed. **C2** (three real calls back to back, no reset, the third superseding
 the 7/10) and **C3** (the panel live during a call) close during the recording session — row 6.
@@ -118,20 +126,31 @@ until they are settled.
 2. **The metrics band.** The doc puts it on `--fill-subtle`; the code has a dark teal band built from
    `--color-section` and `--color-section-glow`, with `--section-ink` on top. Building the doc
    retires three tokens and removes the page's only high-contrast block.
-3. **The `.input` component.** The doc specifies it with five states and an `aria-describedby` error
-   pattern. The product has no text input anywhere — the only `<input>` elements are the hidden
-   radios inside `.seg-opt`. Building it is furniture nobody uses.
+3. ~~**The `.input` component.**~~ **Settled.** The question queue needed somewhere for the
+   professional to type an answer, so `.input` now exists in `panel/panel.css` and is used by
+   `panel/Questions.tsx`. It has a base, a focus ring and a placeholder, not the five states
+   `DESIGN.md` specifies and not the `aria-describedby` error pattern; that gap moves into group B
+   above rather than staying a question.
 4. **`.btn-ghost`.** It exists, it is used three times in the panel, and the component table does not
    name it while a rule forbids components the system does not name. Either it joins the table, or
    the three ghost buttons become secondary.
 
 ---
 
-## 4. Optional, and not being done
+## 4. What the six new features left, and what stays out
 
-**Optional.** `NEW_FEATURES.md` — six features read out of other hackathon entries, with sources,
-insertion points and tests. It is a **local note at the repo root, outside git**, so it is named here
-rather than linked. None of the six is started; take one only once part 1 is closed.
+**Done, and no longer optional.** All six features in
+[`NEW_FEATURES.md`](NEW_FEATURES.md) are built, tested and visible in the panel's scripted buttons.
+That file is now the record of where each one came from, not a plan. What each one left open:
+
+| | Feature | What is still open |
+|---|---|---|
+| 1 | Out-of-range values | Nothing. The ceiling comes from the pack's own `Measure`, so a vertical with an unbounded reading is not capped — which is correct, not a gap. |
+| 2 | Commitments | The `ACTION` vocabulary is rehab-shaped (*walk, stretch, do the exercises*). A postpartum or chronic patient's promise will not match it. |
+| 3 | The critic | The fifth rule the source design asked for — that the reply share a word with its goal — is **deliberately not built**: a goal here is one clause, so a legitimate recall question shares nothing with it and gets flagged. Measure the other four with `make smoke-call` before trusting them on a real line. |
+| 4 | Low-confidence read-back | **`words[].confidence` on a v3 `Turn` is still unverified.** The code treats a missing field as certain, so the read-back is off until a real call proves it arrives. `STT_CONFIDENCE_FLOOR` then needs calibrating on µ-law audio. |
+| 5 | Audio behind a quote | Cannot be shown offline: `scripted` and `replay` have no recording, so no quote in the demo has a play button. `/calls/{id}/audio` serves the whole mp3 with no `Range` support. |
+| 6 | The question queue | The answer is relayed in the greeting of the **next** call, so the loop takes two calls to close. `wants_human` flags the call and nothing acts on the flag yet beyond the trace and `call_ended`. |
 
 **Deliberately out of scope.** Decided, and not to be reopened without saying so:
 

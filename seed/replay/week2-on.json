@@ -21,10 +21,11 @@
     {
       "t": 0.0,
       "type": "recall",
-      "facts": 4,
+      "facts": 5,
       "keyterms": [
         "right knee",
         "home exercises",
+        "daily exercises",
         "stiffness",
         "bathroom fall"
       ]
@@ -55,201 +56,266 @@
     },
     {
       "t": 2.4,
-      "type": "patient_turn",
+      "type": "agent_turn",
       "turn_id": 2,
-      "text": "Hello, yes, this is Ana."
+      "text": "Before we start, I have the answer to what you asked me last time. A click with no pain is normal at this stage of the recovery.",
+      "interrupted": false
     },
     {
       "t": 2.4,
+      "type": "answer_delivered",
+      "question": "Is it normal that the knee clicks going down the stairs?",
+      "answer": "A click with no pain is normal at this stage of the recovery."
+    },
+    {
+      "t": 3.6,
+      "type": "patient_turn",
+      "turn_id": 3,
+      "text": "Hello, yes, this is Ana."
+    },
+    {
+      "t": 3.6,
       "type": "phase_done",
       "phase": "greet"
     },
     {
-      "t": 2.4,
+      "t": 3.6,
       "type": "phase_started",
       "phase": "converse"
     },
     {
-      "t": 2.4,
+      "t": 3.6,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 3.6,
+      "t": 4.8,
       "type": "agent_turn",
-      "turn_id": 3,
+      "turn_id": 4,
       "text": "Tell me, how much does it hurt today from one to ten climbing stairs?",
       "interrupted": false
     },
     {
-      "t": 4.8,
+      "t": 6.0,
       "type": "patient_turn",
-      "turn_id": 4,
+      "turn_id": 5,
       "text": "My knee is a lot better, it is four out of ten on the stairs now."
     },
     {
-      "t": 4.8,
+      "t": 6.0,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 6.0,
+      "t": 7.2,
       "type": "agent_turn",
-      "turn_id": 5,
+      "turn_id": 6,
+      "text": "Last week you promised to do the exercises every day. How did that go?",
+      "interrupted": false
+    },
+    {
+      "t": 8.4,
+      "type": "patient_turn",
+      "turn_id": 7,
+      "text": "I did better with the daily plan, I managed five of the seven days."
+    },
+    {
+      "t": 8.4,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 9.6,
+      "type": "agent_turn",
+      "turn_id": 8,
       "text": "Last week you did the exercises three times. How many times did you manage this week?",
       "interrupted": false
     },
     {
-      "t": 7.2,
+      "t": 10.8,
       "type": "patient_turn",
-      "turn_id": 6,
+      "turn_id": 9,
       "text": "I did them five times this week, I got myself better organised."
     },
     {
-      "t": 7.2,
+      "t": 10.8,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 8.4,
+      "t": 12.0,
       "type": "agent_turn",
-      "turn_id": 7,
+      "turn_id": 10,
       "text": "Did you have any new discomfort after the exercises, any swelling or stiffness?",
       "interrupted": false
     },
     {
-      "t": 9.6,
+      "t": 13.2,
       "type": "patient_turn",
-      "turn_id": 8,
-      "text": "No, no new discomfort."
+      "turn_id": 11,
+      "text": "No, no new discomfort. Should I start going up the stairs normally again?"
     },
     {
-      "t": 9.6,
+      "t": 13.2,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 10.8,
+      "t": 14.4,
       "type": "agent_turn",
-      "turn_id": 9,
+      "turn_id": 12,
       "text": "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?",
       "interrupted": false
     },
     {
-      "t": 12.0,
+      "t": 15.6,
       "type": "patient_turn",
-      "turn_id": 10,
+      "turn_id": 13,
       "text": "No, nothing like that."
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "agent_turn",
-      "turn_id": 11,
+      "turn_id": 14,
       "text": "That is everything for today. I will send the summary to your physio. Take care, we will talk next week.",
       "interrupted": false
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "phase_done",
       "phase": "converse"
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "phase_started",
       "phase": "extract"
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "facts_extracted",
-      "count": 2
+      "count": 3
     },
     {
-      "t": 13.2,
+      "t": 16.8,
+      "type": "questions_found",
+      "count": 1
+    },
+    {
+      "t": 16.8,
       "type": "phase_done",
       "phase": "extract"
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "phase_started",
       "phase": "store"
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "fact_stored",
-      "id": "fact-5",
+      "id": "fact-6",
       "fact": "right knee pain 4/10 climbing stairs",
       "term": "right knee",
       "category": "symptom",
       "value": 4.0,
       "quote": "it is four out of ten",
-      "turn_id": 4
+      "turn_id": 5
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "fact_superseded",
-      "old_id": "1e5ed3db-6c84-5c04-8974-8ada6ec868d4",
-      "new_id": "fact-5"
+      "old_id": "c8cbb43e-0558-5cf2-943f-f9cd69c61faf",
+      "new_id": "fact-6"
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "fact_stored",
-      "id": "fact-6",
+      "id": "fact-7",
+      "fact": "kept the daily exercise promise five days out of seven",
+      "term": "daily exercises",
+      "category": "adherence",
+      "value": null,
+      "quote": "I managed five of the seven days",
+      "turn_id": 7
+    },
+    {
+      "t": 16.8,
+      "type": "fact_superseded",
+      "old_id": "854dc0ec-2dc8-5dc5-87e2-38f100ac2ac0",
+      "new_id": "fact-7"
+    },
+    {
+      "t": 16.8,
+      "type": "fact_stored",
+      "id": "fact-8",
       "fact": "did the exercises five times this week",
       "term": "home exercises",
       "category": "adherence",
       "value": 5.0,
       "quote": "I did them five times",
-      "turn_id": 6
+      "turn_id": 9
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "fact_superseded",
-      "old_id": "57ee6aa9-40ed-554f-9642-00aa15a92cc3",
-      "new_id": "fact-6"
+      "old_id": "c24b2d33-b74f-5c09-9943-e294f48577d3",
+      "new_id": "fact-8"
     },
     {
-      "t": 13.2,
+      "t": 16.8,
+      "type": "question_stored",
+      "id": "question-3",
+      "question": "Can she go back to using the stairs normally?",
+      "quote": "Should I start going up the stairs normally again",
+      "turn_id": 11
+    },
+    {
+      "t": 16.8,
       "type": "phase_done",
       "phase": "store"
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "phase_started",
       "phase": "summarize"
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
       "scripted": true
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "summary",
-      "text": "Second follow-up call. Right knee pain dropped from 7/10 to 4/10 climbing stairs. Adherence improved: five sessions this week against three the week before. No new discomfort and no red flags."
+      "text": "Second follow-up call. Right knee pain dropped from 7/10 to 4/10 climbing stairs. Kept the daily exercise promise five days out of seven: five sessions this week against three the week before. No new discomfort and no red flags."
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "phase_done",
       "phase": "summarize"
     },
     {
-      "t": 13.2,
+      "t": 16.8,
       "type": "call_ended",
       "escalated": false,
+      "wants_human": false,
       "answers": {
         "pain": "My knee is a lot better, it is four out of ten on the stairs now.",
+        "commitment": "I did better with the daily plan, I managed five of the seven days.",
         "adherence": "I did them five times this week, I got myself better organised.",
-        "side_effects": "No, no new discomfort.",
+        "side_effects": "No, no new discomfort. Should I start going up the stairs normally again?",
         "red_flags": "No, nothing like that."
       }
     }

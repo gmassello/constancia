@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     language: str = "en"
     silence_s: float = 8.0
     barge_min_words: int = 2
+    stt_confidence_floor: float = 0.6
 
 
 @lru_cache

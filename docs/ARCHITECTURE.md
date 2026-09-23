@@ -44,14 +44,29 @@ Declared as data in `PHASES` (`app/orchestrator.py`), walked in order:
 | # | Phase | Critical | What it does |
 |---|---|---|---|
 | 1 | `recall` | no | Loads every current fact for the patient, renders them into the system prompt, and pushes their key terms into the STT's `keyterms_prompt`. |
-| 2 | `greet` | **yes** | The LLM writes the greeting — which, with memory on, opens by quoting last week. |
-| 3 | `converse` | **yes** | One pass over `pack.questions`. Each answer goes through the red-flag guard before it is kept. |
-| 4 | `extract` | no | The transcript becomes structured facts. |
+| 2 | `greet` | **yes** | The LLM writes the greeting — which, with memory on, opens by quoting last week. Then `deliver_answers` speaks any answer the professional left in the queue, word for word and without the model. |
+| 3 | `converse` | **yes** | One pass over the question list. Each answer goes through the red-flag guard before it is kept, and a number the recogniser was unsure of earns one read-back turn. |
+| 4 | `extract` | no | The transcript becomes structured facts, plus the questions the patient asked and the agent would not answer. |
 | 5 | `store` | no | The call row is written **whether or not memory is on** — memory decides what the agent remembers, not whether the call is on the record. With memory on the facts are then embedded and inserted, each one retiring what it contradicts in the same statement; if one fails part way, `facts_lost` names how many did not make it. |
 | 6 | `summarize` | no | A summary for the professional, with the new facts named in the prompt, saved onto the call row written in `store`. |
 
 `recall` runs **before** `greet`, not after, so the agent can open on the knee. That is the moment
 the project exists to show.
+
+The question list is **not** `pack.questions` any more. `questions_for` (`app/orchestrator.py`)
+takes the pack's four and inserts one more before `adherence` when the patient has a standing
+promise on file, so the check happens as a question like the others rather than as a branch inside
+the loop — which is how it inherits the silence, escalation and answer handling already written
+there. `app/replay.py` reads the same function to line the scripted replies up, so the two cannot
+drift.
+
+Between the model and the phone sits `app/critic.py`, four deterministic checks on what the model
+wrote: no clinical advice, at most two sentences, it has to ask something, and every number in it
+has to appear in the memory block or the history. A reply that fails is **not** regenerated — the
+question's own `fallback`, written in `app/packs.py`, is spoken instead, which costs no latency at
+all on a line where a second model call would cost a second of silence. Only the question loop is
+criticised: the greeting, the escalation and the summary have no templated stand-in, and inventing
+one for them would mean writing spoken text outside `app/packs.py`.
 
 A **critical** phase that fails breaks the loop, which skips both phases that write the call row, so
 `run_call` writes it once more on the way out. A call that died in `greet` is still a call that
@@ -170,6 +185,15 @@ These are limits of the current design, not bugs:
   terminal runs to completion without ever appearing on the page.
 - **Extraction runs after hangup**, never during the call. Facts land seconds after the patient stops
   talking.
+- **The recording arrives after the facts do.** `analysis.run` is a background task fired by the
+  Twilio recording webhook, so by the time the word timings exist the facts are already written.
+  Anchoring a quote to its audio is therefore an `UPDATE` on rows that are already there
+  (`set_fact_span`), never part of the insert. `scripted` and `replay` have no recording at all, so
+  no quote in the offline demo has a play button.
+- **A number the recogniser doubted is read back, not re-heard.** The confidence floor only looks at
+  words AssemblyAI marks as numbers; a `Turn` frame that carries no `confidence` field leaves the
+  read-back switched off rather than firing on everything, which is the degraded mode until a real
+  call confirms the field is sent.
 - **~1 to 1.5 s of silence per turn**: the LLM writes the whole sentence before the TTS starts.
   Sentence-level streaming is the marked upgrade path.
 - **No authentication anywhere.** Anything that can reach the URL can read every patient's history

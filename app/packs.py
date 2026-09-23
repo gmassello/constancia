@@ -42,6 +42,7 @@ def _escalation(professional: str) -> str:
 class Question:
     key: str
     goal: str
+    fallback: str
 
 
 @dataclass(frozen=True)
@@ -90,12 +91,12 @@ REHAB = VerticalPack(
         "discomfort and red flags. Plain text, no lists."
     ),
     questions=(
-        Question("pain", "how much it hurts today from one to ten, and at what moment or with what movement"),
-        Question("adherence", "how many times they did the exercises this week and whether the routine was hard to keep up"),
-        Question("side_effects", "whether they had any new discomfort after the exercises, such as swelling or stiffness"),
-        Question("red_flags", "whether they had a fall, a sudden sharp pain, or anything that scared them"),
+        Question("pain", "how much it hurts today from one to ten, and at what moment or with what movement", "How much does it hurt today, from one to ten, and when do you notice it most?"),
+        Question("adherence", "how many times they did the exercises this week and whether the routine was hard to keep up", "How many times did you manage the exercises this week?"),
+        Question("side_effects", "whether they had any new discomfort after the exercises, such as swelling or stiffness", "Did you have any new discomfort after the exercises, like swelling or stiffness?"),
+        Question("red_flags", "whether they had a fall, a sudden sharp pain, or anything that scared them", "Did you have a fall, a sudden sharp pain, or anything that scared you?"),
     ),
-    keyterm_categories=("symptom", "adherence", "red_flag"),
+    keyterm_categories=("symptom", "adherence", "red_flag", "commitment"),
     measures=(Measure("symptom", 10, True), Measure("adherence", 7, False)),
     red_flags=(
         RedFlag(
@@ -144,10 +145,10 @@ POSTPARTUM = VerticalPack(
         "and pain. Plain text, no lists."
     ),
     questions=(
-        Question("bleeding", "how the bleeding is going and whether it changed from the previous days"),
-        Question("mood", "how they are feeling in themselves and whether they are managing to rest"),
-        Question("breastfeeding", "how breastfeeding is going and whether there is pain or trouble latching the baby"),
-        Question("red_flags", "whether they had a fever, a bad headache, or anything that scared them"),
+        Question("bleeding", "how the bleeding is going and whether it changed from the previous days", "How is the bleeding going, and has it changed from the previous days?"),
+        Question("mood", "how they are feeling in themselves and whether they are managing to rest", "How are you feeling in yourself, and are you managing to rest?"),
+        Question("breastfeeding", "how breastfeeding is going and whether there is pain or trouble latching the baby", "How is breastfeeding going, and is there any pain or trouble latching the baby?"),
+        Question("red_flags", "whether they had a fever, a bad headache, or anything that scared them", "Did you have a fever, a bad headache, or anything that scared you?"),
     ),
     keyterm_categories=("symptom", "mood", "red_flag"),
     measures=(Measure("symptom", 10, True), Measure("mood", 10, False)),
@@ -194,10 +195,10 @@ CHRONIC = VerticalPack(
         "adherence and symptoms. Plain text, no lists."
     ),
     questions=(
-        Question("measurements", "what readings they measured this week and what the latest ones were"),
-        Question("medication", "whether they are taking the medication as prescribed and whether they skipped a dose"),
-        Question("symptoms", "whether they had dizziness, headaches or tiredness beyond the usual"),
-        Question("red_flags", "whether they had chest pain, shortness of breath or blurred vision"),
+        Question("measurements", "what readings they measured this week and what the latest ones were", "What readings did you measure this week, and what were the latest ones?"),
+        Question("medication", "whether they are taking the medication as prescribed and whether they skipped a dose", "Are you taking the medication as prescribed, and did you skip any dose?"),
+        Question("symptoms", "whether they had dizziness, headaches or tiredness beyond the usual", "Did you have dizziness, headaches or tiredness beyond the usual?"),
+        Question("red_flags", "whether they had chest pain, shortness of breath or blurred vision", "Did you have chest pain, shortness of breath or blurred vision?"),
     ),
     keyterm_categories=("symptom", "clinical_value", "adherence", "red_flag"),
     measures=(
@@ -250,15 +251,38 @@ MEMORY_HEADER = (
 )
 
 
+PROMISE_HEADER = (
+    "The patient promised you this on an earlier call. Ask how it went out of curiosity, never as a "
+    "reproach, and never treat the promise itself as something they already did:"
+)
+COMMITMENT_CHECK = (
+    "how they got on with what they promised last week. Name the promise back to them, ask warmly, "
+    "and make it clear you are curious rather than checking up on them"
+)
+COMMITMENT_FALLBACK = "How did you get on with what you promised me last week?"
+CONFIRM = "Sorry, I want to be sure I heard that right. Did you say {value}?"
+ANSWER_RELAY = "Before we start, I have the answer to what you asked me last time. {answer}"
+
+
 def _day(reported_at) -> str:
     return str(reported_at)[:10]
+
+
+def _lines(facts: list[dict]) -> str:
+    return "\n".join(f"- {f['fact']} ({_day(f['reported_at'])})" for f in facts)
 
 
 def memory_block(facts: list[dict]) -> str:
     if not facts:
         return NO_MEMORY
-    lines = "\n".join(f"- {f['fact']} ({_day(f['reported_at'])})" for f in facts)
-    return f"{MEMORY_HEADER}\n{lines}"
+    promised = [f for f in facts if f.get("category") == "commitment"]
+    reported = [f for f in facts if f.get("category") != "commitment"]
+    blocks = []
+    if reported:
+        blocks.append(f"{MEMORY_HEADER}\n{_lines(reported)}")
+    if promised:
+        blocks.append(f"{PROMISE_HEADER}\n{_lines(promised)}")
+    return "\n\n".join(blocks)
 
 
 def system_prompt(pack: VerticalPack, patient_name: str, fragment: str, memory: str = "") -> str:

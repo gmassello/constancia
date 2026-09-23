@@ -409,7 +409,7 @@ whole video is one agent sentence quoting last week. A quote inside a fact is `m
 2. **Hero** — `display-xl` headline left, body and two buttons under it; the **demo card** right,
    playing a scripted call. One orb (`--orb-mint`) blooms behind the headline.
 3. **Metrics band** — four figures on `--fill-subtle`: 70% non-adherence, 3 verticals, 333 free
-   streaming hours, 177 tests. **Animated counters.**
+   streaming hours, 280 tests. **Animated counters.**
 4. **How it works** — four steps, 4-up at desktop, each an eyebrow index plus a card title and body.
 5. **Memory** — four pillars, 2×2.
 6. **Stack** — five service cards, the AssemblyAI one at level 2 to mark it as the protagonist, with

@@ -180,18 +180,31 @@ def test_the_target_table_lists_every_target_in_the_makefile() -> None:
 MARK = "ponytail" + ":"
 
 
+def marked_files(pathspec: tuple[str, ...]):
+    for spec in pathspec:
+        target = ROOT / spec
+        if target.is_file():
+            yield target
+        elif target.is_dir():
+            yield from (path for path in target.rglob("*") if path.is_file())
+        else:
+            yield from (path for path in ROOT.glob(spec) if path.is_file())
+
+
 def markers(pathspec: tuple[str, ...]) -> int:
-    run = subprocess.run(
-        ["git", "grep", "-o", MARK, "--", *pathspec],
-        capture_output=True,
-        text=True,
-        cwd=ROOT,
-    )
-    return len(run.stdout.splitlines())
+    # ponytail: walked here rather than shelled out to `git grep`, which counts the index and so
+    # cannot see a file that is written but not yet added — exactly the state a change is in when
+    # this gate runs. `__pycache__` is skipped because a .pyc carries the marker in its source.
+    total = 0
+    for path in marked_files(pathspec):
+        if "__pycache__" in path.parts or path.suffix == ".pyc":
+            continue
+        total += path.read_text(encoding="utf-8", errors="ignore").count(MARK)
+    return total
 
 
 @pytest.mark.parametrize("doc", MARKED)
-def test_every_published_ponytail_count_is_the_one_git_reports(doc: str) -> None:
+def test_every_published_ponytail_count_is_the_one_the_tree_holds(doc: str) -> None:
     # The same rule as the test-count gate, on the number the conventions section publishes. It
     # rotted in two documents at once and neither gate saw it, because both wrote it out in words
     # where the digit-only reader is blind. They are digits now, in a fixed phrase this reads.

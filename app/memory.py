@@ -16,9 +16,12 @@ SEED_PATH = Path(__file__).resolve().parent.parent / "seed" / "patients.json"
 
 FACT_COLUMNS = (
     "id, patient_id, call_id, fact, term, category, value, quote, turn_id, "
-    "confidence, reported_at, valid_until, superseded_by"
+    "confidence, reported_at, valid_until, superseded_by, start_ms, end_ms"
 )
 PATIENT_COLUMNS = "id, professional_id, program_type, name, phone_e164, started_at"
+QUESTION_COLUMNS = (
+    "id, patient_id, call_id, question, quote, turn_id, status, answer, asked_at, answered_at"
+)
 CALL_COLUMNS = (
     "id, patient_id, started_at, ended_at, twilio_sid, recording_url, "
     "transcript, summary, escalated, memory_enabled, analysis"
@@ -187,6 +190,50 @@ class MemoryStore:
             (new_id, old_id),
         )
 
+    async def set_fact_span(self, fact_id: str, start_ms: int, end_ms: int) -> None:
+        await db.execute(
+            "update patient_memories set start_ms = %s, end_ms = %s where id = %s",
+            (start_ms, end_ms, fact_id),
+        )
+
+    async def insert_question(self, call, question) -> str:
+        question_id = str(uuid.uuid4())
+        await db.execute(
+            "insert into patient_questions "
+            "(id, patient_id, call_id, question, quote, turn_id, asked_at) "
+            "values (%s, %s, %s, %s, %s, %s, %s)",
+            (
+                question_id,
+                call.patient_id,
+                call.id,
+                question.question,
+                question.quote,
+                question.turn_id,
+                call.started_at,
+            ),
+        )
+        return question_id
+
+    async def questions(self, patient_id: str) -> list[dict]:
+        return await db.fetch(
+            f"select {QUESTION_COLUMNS} from patient_questions "
+            "where patient_id = %s order by asked_at desc, id",
+            (patient_id,),
+        )
+
+    async def set_question(
+        self, question_id: str, was: str, now: str, answer: str | None = None
+    ) -> bool:
+        # ponytail: the `where status = %s` is the whole 409. Reading the row first and writing
+        # after leaves a window where two clicks both see `open` and both answer it.
+        rows = await db.execute(
+            "update patient_questions set status = %s, answer = coalesce(%s, answer), "
+            "answered_at = case when %s = 'answered' then now() else answered_at end "
+            "where id = %s and status = %s",
+            (now, answer, now, question_id, was),
+        )
+        return bool(rows)
+
 
 class FakeStore:
     def __init__(
@@ -199,6 +246,7 @@ class FakeStore:
         self._calls = {c["id"]: dict(c) for c in calls or []}
         self.facts = [dict(f) for f in facts or []]
         self.saved_calls: list[str] = []
+        self.questions_rows: list[dict] = []
 
     async def embed(self, text: str, emit=None) -> list[float]:
         return normalize([float(len(text)), 1.0])
@@ -288,11 +336,53 @@ class FakeStore:
                 "reported_at": call.started_at,
                 "valid_until": None,
                 "superseded_by": None,
+                "start_ms": None,
+                "end_ms": None,
             }
         )
         if supersedes:
             await self.supersede(supersedes, fact_id)
         return fact_id
+
+    async def set_fact_span(self, fact_id: str, start_ms: int, end_ms: int) -> None:
+        for fact in self.facts:
+            if str(fact["id"]) == str(fact_id):
+                fact["start_ms"], fact["end_ms"] = start_ms, end_ms
+
+    async def insert_question(self, call, question) -> str:
+        question_id = f"question-{len(self.questions_rows) + 1}"
+        self.questions_rows.append(
+            {
+                "id": question_id,
+                "patient_id": call.patient_id,
+                "call_id": call.id,
+                "question": question.question,
+                "quote": question.quote,
+                "turn_id": question.turn_id,
+                "status": "open",
+                "answer": None,
+                "asked_at": call.started_at,
+                "answered_at": None,
+            }
+        )
+        return question_id
+
+    async def questions(self, patient_id: str) -> list[dict]:
+        rows = [r for r in self.questions_rows if r["patient_id"] == patient_id]
+        return sorted(rows, key=lambda r: (str(r["asked_at"]), str(r["id"])), reverse=True)
+
+    async def set_question(
+        self, question_id: str, was: str, now: str, answer: str | None = None
+    ) -> bool:
+        for row in self.questions_rows:
+            if str(row["id"]) == str(question_id) and row["status"] == was:
+                row["status"] = now
+                if answer is not None:
+                    row["answer"] = answer
+                if now == "answered":
+                    row["answered_at"] = _now()
+                return True
+        return False
 
     async def supersede(self, old_id: str, new_id: str) -> None:
         for fact in self.facts:
@@ -311,7 +401,7 @@ def days_ago(days: int) -> str:
 
 def load_seed(path: Path = SEED_PATH) -> FakeStore:
     data = json.loads(Path(path).read_text(encoding="utf-8"))
-    patients, facts, calls = [], [], []
+    patients, facts, calls, questions = [], [], [], []
     for patient in data["patients"]:
         patients.append(
             {
@@ -340,8 +430,23 @@ def load_seed(path: Path = SEED_PATH) -> FakeStore:
                     "analysis": None,
                 }
             )
+            for asked in call.get("questions") or []:
+                key = f"{call['id']}/{asked['turn_id']}/{asked['question']}"
+                questions.append(
+                    {
+                        **asked,
+                        "id": str(uuid.uuid5(uuid.NAMESPACE_URL, key)),
+                        "patient_id": patient["id"],
+                        "call_id": call["id"],
+                        "asked_at": reported_at,
+                        "answered_at": reported_at if asked["status"] != "open" else None,
+                    }
+                )
             for fact in call["facts"]:
-                key = f"{call['id']}/{fact['turn_id']}"
+                # ponytail: the term is in the key because one turn can carry more than one
+                # fact — an adherence reading and the promise made in the same breath — and two
+                # rows sharing an id makes the second supersede whatever the first replaced.
+                key = f"{call['id']}/{fact['turn_id']}/{fact['term']}"
                 facts.append(
                     {
                         **fact,
@@ -351,6 +456,10 @@ def load_seed(path: Path = SEED_PATH) -> FakeStore:
                         "reported_at": reported_at,
                         "valid_until": None,
                         "superseded_by": None,
+                        "start_ms": None,
+                        "end_ms": None,
                     }
                 )
-    return FakeStore(patients, facts, calls)
+    store = FakeStore(patients, facts, calls)
+    store.questions_rows = questions
+    return store

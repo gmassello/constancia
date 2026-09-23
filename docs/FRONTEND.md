@@ -55,14 +55,15 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/panel/panel.css` | 347 | Layout and styles, on the aliases. |
-| `web/src/panel/copy.ts` | 477 | Two languages, one register, plus the maps for raw backend values. |
-| `web/src/panel/ActivityRail.tsx` | 151 | Turns each trace event into a labelled line. |
-| `web/src/panel/PatientView.tsx` | 153 | Loads the patient's data and composes four cards, plus the live one while a call runs. |
-| `web/src/panel/content.ts` | 109 | The EN→ES table for canned patient data, keyed by the English string the call produces. |
+| `web/src/panel/panel.css` | 362 | Layout and styles, on the aliases. |
+| `web/src/panel/copy.ts` | 545 | Two languages, one register, plus the maps for raw backend values. |
+| `web/src/panel/ActivityRail.tsx` | 166 | Turns each trace event into a labelled line. An event with no `case` still renders, through the `default` — a new one costs a row here only when it deserves wording of its own. |
+| `web/src/panel/PatientView.tsx` | 170 | Loads the patient's data and composes five cards, plus the live one while a call runs. |
+| `web/src/panel/content.ts` | 160 | The EN→ES table for canned patient data, keyed by the English string the call produces. |
 | `web/src/panel/App.tsx` | 96 | Shell: sidebar, backend status, the two toggles, patient list. |
-| `web/src/panel/api.ts` | 133 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
-| `web/src/panel/FactChain.tsx` | 79 | The patient file: current facts and what they retired. |
+| `web/src/panel/api.ts` | 155 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
+| `web/src/panel/FactChain.tsx` | 95 | The patient file: current facts and what they retired, each with a native `<audio>` for its quote when the recording placed it. |
+| `web/src/panel/Questions.tsx` | 109 | What the patient asked and the agent would not answer. An open one carries the only text field in the product; the rest show their status. |
 | `web/src/panel/Calls.tsx` | 102 | One row per past call: tags, the summary, and the transcript behind a `<details>`. |
 | `web/src/panel/WeeklyChart.tsx` | 70 | One series per measure, with scale, delta and verdict. |
 | `web/src/panel/Keyterms.tsx` | 64 | The words handed to the recogniser: the three-step drawing and the chips. |
@@ -166,7 +167,9 @@ The maps are typed `Record<string, string>`, which on its own would let a missin
 compile and let `label()` fall through to `raw.replace(/_/g, " ")` — the Spanish reader would see
 `sudden sharp pain`. `en` and `es` are therefore declared with `satisfies Strings` rather than an
 annotation, which keeps their literal keys, and the `parity` block at the end of the file asserts
-that each of the eight maps carries the same keys in both languages.
+that each of the nine maps carries the same keys in both languages — the ninth is
+`questionStatus`, and adding it meant a row in `parity` and its own `Aligned<>` line, not just the
+two tables.
 
 The landing has the same gate on a smaller surface: one map, `demoCategory`, and its own `parity`
 block at the end of `landing/copy.ts`. Both are type-level assertions — they cost nothing at runtime
@@ -202,7 +205,7 @@ own pre-paint script and reads the same three keys.
 | Component | Shows | Fed by |
 |---|---|---|
 | `App` | Sidebar, backend status line, patient list | `GET /patients`, `GET /health` |
-| `PatientView` | Header, the call controls, four cards, and the live one while a call runs | `GET /patients/{id}/chain`, `/weekly`, `/calls`, then `/calls/{id}/keyterms` |
+| `PatientView` | Header, the call controls, five cards, and the live one while a call runs | `GET /patients/{id}/chain`, `/weekly`, `/calls`, `/questions`, then `/calls/{id}/keyterms` |
 | `LiveCall` | The call in progress and its transcript | SSE `GET /calls/{id}/events` |
 | `ActivityRail` | One line per trace event | props, from `LiveCall` |
 | `WeeklyChart` | One series per measure: previous → current, verdict, bars, real dates | props |

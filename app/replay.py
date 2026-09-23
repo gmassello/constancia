@@ -7,7 +7,7 @@ from app.calls import Call, _now
 from app.channel import ScriptedPatient
 from app.config import settings_or_none
 from app.llm import GeminiLLM, ScriptedLLM
-from app.orchestrator import run_call
+from app.orchestrator import questions_for, run_call
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_PATH = ROOT / "seed" / "scripts.json"
@@ -23,16 +23,20 @@ def scripts() -> dict:
 def extraction(script: dict, current_facts: list[dict]) -> str:
     by_term = {fact["term"]: str(fact["id"]) for fact in current_facts}
     return json.dumps(
-        {"facts": [{**f, "supersedes": by_term.get(f["term"])} for f in script["facts"]]},
+        {
+            "facts": [{**f, "supersedes": by_term.get(f["term"])} for f in script["facts"]],
+            "open_questions": script.get("open_questions") or [],
+        },
         ensure_ascii=False,
     )
 
 
-def agent_lines(script: dict, pack) -> list[str]:
+def agent_lines(script: dict, pack, current_facts: list[dict]) -> list[str]:
     said = script["agent"]
     if "order" in script:
         return [said[key] for key in script["order"]]
-    return [said["greet"], *(said[q.key] for q in pack.questions), said["summary"]]
+    asked = questions_for(pack, current_facts)
+    return [said["greet"], *(said[q.key] for q in asked), said["summary"]]
 
 
 def build_llm(script: dict, current_facts: list[dict], pack):
@@ -40,7 +44,7 @@ def build_llm(script: dict, current_facts: list[dict], pack):
     if settings and settings.gemini_api_key:
         return GeminiLLM()
     return ScriptedLLM(
-        replies=agent_lines(script, pack),
+        replies=agent_lines(script, pack, current_facts),
         structured_replies=[extraction(script, current_facts)],
     )
 

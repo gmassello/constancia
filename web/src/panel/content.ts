@@ -100,6 +100,57 @@ const ES: Record<string, string> = {
   "five out of ten": "cinco de diez",
   "did them twice": "Los hice dos veces",
   "I fell coming down the stairs": "me caí bajando la escalera",
+
+  "I did the exercises three times, I skipped two days because I had a lot of work. Next week I will do them every day.":
+    "Hice los ejercicios tres veces, me salté dos días porque tenía mucho trabajo. La semana que viene los voy a hacer todos los días.",
+  "I did them three times, I skipped two days because I had a lot of work. Next week I will do the exercises every day.":
+    "Los hice tres veces, me salté dos días porque tenía mucho trabajo. La semana que viene voy a hacer los ejercicios todos los días.",
+  "Last week you promised to do the exercises every day. How did that go?":
+    "La semana pasada prometiste hacer los ejercicios todos los días. ¿Cómo te fue con eso?",
+  "I did better with the daily plan, I managed five of the seven days.":
+    "Me fue mejor con el plan diario, llegué a cinco de los siete días.",
+  "First follow-up call. Reports right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Promised to do them every day next week. Mild stiffness after the exercises, no red flags.":
+    "Primera llamada de seguimiento. Refiere dolor de rodilla derecha 7/10 al subir escaleras. Hizo los ejercicios tres veces y se saltó dos días por trabajo. Prometió hacerlos todos los días la semana que viene. Rigidez leve después de los ejercicios, sin señales de alarma.",
+  "First follow-up week. Right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Mild stiffness after the exercises. Promised to do them every day next week. Reports a bathroom fall three weeks ago, before the plan started.":
+    "Primera semana de seguimiento. Dolor de rodilla derecha 7/10 al subir escaleras. Hizo los ejercicios tres veces y se saltó dos días por trabajo. Rigidez leve después de los ejercicios. Prometió hacerlos todos los días la semana que viene. Refiere una caída en el baño hace tres semanas, antes de empezar el plan.",
+  "Second follow-up call. Right knee pain dropped from 7/10 to 4/10 climbing stairs. Kept the daily exercise promise five days out of seven: five sessions this week against three the week before. No new discomfort and no red flags.":
+    "Segunda llamada de seguimiento. El dolor de rodilla derecha bajó de 7/10 a 4/10 al subir escaleras. Cumplió la promesa diaria cinco de los siete días: cinco sesiones esta semana contra tres la anterior. Sin molestias nuevas ni señales de alarma.",
+  "promised to do the exercises every day next week":
+    "prometió hacer los ejercicios todos los días la semana que viene",
+  "kept the daily exercise promise five days out of seven":
+    "cumplió la promesa diaria de ejercicios cinco de los siete días",
+  "daily exercises":
+    "ejercicios diarios",
+  "I will do the exercises every day":
+    "voy a hacer los ejercicios todos los días",
+  "I managed five of the seven days":
+    "llegué a cinco de los siete días",
+  "Sorry, I want to be sure I heard that right. Did you say three?":
+    "Perdón, quiero estar seguro de haber escuchado bien. ¿Dijiste tres?",
+  "Yes, three times.": "Sí, tres veces.",
+
+  "After the exercises it stays a little stiff, nothing strange. Is it normal that it clicks when I go down the stairs? And should I be using ice on it?":
+    "Después de los ejercicios me queda un poco rígida, nada raro. ¿Es normal que me suene al bajar la escalera? ¿Y tendría que ponerme hielo?",
+  "No, no new discomfort. Should I start going up the stairs normally again?":
+    "No, ninguna molestia nueva. ¿Puedo volver a subir la escalera normalmente?",
+  "I did not manage the daily plan this week, not once.":
+    "Esta semana no llegué al plan diario, ni una vez.",
+  "Before we start, I have the answer to what you asked me last time. A click with no pain is normal at this stage of the recovery.":
+    "Antes de empezar, tengo la respuesta a lo que me preguntaste la vez pasada. Un chasquido sin dolor es normal en esta etapa de la recuperación.",
+  "A click with no pain is normal at this stage of the recovery.":
+    "Un chasquido sin dolor es normal en esta etapa de la recuperación.",
+  "Is it normal that the knee clicks going down the stairs?":
+    "¿Es normal que la rodilla suene al bajar la escalera?",
+  "Should she be using ice on the knee?":
+    "¿Tendría que ponerse hielo en la rodilla?",
+  "Can she go back to using the stairs normally?":
+    "¿Puede volver a usar la escalera normalmente?",
+  "Is it normal that it clicks when I go down the stairs":
+    "¿Es normal que me suene al bajar la escalera?",
+  "should I be using ice on it":
+    "¿tendría que ponerme hielo?",
+  "Should I start going up the stairs normally again":
+    "¿Puedo volver a subir la escalera normalmente?",
 }
 
 export function speech(lang: Lang, text: string): string {

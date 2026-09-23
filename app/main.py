@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Annotated, Literal
 from uuid import UUID
 
+import httpx
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, Response, WebSocket
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -28,6 +29,7 @@ KEEPALIVE_S = 15.0
 SSE_HEADERS = {"Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no"}
 PAGE_HEADERS = {"Cache-Control": "no-store"}
 DEFAULT_FIXTURE = "week2-on"
+AUDIO_TIMEOUT_S = 30.0
 WEB_DIST = Path(__file__).resolve().parent.parent / "web" / "dist"
 
 
@@ -60,6 +62,10 @@ class CallRequest(BaseModel):
     memory: bool = True
     mode: Literal["live", "scripted", "replay"] = "live"
     script: str | None = None
+
+
+class AnswerRequest(BaseModel):
+    answer: str = Field(min_length=1, max_length=400)
 
 
 @app.get("/health")
@@ -181,6 +187,27 @@ async def patient_facts(patient_id: UUID) -> dict:
     return {"patient_id": str(patient_id), "facts": await STORE.chain(str(patient_id))}
 
 
+@app.get("/patients/{patient_id}/questions")
+async def patient_questions(patient_id: UUID) -> list[dict]:
+    return await STORE.questions(str(patient_id))
+
+
+@app.post("/questions/{question_id}/answer")
+async def answer_question(question_id: str, body: AnswerRequest) -> dict:
+    # ponytail: ordered by recency, not by how often it was asked. Vera counts repeats because a
+    # gap is shared across its users; here a row belongs to one patient, so the count is always one.
+    if not await STORE.set_question(question_id, "open", "answered", body.answer):
+        raise HTTPException(status_code=409, detail="that question is not open")
+    return {"question_id": question_id, "status": "answered"}
+
+
+@app.post("/questions/{question_id}/dismiss")
+async def dismiss_question(question_id: str) -> dict:
+    if not await STORE.set_question(question_id, "open", "dismissed"):
+        raise HTTPException(status_code=409, detail="that question is not open")
+    return {"question_id": question_id, "status": "dismissed"}
+
+
 @app.get("/search")
 async def search(q: str, professional_id: UUID) -> list[dict]:
     if store_kind() != "postgres":
@@ -198,6 +225,29 @@ async def call_keyterms(call_id: str) -> list[str]:
     return queries.keyterms_at(
         await STORE.chain(patient_id), row["started_at"], get_pack(pack_key)
     )
+
+
+@app.get("/calls/{call_id}/audio")
+async def call_audio(call_id: str) -> Response:
+    # ponytail: the whole mp3 in one response, no Range. A five minute call is well under a
+    # megabyte, so the browser buffers it and seeks to the media fragment itself. Serve 206s the
+    # day a call is long enough for that to feel slow.
+    row = await STORE.call(call_id)
+    url = (row or {}).get("recording_url")
+    if not row or not url:
+        raise HTTPException(status_code=404, detail="that call has no recording")
+    if not is_twilio_recording(url):
+        raise HTTPException(status_code=400, detail="not a twilio recording")
+    settings = get_settings()
+    async with httpx.AsyncClient(timeout=AUDIO_TIMEOUT_S) as client:
+        media = await client.get(
+            f"{url}.mp3",
+            auth=(settings.twilio_account_sid, settings.twilio_auth_token),
+            follow_redirects=True,
+        )
+    if media.status_code != 200:
+        raise HTTPException(status_code=502, detail="twilio would not hand over the recording")
+    return Response(content=media.content, media_type="audio/mpeg", headers=PAGE_HEADERS)
 
 
 @app.post("/voice")

@@ -8,7 +8,7 @@ The service degrades on purpose. Pick the shallowest one that shows what you nee
 
 ```bash
 uv sync
-make test          # 177 tests, no network and no database
+make test          # 280 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session
@@ -103,11 +103,17 @@ can serve. `mode=live` is refused with `503`, and so is `GET /search`, which nee
 | `ELEVENLABS_MODEL` | `eleven_flash_v2_5` | |
 | `VALIDATE_TWILIO_SIGNATURE` | `true` | Turn it off only against a local tunnel you control. |
 
-Four more tuning knobs are defaulted in [`../app/config.py`](../app/config.py) and deliberately left
+Five more tuning knobs are defaulted in [`../app/config.py`](../app/config.py) and deliberately left
 out of `.env.example`, because nobody needs to set them to run the project: `EMBEDDING_DIMS` (1536,
 and it has to match `vector(1536)` in the schema), `LANGUAGE` (`en`), `SILENCE_S` (8.0, how long the
-agent waits before re-prompting) and `BARGE_MIN_WORDS` (2, how many words of the patient count as an
-interruption).
+agent waits before re-prompting), `BARGE_MIN_WORDS` (2, how many words of the patient count as an
+interruption) and `STT_CONFIDENCE_FLOOR` (0.6, below which a number the recogniser heard earns one
+read-back turn; `0` switches the read-back off entirely).
+
+`STT_CONFIDENCE_FLOOR` is the one that needs calibrating on real calls. µ-law at 8 kHz scores lower
+than clean audio across the board, so a floor tuned on a laptop microphone makes the agent read
+every number back. Raise it only after listening to a take: the cost of it being too low is a longer
+call, and the cost of it being too high is a wrong number stored as a fact.
 
 `LANGUAGE` is the one worth leaving alone. It feeds `stream_url()` in
 [`../app/stt.py`](../app/stt.py) and `transcribe()` in [`../app/analysis.py`](../app/analysis.py), but

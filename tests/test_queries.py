@@ -32,6 +32,7 @@ async def test_chain_returns_every_seed_fact_with_no_history() -> None:
     assert [f["term"] for f in facts] == [
         "right knee",
         "home exercises",
+        "daily exercises",
         "stiffness",
         "bathroom fall",
     ]
@@ -136,4 +137,10 @@ async def test_keyterms_at_carries_the_previous_week_into_the_next_call() -> Non
 
     terms = queries.keyterms_at(await store.chain(PATIENT), next_call, get_pack("rehab"))
 
-    assert terms == ["right knee", "home exercises", "stiffness", "bathroom fall"]
+    assert terms == [
+        "right knee",
+        "home exercises",
+        "daily exercises",
+        "stiffness",
+        "bathroom fall",
+    ]

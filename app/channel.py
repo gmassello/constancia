@@ -3,7 +3,7 @@ import base64
 import contextlib
 import json
 
-from app import tts
+from app import numbers, tts
 from app.calls import Call
 from app.config import get_settings
 from app.stt import StreamingSTT
@@ -21,8 +21,14 @@ class CallEnded(Exception):
     pass
 
 
+def spoken(answer) -> tuple[str, list[str]]:
+    if isinstance(answer, dict):
+        return answer["text"], list(answer.get("low_conf") or [])
+    return answer, []
+
+
 class ScriptedPatient:
-    def __init__(self, call: Call, answers: list[str | None], delay_s: float = 0.0) -> None:
+    def __init__(self, call: Call, answers: list, delay_s: float = 0.0) -> None:
         self.call = call
         self.answers = list(answers)
         self.delay_s = delay_s
@@ -54,8 +60,9 @@ class ScriptedPatient:
         answer = self.answers.pop(0)
         if answer is None:
             return None
-        self.call.add_turn("patient", answer)
-        return answer
+        text, low_conf = spoken(answer)
+        self.call.add_turn("patient", text, **({"low_conf": low_conf} if low_conf else {}))
+        return text
 
     async def set_keyterms(self, terms: list[str]) -> None:
         self.keyterms = terms
@@ -84,6 +91,7 @@ class LiveChannel:
         self.closed = False
         self.stopped = False
         self.barge_min_words = get_settings().barge_min_words
+        self.confidence_floor = get_settings().stt_confidence_floor
 
     async def start(self) -> None:
         await self.stt.connect()
@@ -158,7 +166,7 @@ class LiveChannel:
                 ):
                     self.barge.set()
                 if message.get("end_of_turn") and message.get("turn_is_formatted"):
-                    self.turns.put_nowait(transcript)
+                    self.turns.put_nowait((transcript, self._doubtful(words)))
         except asyncio.CancelledError:
             raise
         except Exception as exc:
@@ -185,14 +193,30 @@ class LiveChannel:
         with contextlib.suppress(TimeoutError):
             await asyncio.wait_for(self.mark_event.wait(), sent / BYTES_PER_SECOND + MARK_GRACE_S)
 
+    def _doubtful(self, words: list[dict]) -> list[str]:
+        # ponytail: a word with no `confidence` counts as certain, so a Turn frame that does not
+        # carry the field leaves the re-ask switched off instead of firing on every number. That
+        # is the degraded mode until a real call confirms v3 sends it.
+        if not self.confidence_floor:
+            return []
+        return [
+            str(word.get("text", ""))
+            for word in words
+            if numbers.is_number(str(word.get("text", "")))
+            and float(word.get("confidence", 1.0)) < self.confidence_floor
+        ]
+
     def _drain_turns(self) -> None:
         while not self.turns.empty():
             item = self.turns.get_nowait()
             if item is None:
                 self.turns.put_nowait(None)
                 return
-            self.call.add_turn("patient", item, heard=False)
-            self.dropped.append(item)
+            text, low_conf = item
+            self.call.add_turn(
+                "patient", text, heard=False, **({"low_conf": low_conf} if low_conf else {})
+            )
+            self.dropped.append(text)
 
     def take_dropped(self) -> list[str]:
         self._drain_turns()
@@ -259,8 +283,9 @@ class LiveChannel:
             return None
         if item is None:
             raise CallEnded
-        self.call.add_turn("patient", item)
-        return item
+        text, low_conf = item
+        self.call.add_turn("patient", text, **({"low_conf": low_conf} if low_conf else {}))
+        return text
 
     async def set_keyterms(self, terms: list[str]) -> None:
         await self.stt.update_keyterms(terms)

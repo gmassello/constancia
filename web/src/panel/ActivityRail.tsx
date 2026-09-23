@@ -37,6 +37,21 @@ function describe(event: Event, c: Copy): Line | null {
         text: c.data(String(event.fact)),
         detail: label(c.reason, event.reason),
       }
+    case "low_confidence":
+      return {
+        key,
+        tone: "muted",
+        label: c.railDoubted,
+        text: c.railDoubtedText((event.words as string[]).join(", ")),
+      }
+    case "critic_revise":
+      return {
+        key,
+        tone: "rejected",
+        label: c.railCritic,
+        text: c.data(String(event.said)),
+        detail: label(c.reason, event.reason),
+      }
     case "guard_hit":
       return { key, tone: "alarm", label: c.railAlarm, text: label(c.rule, event.rule) }
     case "memory_off":

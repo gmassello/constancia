@@ -4,8 +4,18 @@ import Calls from "./Calls"
 import FactChain from "./FactChain"
 import Keyterms from "./Keyterms"
 import LiveCall from "./LiveCall"
+import Questions from "./Questions"
 import WeeklyChart from "./WeeklyChart"
-import { ApiError, get, post, type CallRow, type Fact, type Patient, type Series } from "./api"
+import {
+  ApiError,
+  get,
+  post,
+  type CallRow,
+  type Fact,
+  type Patient,
+  type PatientQuestion,
+  type Series,
+} from "./api"
 import { label, type Copy } from "./copy"
 
 type Mode = "scripted" | "replay" | "live"
@@ -23,6 +33,7 @@ export default function PatientView({
   const [series, setSeries] = useState<Series[]>([])
   const [calls, setCalls] = useState<CallRow[]>([])
   const [terms, setTerms] = useState<string[]>([])
+  const [questions, setQuestions] = useState<PatientQuestion[]>([])
   const [callId, setCallId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -31,15 +42,17 @@ export default function PatientView({
   // the guard the slower patient's chart, file and calls land under the faster one's name.
   const reload = useCallback(
     async (alive: () => boolean) => {
-      const [chain, weekly, rows] = await Promise.all([
+      const [chain, weekly, rows, asked] = await Promise.all([
         get<Fact[]>(`/patients/${patient.id}/chain`),
         get<Series[]>(`/patients/${patient.id}/weekly`),
         get<CallRow[]>(`/patients/${patient.id}/calls`),
+        get<PatientQuestion[]>(`/patients/${patient.id}/questions`),
       ])
       if (!alive()) return
       setFacts(chain)
       setSeries(weekly)
       setCalls(rows)
+      setQuestions(asked)
       if (rows.length === 0) return
       const keyterms = await get<string[]>(`/calls/${rows[0].id}/keyterms`)
       if (alive()) setTerms(keyterms)
@@ -135,6 +148,10 @@ export default function PatientView({
 
       <section className="card">
         <WeeklyChart series={series} copy={c} />
+      </section>
+
+      <section className="card">
+        <Questions questions={questions} onChanged={refresh} copy={c} />
       </section>
 
       <section className="card">

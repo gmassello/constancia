@@ -4,6 +4,13 @@ Six features taken from other entries of the AssemblyAI Voice Agent Hackathon, r
 onto this codebase. Each one names the source repo, what to change here, how to test it and what can go wrong.
 Insertion points were checked against commit `0a2c6b8`.
 
+> **All six are built.** This file is now the record of where each one came from and what it was
+> meant to be, not a plan. Where it and the code disagree, the code is right — the sizes below were
+> optimistic in four of the six, and three decisions were taken differently while building: the
+> critic's fifth rule was dropped, feature 5 ships no fixture recording, and feature 2's promise
+> check became a question in the list rather than a branch in the loop. What each one left open is
+> in [`PENDINGS.md`](PENDINGS.md) § 4.
+
 Deadline: **30 Sep 2026, 12:00 ART**.
 
 ## Order

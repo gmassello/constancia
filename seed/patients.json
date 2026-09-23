@@ -12,19 +12,63 @@
           "id": "1a2b3c4d-5e6f-4071-8293-a4b5c6d7e8f9",
           "age_days": 7,
           "memory_enabled": true,
-          "summary": "First follow-up week. Right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Mild stiffness after the exercises. Reports a bathroom fall three weeks ago, before the plan started.",
+          "summary": "First follow-up week. Right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Mild stiffness after the exercises. Promised to do them every day next week. Reports a bathroom fall three weeks ago, before the plan started.",
           "transcript": [
-            {"turn_id": 1, "speaker": "agent", "text": "Hi Ana, I am your physio's follow-up assistant. I am calling to see how your recovery is going this week."},
-            {"turn_id": 2, "speaker": "patient", "text": "Hello, yes, this is Ana."},
-            {"turn_id": 3, "speaker": "agent", "text": "How much does it hurt today from one to ten, and when do you feel it most?"},
-            {"turn_id": 4, "speaker": "patient", "text": "My right knee hurts seven out of ten, especially when I climb stairs."},
-            {"turn_id": 5, "speaker": "agent", "text": "How many times did you manage the exercises this week?"},
-            {"turn_id": 6, "speaker": "patient", "text": "I did them three times, I skipped two days because I had a lot of work."},
-            {"turn_id": 7, "speaker": "agent", "text": "Did you have any new discomfort after the exercises?"},
-            {"turn_id": 8, "speaker": "patient", "text": "After the exercises it stays a little stiff, nothing strange."},
-            {"turn_id": 9, "speaker": "agent", "text": "And did you have a fall, or anything that scared you?"},
-            {"turn_id": 10, "speaker": "patient", "text": "Three weeks ago I fell in the bathroom, but nothing has happened since I started the plan."},
-            {"turn_id": 11, "speaker": "agent", "text": "That is everything for today. I will send the summary to your physio. Take care, we will talk next week."}
+            {
+              "turn_id": 1,
+              "speaker": "agent",
+              "text": "Hi Ana, I am your physio's follow-up assistant. I am calling to see how your recovery is going this week."
+            },
+            {
+              "turn_id": 2,
+              "speaker": "patient",
+              "text": "Hello, yes, this is Ana."
+            },
+            {
+              "turn_id": 3,
+              "speaker": "agent",
+              "text": "How much does it hurt today from one to ten, and when do you feel it most?"
+            },
+            {
+              "turn_id": 4,
+              "speaker": "patient",
+              "text": "My right knee hurts seven out of ten, especially when I climb stairs."
+            },
+            {
+              "turn_id": 5,
+              "speaker": "agent",
+              "text": "How many times did you manage the exercises this week?"
+            },
+            {
+              "turn_id": 6,
+              "speaker": "patient",
+              "text": "I did them three times, I skipped two days because I had a lot of work. Next week I will do the exercises every day."
+            },
+            {
+              "turn_id": 7,
+              "speaker": "agent",
+              "text": "Did you have any new discomfort after the exercises?"
+            },
+            {
+              "turn_id": 8,
+              "speaker": "patient",
+              "text": "After the exercises it stays a little stiff, nothing strange. Is it normal that it clicks when I go down the stairs? And should I be using ice on it?"
+            },
+            {
+              "turn_id": 9,
+              "speaker": "agent",
+              "text": "And did you have a fall, or anything that scared you?"
+            },
+            {
+              "turn_id": 10,
+              "speaker": "patient",
+              "text": "Three weeks ago I fell in the bathroom, but nothing has happened since I started the plan."
+            },
+            {
+              "turn_id": 11,
+              "speaker": "agent",
+              "text": "That is everything for today. I will send the summary to your physio. Take care, we will talk next week."
+            }
           ],
           "facts": [
             {
@@ -46,6 +90,15 @@
               "confidence": 0.9
             },
             {
+              "fact": "promised to do the exercises every day next week",
+              "term": "daily exercises",
+              "category": "commitment",
+              "value": null,
+              "quote": "I will do the exercises every day",
+              "turn_id": 6,
+              "confidence": 0.9
+            },
+            {
               "fact": "knee stiffness after the exercises",
               "term": "stiffness",
               "category": "symptom",
@@ -62,6 +115,22 @@
               "quote": "I fell in the bathroom",
               "turn_id": 10,
               "confidence": 0.85
+            }
+          ],
+          "questions": [
+            {
+              "question": "Is it normal that the knee clicks going down the stairs?",
+              "quote": "Is it normal that it clicks when I go down the stairs",
+              "turn_id": 8,
+              "status": "answered",
+              "answer": "A click with no pain is normal at this stage of the recovery."
+            },
+            {
+              "question": "Should she be using ice on the knee?",
+              "quote": "should I be using ice on it",
+              "turn_id": 8,
+              "status": "open",
+              "answer": null
             }
           ]
         }

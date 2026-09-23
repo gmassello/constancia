@@ -195,7 +195,7 @@ const en = {
   statVerticalsLabel: "verticals on one engine — rehab, postpartum, chronic",
   statHoursValue: "333 h",
   statHoursLabel: "free streaming STT — $0.15/hour after that",
-  statTestsValue: "177",
+  statTestsValue: "280",
   statTestsLabel: "tests, with no network and no database",
 
   howKicker: "How it works",
@@ -334,7 +334,7 @@ const es = {
   statVerticalsLabel: "verticales sobre un solo motor — rehab, puerperio, crónicos",
   statHoursValue: "333 h",
   statHoursLabel: "de STT en streaming gratis — después, US$0,15 por hora",
-  statTestsValue: "177",
+  statTestsValue: "280",
   statTestsLabel: "tests, sin red y sin base de datos",
 
   howKicker: "Cómo funciona",

@@ -1,9 +1,11 @@
 import asyncio
+import re
 from collections import Counter
 
 import httpx
 
 from app.config import get_settings, is_twilio_recording
+from app.guard import normalize
 
 API = "https://api.assemblyai.com/v2/transcript"
 UPLOAD = "https://api.assemblyai.com/v2/upload"
@@ -13,6 +15,8 @@ TIMEOUT_S = 180.0
 # The mp3 is about a quarter of the wav, small enough to relay through one request each way.
 UPLOAD_TIMEOUT_S = 120.0
 MAX_NEGATIVE = 5
+MATCH_FLOOR = 0.7
+WORD = re.compile(r"[a-z0-9']+")
 
 
 def request_body(url: str, language: str) -> dict:
@@ -40,6 +44,46 @@ def summarize(payload: dict) -> dict:
             if item["sentiment"] == "NEGATIVE"
         ][:MAX_NEGATIVE],
     }
+
+
+def _tokens(text: str) -> list[str]:
+    return WORD.findall(normalize(text))
+
+
+def locate(quote: str, words: list[dict]) -> tuple[int, int] | None:
+    # ponytail: a straight sliding window, because a quote is under a dozen tokens and a call under
+    # a thousand. It compares tokens for equality, so a word the streaming pass and the recorded
+    # pass spell differently costs one hit rather than the whole match. Anything smarter than this
+    # needs an edit distance, and nothing here is long enough to pay for one.
+    needle = _tokens(quote)
+    hay = [_tokens(word.get("text", "")) for word in words]
+    hay = ["".join(parts) for parts in hay]
+    if not needle or len(hay) < len(needle):
+        return None
+    best, at = 0.0, -1
+    for start in range(len(hay) - len(needle) + 1):
+        window = hay[start : start + len(needle)]
+        score = sum(1 for a, b in zip(needle, window, strict=True) if a == b) / len(needle)
+        if score > best:
+            best, at = score, start
+    if at < 0 or best < MATCH_FLOOR:
+        return None
+    first, last = words[at], words[at + len(needle) - 1]
+    return int(first["start"]), int(last["end"])
+
+
+async def anchor(call, store, words: list[dict]) -> int:
+    if not words or store is None or not hasattr(store, "set_fact_span"):
+        return 0
+    rows = [r for r in await store.chain(call.patient_id) if str(r["call_id"]) == str(call.id)]
+    anchored = 0
+    for row in rows:
+        span = locate(str(row["quote"]), words)
+        if span is None:
+            continue
+        await store.set_fact_span(str(row["id"]), *span)
+        anchored += 1
+    return anchored
 
 
 async def hosted(client: httpx.AsyncClient, url: str, headers: dict) -> str:
@@ -83,12 +127,19 @@ async def transcribe(url: str) -> dict:
 
 async def run(call, store, fetch=transcribe) -> None:
     try:
-        analysis = summarize(await fetch(call.recording_url))
+        payload = await fetch(call.recording_url)
+        analysis = summarize(payload)
         call.emit(
             "analysis_ready",
             entities=len(analysis["entities"]),
             sentiment=analysis["sentiment"],
         )
+        # ponytail: the word timings are used and thrown away rather than stored on the call row.
+        # Every fact that aligns keeps its own span, which is all the panel reads; keeping the
+        # whole list would put a thousand objects in `calls.analysis` for one play button.
+        anchored = await anchor(call, store, payload.get("words") or [])
+        if anchored:
+            call.emit("quotes_anchored", facts=anchored)
         if store is not None and hasattr(store, "save_analysis"):
             # ponytail: an UPDATE that matches no row does not raise, so without the count this
             # lands in the void and the only trace is the absence of one. The row is missing

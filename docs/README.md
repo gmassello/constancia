@@ -36,9 +36,9 @@ Start here. The repo carries four kinds of document and mixing them up wastes ti
 |---|---|
 | [`PRODUCT.md`](PRODUCT.md) | The problem, who buys it, what the patient hears, the three verticals, what the professional sees. No jargon. |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | One call end to end, the six phases, the three modes, how memory and supersession work, and the system's limits. |
-| [`BACKEND.md`](BACKEND.md) | The eighteen modules, the four pieces worth reading first, configuration and the import-time rule. |
+| [`BACKEND.md`](BACKEND.md) | The twenty-one modules, the four pieces worth reading first, configuration and the import-time rule. |
 | [`FRONTEND.md`](FRONTEND.md) | Build and serving, the token rule and its gate, the bilingual machinery, the panel's components — the front end **as it stands**, which is what to check before assuming a piece of [`DESIGN.md`](DESIGN.md) is built. |
-| [`API.md`](API.md) | All twenty routes, the Twilio webhooks and the SSE contract. |
+| [`API.md`](API.md) | All twenty-four routes, the Twilio webhooks and the SSE contract. |
 | [`OPERATIONS.md`](OPERATIONS.md) | The three ways to run it, every environment variable, the database, Docker and Render. |
 | [`WORKING.md`](WORKING.md) | The Makefile, the four gates, why the tests never touch the network, the conventions, and how to add things. |
 
@@ -67,8 +67,9 @@ of the present. Read them for reasoning, not for facts about the code.
 |---|---|
 | [`HACKATHON.md`](HACKATHON.md) | **Reference**, and static: the rules and judging criteria, transcribed from lablab.ai. It tracks nothing. |
 | [`SUBMISSION.md`](SUBMISSION.md) | **Tracker.** What is done, with the evidence for it. Nothing open lives here. |
-| [`PENDINGS.md`](PENDINGS.md) | **Tracker.** Everything open, in one place: the submission, the Cadence build programme, the decisions it needs, and what is deliberately not being done. Start here to pick the work back up. |
+| [`PENDINGS.md`](PENDINGS.md) | **Tracker.** Everything open, in one place: the submission, the Cadence build programme, the decisions it needs, what the six features of [`NEW_FEATURES.md`](NEW_FEATURES.md) left behind, and what is deliberately not being done. Start here to pick the work back up. |
 | [`deck.md`](deck.md) | **Record.** The content of the slides, kept next to the code that backs each claim. Written, not yet submitted. |
+| [`NEW_FEATURES.md`](NEW_FEATURES.md) | **Record.** Six features read out of other entries of the same hackathon, each one traced to the source repo at code level and mapped onto an insertion point here. Written against commit `0a2c6b8`; where it and the code disagree, the code is right. It is the provenance of what was built, not a description of it. |
 | [`video-script.md`](video-script.md) | **Record**, and it says so in its own first lines: how the video is meant to be shot. Seven beats, what the camera sees, what the human says on the phone, and both ways to shoot each call. If the take comes out different, the take wins. Its narration is [`../video/narration.tsv`](../video/narration.tsv). |
 
 ## For agents

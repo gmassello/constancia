@@ -213,6 +213,7 @@
       "t": 13.2,
       "type": "call_ended",
       "escalated": false,
+      "wants_human": false,
       "answers": {
         "pain": "My knee is a lot better, it is four out of ten on the stairs now.",
         "adherence": "I did them five times this week, I got myself better organised.",

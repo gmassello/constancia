@@ -4,7 +4,13 @@
     "answers": [
       "Hello, yes, this is Ana.",
       "My right knee hurts seven out of ten, especially when I climb stairs.",
-      "I did the exercises three times, I skipped two days because I had a lot of work.",
+      {
+        "text": "I did the exercises three times, I skipped two days because I had a lot of work. Next week I will do them every day.",
+        "low_conf": [
+          "three"
+        ]
+      },
+      "Yes, three times.",
       "After the exercises it stays a little stiff, nothing strange.",
       "No, no falls, nothing like that."
     ],
@@ -26,6 +32,15 @@
         "quote": "I did the exercises three times",
         "turn_id": 6,
         "confidence": 0.9
+      },
+      {
+        "fact": "promised to do the exercises every day next week",
+        "term": "daily exercises",
+        "category": "commitment",
+        "value": null,
+        "quote": "I will do them every day",
+        "turn_id": 6,
+        "confidence": 0.9
       }
     ],
     "agent": {
@@ -34,7 +49,7 @@
       "adherence": "How many times did you manage the exercises this week? Was it hard to keep the routine up?",
       "side_effects": "Did you have any new discomfort after the exercises, any swelling or stiffness?",
       "red_flags": "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?",
-      "summary": "First follow-up call. Reports right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Mild stiffness after the exercises, no red flags."
+      "summary": "First follow-up call. Reports right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Promised to do them every day next week. Mild stiffness after the exercises, no red flags."
     }
   },
   "week2": {
@@ -42,8 +57,9 @@
     "answers": [
       "Hello, yes, this is Ana.",
       "My knee is a lot better, it is four out of ten on the stairs now.",
+      "I did better with the daily plan, I managed five of the seven days.",
       "I did them five times this week, I got myself better organised.",
-      "No, no new discomfort.",
+      "No, no new discomfort. Should I start going up the stairs normally again?",
       "No, nothing like that."
     ],
     "facts": [
@@ -53,8 +69,17 @@
         "category": "symptom",
         "value": 4,
         "quote": "it is four out of ten",
-        "turn_id": 4,
+        "turn_id": 5,
         "confidence": 0.95
+      },
+      {
+        "fact": "kept the daily exercise promise five days out of seven",
+        "term": "daily exercises",
+        "category": "adherence",
+        "value": null,
+        "quote": "I managed five of the seven days",
+        "turn_id": 7,
+        "confidence": 0.9
       },
       {
         "fact": "did the exercises five times this week",
@@ -62,7 +87,7 @@
         "category": "adherence",
         "value": 5,
         "quote": "I did them five times",
-        "turn_id": 6,
+        "turn_id": 9,
         "confidence": 0.9
       }
     ],
@@ -72,8 +97,16 @@
       "adherence": "Last week you did the exercises three times. How many times did you manage this week?",
       "side_effects": "Did you have any new discomfort after the exercises, any swelling or stiffness?",
       "red_flags": "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?",
-      "summary": "Second follow-up call. Right knee pain dropped from 7/10 to 4/10 climbing stairs. Adherence improved: five sessions this week against three the week before. No new discomfort and no red flags."
-    }
+      "summary": "Second follow-up call. Right knee pain dropped from 7/10 to 4/10 climbing stairs. Kept the daily exercise promise five days out of seven: five sessions this week against three the week before. No new discomfort and no red flags.",
+      "commitment": "Last week you promised to do the exercises every day. How did that go?"
+    },
+    "open_questions": [
+      {
+        "question": "Can she go back to using the stairs normally?",
+        "quote": "Should I start going up the stairs normally again",
+        "turn_id": 11
+      }
+    ]
   },
   "week2-off": {
     "memory": false,
@@ -118,6 +151,7 @@
     "answers": [
       "Hello, yes, this is Ana.",
       "The knee is about the same, five out of ten climbing stairs.",
+      "I did not manage the daily plan this week, not once.",
       "I only did them twice, because on Tuesday I fell coming down the stairs and I was left sore."
     ],
     "facts": [
@@ -127,7 +161,7 @@
         "category": "symptom",
         "value": 5,
         "quote": "five out of ten",
-        "turn_id": 4,
+        "turn_id": 5,
         "confidence": 0.95
       },
       {
@@ -136,7 +170,7 @@
         "category": "adherence",
         "value": 2,
         "quote": "did them twice",
-        "turn_id": 6,
+        "turn_id": 9,
         "confidence": 0.9
       },
       {
@@ -145,7 +179,7 @@
         "category": "red_flag",
         "value": null,
         "quote": "I fell coming down the stairs",
-        "turn_id": 6,
+        "turn_id": 9,
         "confidence": 0.95
       }
     ],
@@ -154,11 +188,13 @@
       "pain": "Tell me, how much does it hurt today from one to ten climbing stairs?",
       "adherence": "Last week you did the exercises three times. How many times did you manage this week?",
       "escalation": "Ana, a fall is something that has to be looked at today. Please contact your physio now and tell them what you told me; I am flagging this call so they see it. Take good care.",
-      "summary": "Follow-up call cut short by a red flag. Right knee pain 5/10 climbing stairs. Did the exercises twice. Reports a fall coming down the stairs on Tuesday: she was asked to contact her physio today and the call was flagged."
+      "summary": "Follow-up call cut short by a red flag. Right knee pain 5/10 climbing stairs. Did the exercises twice. Reports a fall coming down the stairs on Tuesday: she was asked to contact her physio today and the call was flagged.",
+      "commitment": "Last week you promised to do the exercises every day. How did that go?"
     },
     "order": [
       "greet",
       "pain",
+      "commitment",
       "adherence",
       "escalation",
       "summary"

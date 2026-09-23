@@ -85,6 +85,19 @@ type Strings = {
   railSuperseded: string
   railSupersededText: string
   railRejected: string
+  railCritic: string
+  playQuote: string
+  questionsTitle: string
+  questionsLede: string
+  questionsNone: string
+  questionFailed: string
+  answerLabel: string
+  answerNote: string
+  answerPlaceholder: string
+  answerAction: string
+  dismissAction: string
+  railDoubted: string
+  railDoubtedText: (words: string) => string
   railAlarm: string
   railMemoryOff: string
   railMemoryOffText: (phase: string) => string
@@ -112,6 +125,7 @@ type Strings = {
   rule: Record<string, string>
   phase: Record<string, string>
   reason: Record<string, string>
+  questionStatus: Record<string, string>
 }
 
 const en = {
@@ -203,6 +217,19 @@ const en = {
   railSuperseded: "fact retired",
   railSupersededText: "the previous value stays, struck through",
   railRejected: "discarded",
+  railCritic: "reworded",
+  playQuote: "play what the patient said",
+  questionsTitle: "What the patient asked",
+  questionsLede: "Questions the agent would not answer. What you write here is read out word for word on the next call.",
+  questionsNone: "Nothing has been asked yet.",
+  questionFailed: "That did not go through. Try again.",
+  answerLabel: "Your answer",
+  answerNote: "Spoken exactly as written. The agent never rephrases it.",
+  answerPlaceholder: "A click with no pain is normal at this stage.",
+  answerAction: "Send to the next call",
+  dismissAction: "Dismiss",
+  railDoubted: "read back",
+  railDoubtedText: (words) => `heard "${words}" and was not sure`,
   railAlarm: "red flag",
   railMemoryOff: "memory off",
   railMemoryOffText: (phase) => `${phase} skipped`,
@@ -230,6 +257,7 @@ const en = {
     mood: "mood",
     clinical_value: "clinical value",
     red_flag: "red flag",
+    commitment: "promise",
   },
   mood: { POSITIVE: "positive", NEUTRAL: "neutral", NEGATIVE: "negative" },
   program: { rehab: "rehab", postpartum: "postpartum", chronic: "chronic" },
@@ -264,8 +292,20 @@ const en = {
     canceled: "canceled",
     "media-stream-timeout": "audio stream timeout",
     "not grounded": "no verbatim quote backs it",
+    out_of_range: "the reading is off the pack's scale",
+    "clinical advice": "it gave clinical advice",
+    "more than two sentences": "more than two sentences for a phone call",
+    "asks nothing": "it asked nothing",
+    "empty reply": "the model said nothing",
+    "ungrounded number": "it used a number that is on no file",
     "memory disabled for this call": "memory disabled for this call",
     "no memory store configured": "no memory store configured",
+  },
+  questionStatus: {
+    open: "waiting for you",
+    answered: "queued for the next call",
+    delivered: "read out",
+    dismissed: "dismissed",
   },
 } satisfies Strings
 
@@ -358,6 +398,19 @@ const es = {
   railSuperseded: "dato retirado",
   railSupersededText: "el valor anterior queda tachado en la ficha",
   railRejected: "descartado",
+  railCritic: "reformulado",
+  playQuote: "escuchar lo que dijo el paciente",
+  questionsTitle: "Lo que preguntó la paciente",
+  questionsLede: "Preguntas que el agente no respondió. Lo que escribas acá se lee textual en la próxima llamada.",
+  questionsNone: "Todavía no preguntó nada.",
+  questionFailed: "No se pudo guardar. Probá de nuevo.",
+  answerLabel: "Tu respuesta",
+  answerNote: "Se dice tal cual está escrita. El agente nunca la reformula.",
+  answerPlaceholder: "Un chasquido sin dolor es normal en esta etapa.",
+  answerAction: "Enviar a la próxima llamada",
+  dismissAction: "Descartar",
+  railDoubted: "repreguntado",
+  railDoubtedText: (words) => `escuchó "${words}" sin estar seguro`,
   railAlarm: "señal de alarma",
   railMemoryOff: "memoria off",
   railMemoryOffText: (phase) => `${phase} salteada`,
@@ -385,6 +438,7 @@ const es = {
     mood: "ánimo",
     clinical_value: "valor clínico",
     red_flag: "señal de alarma",
+    commitment: "promesa",
   },
   mood: { POSITIVE: "positivo", NEUTRAL: "neutro", NEGATIVE: "negativo" },
   program: { rehab: "rehabilitación", postpartum: "puerperio", chronic: "crónicos" },
@@ -419,8 +473,20 @@ const es = {
     canceled: "cancelada",
     "media-stream-timeout": "el stream de audio agotó el tiempo de espera",
     "not grounded": "ninguna cita textual lo respalda",
+    out_of_range: "la medición se sale de la escala del programa",
+    "clinical advice": "daba una indicación clínica",
+    "more than two sentences": "más de dos oraciones para una llamada",
+    "asks nothing": "no preguntaba nada",
+    "empty reply": "el modelo no dijo nada",
+    "ungrounded number": "usaba un número que no está en ninguna ficha",
     "memory disabled for this call": "memoria desactivada en esta llamada",
     "no memory store configured": "no hay almacén de memoria configurado",
+  },
+  questionStatus: {
+    open: "esperándote",
+    answered: "en cola para la próxima llamada",
+    delivered: "ya dicha",
+    dismissed: "descartada",
   },
 } satisfies Strings
 
@@ -448,6 +514,7 @@ const parity = {
   rule: true,
   phase: true,
   reason: true,
+  questionStatus: true,
 } satisfies {
   measure: Aligned<typeof en.measure, typeof es.measure>
   unit: Aligned<typeof en.unit, typeof es.unit>
@@ -457,6 +524,7 @@ const parity = {
   rule: Aligned<typeof en.rule, typeof es.rule>
   phase: Aligned<typeof en.phase, typeof es.phase>
   reason: Aligned<typeof en.reason, typeof es.reason>
+  questionStatus: Aligned<typeof en.questionStatus, typeof es.questionStatus>
 }
 
 void parity

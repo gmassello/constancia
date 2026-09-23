@@ -27,6 +27,7 @@ async def test_the_seed_loads_anas_week_one_facts() -> None:
     assert [fact["term"] for fact in facts] == [
         "right knee",
         "home exercises",
+        "daily exercises",
         "stiffness",
         "bathroom fall",
     ]
@@ -75,6 +76,7 @@ async def test_keyterms_only_uses_the_categories_the_pack_asks_for() -> None:
     assert keyterms(facts, get_pack("rehab")) == [
         "right knee",
         "home exercises",
+        "daily exercises",
         "stiffness",
         "bathroom fall",
     ]
@@ -105,3 +107,67 @@ def test_embeddings_are_l2_normalized() -> None:
 
     assert vector == [0.6, 0.8]
     assert normalize([0.0, 0.0]) == [0.0, 0.0]
+
+
+class Asked:
+    def __init__(self, question: str, quote: str, turn_id: int) -> None:
+        self.question, self.quote, self.turn_id = question, quote, turn_id
+
+
+async def test_the_seed_loads_anas_questions_newest_first() -> None:
+    rows = await load_seed().questions(PATIENT)
+
+    assert [row["status"] for row in rows] == ["answered", "open"]
+    assert rows[0]["answer"].startswith("A click with no pain")
+    assert rows[1]["answer"] is None
+
+
+async def test_a_question_is_written_against_the_call_that_asked_it() -> None:
+    from app.calls import Call
+    from app.packs import get_pack
+
+    store = load_seed()
+    call = Call(patient_id=PATIENT, patient_name="Ana", pack=get_pack("rehab"))
+
+    question_id = await store.insert_question(call, Asked("Can she swim?", "can I swim", 6))
+
+    row = next(r for r in await store.questions(PATIENT) if r["id"] == question_id)
+    assert row["status"] == "open"
+    assert (row["call_id"], row["turn_id"]) == (call.id, 6)
+
+
+async def test_answering_an_open_question_moves_it_and_keeps_the_answer() -> None:
+    store = load_seed()
+    open_row = next(r for r in await store.questions(PATIENT) if r["status"] == "open")
+
+    assert await store.set_question(open_row["id"], "open", "answered", "Ice is fine.")
+
+    row = next(r for r in await store.questions(PATIENT) if r["id"] == open_row["id"])
+    assert (row["status"], row["answer"]) == ("answered", "Ice is fine.")
+    assert row["answered_at"] is not None
+
+
+async def test_answering_the_same_question_twice_moves_nothing() -> None:
+    store = load_seed()
+    open_row = next(r for r in await store.questions(PATIENT) if r["status"] == "open")
+    await store.set_question(open_row["id"], "open", "answered", "Ice is fine.")
+
+    assert not await store.set_question(open_row["id"], "open", "answered", "Actually no.")
+
+    row = next(r for r in await store.questions(PATIENT) if r["id"] == open_row["id"])
+    assert row["answer"] == "Ice is fine."
+
+
+async def test_delivering_keeps_the_answer_it_was_given() -> None:
+    store = load_seed()
+    answered = next(r for r in await store.questions(PATIENT) if r["status"] == "answered")
+
+    assert await store.set_question(answered["id"], "answered", "delivered")
+
+    row = next(r for r in await store.questions(PATIENT) if r["id"] == answered["id"])
+    assert row["status"] == "delivered"
+    assert row["answer"].startswith("A click with no pain")
+
+
+async def test_a_question_that_is_not_there_moves_nothing() -> None:
+    assert not await load_seed().set_question("nope", "open", "answered", "x")

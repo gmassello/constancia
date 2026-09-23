@@ -18,7 +18,7 @@ In addition to [`../AGENTS.md`](../AGENTS.md), which applies everywhere.
   set that is missing it. A string that interpolates a value is typed as a **function**, never built
   by concatenation — word order moves in Spanish.
 - **The nested maps have a parity gate too.** `measure`, `unit`, `category`, `mood`, `program`,
-  `rule`, `phase` and `reason` in the panel, `demoCategory` in the landing, are typed
+  `rule`, `phase`, `reason` and `questionStatus` in the panel, `demoCategory` in the landing, are typed
   `Record<string, string>`, so `tsc` cannot see a key that only one language has. The `parity` block
   at the end of each `copy.ts` can: it fails the build when the two drift. A key added to one
   language goes in the other in the same change.

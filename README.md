@@ -54,9 +54,9 @@ The deploy, the video and the deliverables land in stage 4.
 |---|---|
 | [`docs/PRODUCT.md`](docs/PRODUCT.md) | what this is and who pays for it, without jargon |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | one call end to end, the phases, the three modes, memory |
-| [`docs/BACKEND.md`](docs/BACKEND.md) | the eighteen modules and the four worth reading first |
+| [`docs/BACKEND.md`](docs/BACKEND.md) | the twenty-one modules and the four worth reading first |
 | [`docs/FRONTEND.md`](docs/FRONTEND.md) | build, design system, the bilingual machinery, the panel |
-| [`docs/API.md`](docs/API.md) | all twenty routes, the webhooks, the SSE contract |
+| [`docs/API.md`](docs/API.md) | all twenty-four routes, the webhooks, the SSE contract |
 | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | running it, every environment variable, Docker and Render |
 | [`docs/WORKING.md`](docs/WORKING.md) | the Makefile, the gates, the conventions |
 | [`docs/DESIGN.md`](docs/DESIGN.md) | **Cadence**, the design system — as a target; each section says what is built |
@@ -72,7 +72,7 @@ No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 177 tests, no network and no database
+make test          # 280 tests, no network and no database
 make lint          # ruff
 make web           # builds web/dist (needs node 24 and pnpm); tsc -b is the front-end check
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
@@ -164,7 +164,7 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
 | Path | What it is |
 |---|---|
 | [`docs/`](docs/README.md) | the documentation, indexed |
-| `app/main.py` | the entry point: the twenty routes and the store choice |
+| `app/main.py` | the entry point: the twenty-four routes and the store choice |
 | `app/orchestrator.py` | the phase pipeline; the code decides, the LLM phrases |
 | `app/channel.py` | the voice loop: Twilio ↔ AssemblyAI ↔ TTS, barge-in |
 | `app/packs.py` | the three vertical packs: the questions, the red flags and the prompts |

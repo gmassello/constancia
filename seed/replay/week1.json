@@ -102,27 +102,31 @@
       "t": 7.2,
       "type": "patient_turn",
       "turn_id": 6,
-      "text": "I did the exercises three times, I skipped two days because I had a lot of work."
+      "text": "I did the exercises three times, I skipped two days because I had a lot of work. Next week I will do them every day.",
+      "low_conf": [
+        "three"
+      ]
     },
     {
       "t": 7.2,
-      "type": "llm",
-      "tokens": 0,
-      "elapsed_ms": 0,
-      "scripted": true
+      "type": "low_confidence",
+      "words": [
+        "three"
+      ],
+      "question": "adherence"
     },
     {
       "t": 8.4,
       "type": "agent_turn",
       "turn_id": 7,
-      "text": "Did you have any new discomfort after the exercises, any swelling or stiffness?",
+      "text": "Sorry, I want to be sure I heard that right. Did you say three?",
       "interrupted": false
     },
     {
       "t": 9.6,
       "type": "patient_turn",
       "turn_id": 8,
-      "text": "After the exercises it stays a little stiff, nothing strange."
+      "text": "Yes, three times."
     },
     {
       "t": 9.6,
@@ -135,65 +139,17 @@
       "t": 10.8,
       "type": "agent_turn",
       "turn_id": 9,
-      "text": "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?",
+      "text": "Did you have any new discomfort after the exercises, any swelling or stiffness?",
       "interrupted": false
     },
     {
       "t": 12.0,
       "type": "patient_turn",
       "turn_id": 10,
-      "text": "No, no falls, nothing like that."
+      "text": "After the exercises it stays a little stiff, nothing strange."
     },
     {
-      "t": 13.2,
-      "type": "agent_turn",
-      "turn_id": 11,
-      "text": "That is everything for today. I will send the summary to your physio. Take care, we will talk next week.",
-      "interrupted": false
-    },
-    {
-      "t": 13.2,
-      "type": "phase_done",
-      "phase": "converse"
-    },
-    {
-      "t": 13.2,
-      "type": "phase_started",
-      "phase": "extract"
-    },
-    {
-      "t": 13.2,
-      "type": "facts_extracted",
-      "count": 2
-    },
-    {
-      "t": 13.2,
-      "type": "phase_done",
-      "phase": "extract"
-    },
-    {
-      "t": 13.2,
-      "type": "phase_started",
-      "phase": "store"
-    },
-    {
-      "t": 13.2,
-      "type": "memory_off",
-      "phase": "store",
-      "reason": "memory disabled for this call"
-    },
-    {
-      "t": 13.2,
-      "type": "phase_done",
-      "phase": "store"
-    },
-    {
-      "t": 13.2,
-      "type": "phase_started",
-      "phase": "summarize"
-    },
-    {
-      "t": 13.2,
+      "t": 12.0,
       "type": "llm",
       "tokens": 0,
       "elapsed_ms": 0,
@@ -201,21 +157,90 @@
     },
     {
       "t": 13.2,
-      "type": "summary",
-      "text": "First follow-up call. Reports right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Mild stiffness after the exercises, no red flags."
+      "type": "agent_turn",
+      "turn_id": 11,
+      "text": "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?",
+      "interrupted": false
     },
     {
-      "t": 13.2,
+      "t": 14.4,
+      "type": "patient_turn",
+      "turn_id": 12,
+      "text": "No, no falls, nothing like that."
+    },
+    {
+      "t": 15.6,
+      "type": "agent_turn",
+      "turn_id": 13,
+      "text": "That is everything for today. I will send the summary to your physio. Take care, we will talk next week.",
+      "interrupted": false
+    },
+    {
+      "t": 15.6,
+      "type": "phase_done",
+      "phase": "converse"
+    },
+    {
+      "t": 15.6,
+      "type": "phase_started",
+      "phase": "extract"
+    },
+    {
+      "t": 15.6,
+      "type": "facts_extracted",
+      "count": 3
+    },
+    {
+      "t": 15.6,
+      "type": "phase_done",
+      "phase": "extract"
+    },
+    {
+      "t": 15.6,
+      "type": "phase_started",
+      "phase": "store"
+    },
+    {
+      "t": 15.6,
+      "type": "memory_off",
+      "phase": "store",
+      "reason": "memory disabled for this call"
+    },
+    {
+      "t": 15.6,
+      "type": "phase_done",
+      "phase": "store"
+    },
+    {
+      "t": 15.6,
+      "type": "phase_started",
+      "phase": "summarize"
+    },
+    {
+      "t": 15.6,
+      "type": "llm",
+      "tokens": 0,
+      "elapsed_ms": 0,
+      "scripted": true
+    },
+    {
+      "t": 15.6,
+      "type": "summary",
+      "text": "First follow-up call. Reports right knee pain 7/10 climbing stairs. Did the exercises three times and skipped two days for work. Promised to do them every day next week. Mild stiffness after the exercises, no red flags."
+    },
+    {
+      "t": 15.6,
       "type": "phase_done",
       "phase": "summarize"
     },
     {
-      "t": 13.2,
+      "t": 15.6,
       "type": "call_ended",
       "escalated": false,
+      "wants_human": false,
       "answers": {
         "pain": "My right knee hurts seven out of ten, especially when I climb stairs.",
-        "adherence": "I did the exercises three times, I skipped two days because I had a lot of work.",
+        "adherence": "I did the exercises three times, I skipped two days because I had a lot of work. Next week I will do them every day.",
         "side_effects": "After the exercises it stays a little stiff, nothing strange.",
         "red_flags": "No, no falls, nothing like that."
       }

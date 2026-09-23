@@ -148,3 +148,34 @@ def test_chronic_blurred_vision() -> None:
     ]
     for turn in quiet:
         assert guard.check(chronic, turn) is None
+
+
+@pytest.mark.parametrize(
+    "turn",
+    [
+        "I want to talk to my doctor",
+        "Can I speak to a real person?",
+        "I need a human",
+        "Put me through to someone",
+        "I would rather speak to my physio about this",
+    ],
+)
+def test_asking_for_a_person_is_flagged(turn: str) -> None:
+    assert guard.wants_human(turn)
+
+
+@pytest.mark.parametrize(
+    "turn",
+    [
+        "My doctor said it was fine",
+        "I talked to my physio yesterday",
+        "No, nothing like that",
+        "The exercises are hard",
+    ],
+)
+def test_talking_about_a_person_is_not_asking_for_one(turn: str) -> None:
+    assert not guard.wants_human(turn)
+
+
+def test_asking_for_a_person_is_not_a_red_flag() -> None:
+    assert guard.check(get_pack("rehab"), "I want to talk to my doctor") is None

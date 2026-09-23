@@ -9,6 +9,7 @@ export type Event = {
 
 export type Fact = {
   id: string
+  call_id: string
   fact: string
   term: string
   category: string
@@ -18,7 +19,21 @@ export type Fact = {
   reported_at: string
   valid_until: string | null
   superseded_by: string | null
+  start_ms: number | null
+  end_ms: number | null
   superseded: Fact[]
+}
+
+export type PatientQuestion = {
+  id: string
+  call_id: string
+  question: string
+  quote: string
+  turn_id: number
+  status: string
+  answer: string | null
+  asked_at: string
+  answered_at: string | null
 }
 
 export type Patient = {
@@ -93,6 +108,13 @@ async function json<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const get = <T,>(path: string) => json<T>(path)
+
+export function quoteAudio(fact: Fact): string | null {
+  if (fact.start_ms === null || fact.end_ms === null) return null
+  const from = (fact.start_ms / 1000).toFixed(2)
+  const to = (fact.end_ms / 1000).toFixed(2)
+  return `${base}/calls/${fact.call_id}/audio#t=${from},${to}`
+}
 
 export const post = <T,>(path: string, body: unknown) =>
   json<T>(path, {
