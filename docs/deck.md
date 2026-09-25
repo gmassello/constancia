@@ -144,6 +144,10 @@ before the first call — not a generic "I accept the terms".
 
 ## 11 · Where the judge sees each criterion
 
+Everything below is open at **constancia-voice.onrender.com** — no clone, no keys. The panel's four
+scripted buttons run the whole pipeline there; the only half that needs a phone is the live call,
+which is what the video shows.
+
 | Criterion | Where |
 |---|---|
 | Application of Technology | The live transcript on the panel; `GET /calls/{id}/keyterms`; `app/stt.py`, `app/analysis.py` |
@@ -151,4 +155,4 @@ before the first call — not a generic "I accept the terms".
 | Business Value | The landing at `/`, whose plain register states the case without jargon |
 | Presentation | Week 1 → week 2 with memory off → week 2 with memory on, same patient, in the video |
 
-**constancia** · github.com/gmassello/constancia · MIT
+**constancia** · constancia-voice.onrender.com · github.com/gmassello/constancia · MIT

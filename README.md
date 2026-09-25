@@ -1,6 +1,73 @@
-# constancia
+<p align="center">
+  <img src="docs/assets/hero.png" alt="constancia — the follow-up call nobody makes" width="100%">
+</p>
 
-> An agent that phones the patient every week and remembers what they said last time. A follow-up nobody makes is a plan nobody follows.
+<p align="center">
+  <b>Seven in ten home-rehab patients quit their exercise plan.</b><br>
+  constancia phones them every week, asks the protocol in a fixed order, escalates a red flag in code rather than in a prompt —<br>
+  and opens the next call with what they said in the last one. No quote, no fact; a contradiction retires the old one instead of deleting it.
+</p>
+
+<p align="center">
+  <a href="https://constancia-voice.onrender.com"><b>Live demo</b></a> ·
+  <a href="https://constancia-voice.onrender.com/panel"><b>The panel</b></a> ·
+  <a href="docs/SUBMISSION.md"><b>Submission</b></a> ·
+  <a href="docs/README.md"><b>Docs</b></a> ·
+  <a href="docs/PENDINGS.md"><b>What is still open</b></a>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0f6b60.svg?style=flat-square" alt="MIT"></a>
+  <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-3.12-0f6b60.svg?style=flat-square" alt="Python 3.12"></a>
+  <img src="https://img.shields.io/badge/322%20tests-green,%20no%20keys-0f6b60?style=flat-square" alt="322 tests green with no keys">
+  <img src="https://img.shields.io/badge/AssemblyAI-Universal--Streaming%20v3%20%2B%20Speech%20Understanding-c2703d?style=flat-square" alt="AssemblyAI Universal-Streaming v3 and Speech Understanding">
+  <img src="https://img.shields.io/badge/line-Twilio%20Media%20Streams-c2703d?style=flat-square" alt="Twilio Media Streams">
+</p>
+
+---
+
+Built for the [lablab.ai x AssemblyAI Voice Agent Hackathon](docs/HACKATHON.md) on **Path B** — a real
+phone call, not a browser mic. The whole thing runs with no keys and no network:
+
+```bash
+uv sync && make demo MEMORY=on    # week 2 over the seed: recall, key terms, and a fact retiring an older one
+```
+
+<table>
+<tr>
+<td width="33%"><b>Call</b><br>Twilio Media Streams carries the line; AssemblyAI Universal-Streaming v3 hears it in real time over &micro;-law at 8&nbsp;kHz, end-of-turn driven. The patient interrupts and the agent stops.</td>
+<td width="33%"><b>Remember</b><br>Every fact carries a literal span of something the patient said, with its turn id. A contradiction retires the old fact and keeps its quote; nothing is deleted. Next week opens with it.</td>
+<td width="33%"><b>Escalate</b><br>The red-flag guard is deterministic code with a negation window. The model phrases the escalation; it never decides there is one.</td>
+</tr>
+</table>
+
+**The two AssemblyAI products close a loop.** Speech Understanding runs on the recording after hangup
+for entities, sentiment and key phrases — and those phrases become the `keyterms_prompt`
+Universal-Streaming is primed with on the next call. What was heard last week is what the recogniser
+expects this week.
+
+### Three minutes
+
+|  |  |
+| --- | --- |
+| **See the memory pay off** | <https://constancia-voice.onrender.com/panel> — press **Call with memory**, then **Call without memory**. Same questions either way; only one of them opens by quoting last week. No keys, nothing to install |
+| **See that it is not asserted** | The same panel, *What the agent remembers*: every line carries the patient's own words and the turn they were said in, and the retired ones are still there, struck through |
+| **See the code that decides** | [`app/guard.py`](app/guard.py) for the escalation, [`app/extract.py`](app/extract.py) for the no-quote-no-fact rule, [`app/stt.py`](app/stt.py) and [`app/analysis.py`](app/analysis.py) for the two AssemblyAI products |
+| **See what does not work** | [`#honest-limits`](#honest-limits) and [`docs/PENDINGS.md`](docs/PENDINGS.md). No authentication, one worker, extraction after hangup |
+
+---
+
+## What it remembers, and how you check it
+
+Not a mock-up: the panel after a week-2 call, run from the scripted buttons with no keys.
+
+<p align="center">
+  <img src="docs/assets/memory-chain.png" alt="The fact chain: a 4/10 marked current above the 7/10 it retired, each with the patient's verbatim quote and turn id" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/assets/keyterms.png" alt="The key terms handed to AssemblyAI before dialling, taken from last week's file" width="100%">
+</p>
 
 **Live**: <https://constancia-voice.onrender.com> — the landing at `/`, the professional's panel at
 `/panel`, one service. It runs on a free instance that sleeps after fifteen idle minutes, so the
@@ -82,6 +149,8 @@ No keys needed for the offline path:
 ```bash
 uv sync
 make test          # 322 tests, no network and no database
+uv run pytest tests/test_guard.py::test_red_flags_fire   # one test, the 90% case
+uv run pytest -k supersede                               # or by name, across files
 make lint          # ruff
 make web           # builds web/dist (needs node 24 and pnpm); tsc -b is the front-end check
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
@@ -94,8 +163,9 @@ the difference is the point: with memory the agent opens by quoting last week an
 through by the 4/10; without it, the call starts from scratch. Both sides of that transcript are canned: with
 no `GEMINI_API_KEY` the agent's lines come from `seed/scripts.json`, keyed to the pack's question ids, not
 from the model. *Replay a recorded call* plays a fixture instead, **Call with a red flag** runs the `alarm` script — the
-patient reports a fall, the guard stops asking and the call is marked — and a **Dial her real phone** button
-appears only when credentials are loaded. None of the scripted buttons ever places a real call.
+patient reports a fall, the guard stops asking and the call is marked — and the two **Real phone** buttons
+appear only when the instance carries a `DEMO_PHONE` of its own, which credentials alone do not give it.
+None of the scripted buttons ever places a real call.
 
 `POST /reset` puts the in-memory seed back where it started, which is what a second take needs.
 

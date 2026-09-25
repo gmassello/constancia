@@ -44,6 +44,9 @@ Window mode (`Cmd+Shift+5` → *Record Selected Window*), 1280x800, mic off, pho
 browser in **English** and the **light** theme — both are the defaults, and English is what the
 judges read. Between takes: `bash video/reset.sh`, then delete the old `video/raw.mov`.
 
+**Disconnect any browser automation before the take.** A Chrome extension driving the browser puts
+an infobar at the top of the window, and window mode records the window, banner included.
+
 Three things about the window itself, each of which cost something the first time:
 
 - **Take Chrome out of full screen first.** A full-screen window ignores the resize and stays at the
@@ -192,6 +195,29 @@ That is the rehearsal server, not the take server.
 
 Track lengths are what `video/out/timing.txt` measured; the recording can be longer, because
 `fit-to-audio.py` keeps the moments where the screen changes at 1x and compresses the waiting.
+
+---
+
+### 0 · the phone ringing — an insert, not a beat
+
+**Shot:** your own phone, filmed with a second camera, ringing and being answered. Three to five
+seconds, no more.
+
+This is the one thing in the video that a screencast cannot fake, and it is the differentiator:
+none of the four real competitors uses telephony at all (`INTENT.md:105`). Three conditions, and
+none of them is optional:
+
+- **Mute.** It carries no audio of its own; the narration runs over it. The phone is not on speaker
+  during the take either — the acoustic rule above holds, or the agent's voice re-enters the call.
+- **The number does not appear.** The incoming-call screen shows it, and a real number is personal
+  data this repo does not publish. Frame it out, or cover it.
+- **It rides on top of the finished track.** The narration is measured at 267.8 s against a 300 s
+  cap, so a five-second insert lands near 273 s and nothing is re-synthesised. Whether
+  `fit-to-audio.py --beats` tolerates footage that maps to no beat is **unverified**: until it is,
+  the insert belongs in the final assembly, after the fit, not before it.
+
+This replaces the cold open that was dropped for needing a licensed photograph — this one you film
+yourself.
 
 ---
 
