@@ -9,9 +9,9 @@ Twilio ──WS──┐
 AssemblyAI ──┼──▶│  LiveChannel      orchestrator       │──▶ store ──▶ Postgres
              │   │  (say / listen)   (the phases)       │             or the seed
 ElevenLabs ──┘   └──────────────────────────────────────┘
-                              │ emit()
-                              ▼
-                     event trace ──SSE──▶ panel
+                        │ emit()              │ one sentence, once the call is over
+                        ▼                      ▼
+               event trace ──SSE──▶ panel      Jev (AI Gateway) ──▶ promise? yes / no
 ```
 
 The design rule the whole thing hangs on: **the code decides, the model phrases.** Which question
@@ -107,6 +107,18 @@ turn_id     4
 the turn with that id, and that turn to be the *patient's* — a quote lifted from the agent's own
 question is not evidence. A fact that fails is dropped with `fact_rejected`.
 
+**A promise is checked twice, and scored once.** A `commitment` has to clear `app/commitments.py`
+as well: a first-person pledge and a concrete action. Asking the professional for something carries
+no pledge, so it never becomes a promise and never leaves the process.
+The action is the half that is clinical, so it is enumerated per vertical in `pack.actions`, beside
+the red flags and the measures: rehab knows about exercises and physio, postpartum about feeding and
+resting, chronic about readings and doses. An enumeration still has an edge — *"I'll take the pram to
+the corner every morning"* is a promise no list reaches — so when every rule says no, `recall` asks Jev
+the same question in one sentence and, if it agrees, scores the promise with the *same* deterministic
+rules from a lower base (`commitment_recalled`). The model covers what no vocabulary enumerates; it
+never sets the number, because it is documented as weak on dates and its probabilities are not
+calibrated against this data yet.
+
 **Contradictions retire, they do not delete.** A new fact that supersedes an old one sets
 `superseded_by` and `valid_until` on it (`supersede`, `app/memory.py`). Both stay visible: the
 panel draws the chain, current fact on a filled dot and the retired one hanging below it, struck
@@ -190,6 +202,12 @@ These are limits of the current design, not bugs:
   Anchoring a quote to its audio is therefore an `UPDATE` on rows that are already there
   (`set_fact_span`), never part of the insert. `scripted` and `replay` have no recording at all, so
   no quote in the offline demo has a play button.
+- **A fourth provider sees one sentence.** When the promise rules say no, the quoted sentence — and
+  nothing else: no transcript, no name, no id — is posted to Jev through Vercel AI Gateway. Zero
+  Data Retention is a paid tier there, so on a hobby plan that sentence falls under the gateway's
+  ordinary retention policy and the code carries no retention control. It is the one place a patient's
+  words leave this process for a reason other than being heard, transcribed or spoken, and the whole
+  path is off without `AI_GATEWAY_API_KEY`.
 - **A number the recogniser doubted is read back, not re-heard.** The confidence floor only looks at
   words AssemblyAI marks as numbers; a `Turn` frame that carries no `confidence` field leaves the
   read-back switched off rather than firing on everything, which is the degraded mode until a real

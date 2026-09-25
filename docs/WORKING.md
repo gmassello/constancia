@@ -2,7 +2,7 @@
 
 ## Commands
 
-Eighteen targets in the [`../Makefile`](../Makefile). Everything runs through `uv`; nothing needs a
+Nineteen targets in the [`../Makefile`](../Makefile). Everything runs through `uv`; nothing needs a
 virtualenv activated.
 
 | Target | What it does | Needs |
@@ -24,6 +24,7 @@ virtualenv activated.
 | `make smoke-tts` | One ElevenLabs `ulaw_8000` request; asserts it is not MP3 | ElevenLabs |
 | `make smoke-call PHONE=` | A full call through the live channel, driven from the shell | all credentials |
 | `make smoke-analysis URL=` | Entity detection and sentiment against a real recording | AssemblyAI |
+| `make smoke-jev` | Asks Jev the promise question about ten sentences and prints the probability, the HTTP status and whether each one was rescued. The only way a 403 or a 503 becomes visible, because `app/jev.py` swallows both | AI Gateway |
 | `make models` | Lists the Gemini models available to the key | Gemini |
 
 Anything that needs a key is a `make smoke-*` or a `scripts/` file run by hand. That is the rule, not
@@ -55,9 +56,9 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 280 tests, the 3 that need a database skipped
+uv run pytest -q          # 311 tests, the 3 that need a database skipped
 make db && DATABASE_URL=postgresql://constancia:constancia@localhost:5432/constancia \
-  uv run pytest -q        # 280 passed, nothing skipped — run this before touching app/memory.py
+  uv run pytest -q        # 311 passed, nothing skipped — run this before touching app/memory.py
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
@@ -75,23 +76,24 @@ missing translation fails the build, and presentational components do not earn a
 
 ## Tests
 
-Fourteen test files, 280 collected with no environment variable set. Every one of them passes
+Seventeen test files, 311 collected with no environment variable set. Every one of them passes
 except the three Postgres integration tests, which skip themselves.
 
 | File | Covers |
 |---|---|
-| `tests/conftest.py` | Not a test: one autouse fixture blanks `GEMINI_API_KEY` so the suite cannot reach the network through a filled `.env`, and blanks `DATABASE_URL` for every test that is **not** marked `integration`. `build_llm` (`app/replay.py`) picks the real model the moment a key is readable, so without this `make test` means something different for each person who runs it. The `integration` exemption is not a detail: blanking `DATABASE_URL` for those three sent psycopg to the local socket, so they could only fail, and only for somebody with docker running. |
+| `tests/conftest.py` | Not a test: one autouse fixture blanks `GEMINI_API_KEY` and `AI_GATEWAY_API_KEY` so the suite cannot reach the network through a filled `.env`, and blanks `DATABASE_URL` for every test that is **not** marked `integration`. `build_llm` (`app/replay.py`) picks the real model the moment a key is readable, so without this `make test` means something different for each person who runs it. The `integration` exemption is not a detail: blanking `DATABASE_URL` for those three sent psycopg to the local socket, so they could only fail, and only for somebody with docker running. |
 | `tests/test_orchestrator.py` | The protocol: question order, the red-flag cut, the silence re-prompt, a non-critical phase failing soft, a hangup that still reaches `summarize`, all three packs end to end |
 | `tests/test_queries.py` | Multi-step supersession chains, the weekly series per measure, `keyterms_at` as a point-in-time view |
 | `tests/test_twilio_routes.py` | The webhooks: TwiML, bad signature, unknown call, a recording URL that is not Twilio's, and the phone fallback down to `DEMO_PHONE` |
-| `tests/test_extract.py` | Grounding in all four shapes, retry on invalid JSON, giving up after three, an orphan `supersedes`, a reading off the pack's scale, a quoted request that is not a promise, and an open question with no patient turn behind it |
+| `tests/test_extract.py` | Grounding in all four shapes, retry on invalid JSON, giving up after three, an orphan `supersedes`, a reading off the pack's scale, a quoted request that is not a promise, and an open question with no patient turn behind it, and a promise outside the pack's vocabulary that is dropped alone but kept once the second opinion is asked |
 | `tests/test_memory.py` | Seed loading, idempotent `supersede`, key-term filtering by pack, L2 normalisation, and the question queue's whole transition table including the second answer that must move nothing |
 | `tests/test_channel.py` | µ-law streaming, waiting on the mark, barge-in that cancels and clears, 100 ms framing, hangup, start timeout, and the confidence floor: a number under it rides along with the turn, one over it does not, and a frame with no `confidence` field doubts nothing |
 | `tests/test_sse.py` | Late subscriber gets the buffer, `Last-Event-ID`, keep-alive, unsubscribe, close on `call_ended` |
 | `tests/test_analysis.py` | The AssemblyAI request body, `summarize` over a fixture, that `run` never propagates a failure, and the fuzzy alignment of a quote onto the recording's word timings — including one that must not align |
 | `tests/test_replay.py` | Scripted week1→week2 with supersession, automatic script choice, the `week2-off` script never quoting last week, the `alarm` script cutting the protocol short, monotonic `export`, fixture playback |
 | `tests/test_guard.py` | Rehab's fourteen phrases that must escalate and eighteen that must not, accents and capitals, then the postpartum and chronic rules with their own tables — including the baby's fever, which must not escalate |
-| `tests/test_commitments.py` | The five rules that make a quoted sentence a promise: six that score, eight that must not — a request, somebody else's instruction, a habit, an unrelated plan — and what a deadline and a hedge do to the score |
+| `tests/test_commitments.py` | The four rules that make a quoted sentence a promise: six that score, eight that must not — a request, somebody else's instruction, a habit, an unrelated plan — and what a deadline and a hedge do to the score. Then the vocabulary per vertical: three promises each scored by their own pack and invisible to rehab's. Then the second opinion: three promises no pack enumerates at all, that a rescued promise scores below one the vocabulary matched, and that a sentence with no first-person pledge is dropped **before** anything leaves the process |
+| `tests/test_jev.py` | The one network boundary, faked: the keyless gate never opens a connection, a probability over the floor comes back and one under it does not, the floor is the configured one, only the quote and the question cross, and a 403, a timeout, a body that is not JSON, a renamed field and a probability outside 0–1 all answer `None` |
 | `tests/test_critic.py` | The four checks between the model and the phone, one positive and one negative each, plus a number grounded by the history rather than the memory block |
 | `tests/test_llm.py` | The history the model is handed in all three shapes, and the shared backoff: a rate limit that clears on the third try, and an error that is not retriable |
 | `tests/test_docs.py` | The documentation gates, seven of them: every published test count matches the suite, every line anchor in `API.md` still points at what it names, no ramp step survives outside `tokens.css`, every line count in the module tables matches the file, the target table lists every target in the `Makefile`, the published `ponytail:` counts match a real count, and every `docs/*.md` is indexed with no broken relative link |
@@ -125,7 +127,7 @@ The hard rules are in [`../AGENTS.md`](../AGENTS.md). The ones that bite most of
   bilingual interface (the two `copy.ts` and `panel/content.ts`), where English is the annotated base
   and Spanish the translation.
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.
-  There are **52** in the code and they are the honest list of what was knowingly left simple:
+  There are **56** in the code and they are the honest list of what was knowingly left simple:
 
   ```bash
   grep -ro 'ponytail:' app/*.py web/src scripts tests schema.sql \

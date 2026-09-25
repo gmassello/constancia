@@ -135,7 +135,13 @@ async def run(call, llm, current_facts: list[dict]) -> tuple[list[Fact], list[Op
             if heard_badly(fact, call.transcript):
                 fact.confidence = min(fact.confidence, DOUBTED)
             if fact.category == "commitment":
-                scored = commitments.confidence(fact.quote)
+                scored = commitments.confidence(fact.quote, call.pack)
+                recalled = (
+                    await commitments.recall(fact.quote, call.emit) if scored is None else None
+                )
+                if recalled is not None:
+                    scored = recalled
+                    call.emit("commitment_recalled", fact=fact.fact, quote=fact.quote)
                 if scored is None:
                     call.emit(
                         "fact_rejected",

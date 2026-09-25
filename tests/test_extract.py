@@ -292,3 +292,59 @@ async def test_a_reply_with_no_open_questions_key_still_validates() -> None:
     facts, asked = await extract.run(call, llm, [])
 
     assert len(facts) == 1 and asked == []
+
+
+OTHER_PACK_TURN = [
+    *TRANSCRIPT,
+    {"turn_id": 3, "speaker": "agent", "text": "And what are you planning for this week?"},
+    {"turn_id": 4, "speaker": "patient", "text": "I will log my blood pressure every morning."},
+]
+OTHER_PACK_PROMISE = {
+    **PROMISE,
+    "fact": "promised to log blood pressure every morning",
+    "term": "blood pressure log",
+    "quote": "I will log my blood pressure every morning",
+}
+
+
+def outside_the_vocabulary(replies: list[str]) -> tuple[Call, FakeLLM]:
+    call, llm = build(replies)
+    call.transcript = list(OTHER_PACK_TURN)
+    return call, llm
+
+
+async def test_a_promise_outside_the_vocabulary_is_dropped_on_its_own() -> None:
+    call, llm = outside_the_vocabulary([json.dumps({"facts": [OTHER_PACK_PROMISE]})])
+
+    facts, _ = await extract.run(call, llm, [])
+
+    assert facts == []
+    assert "commitment_recalled" not in types_of(call)
+
+
+async def test_a_second_opinion_rescues_it_and_says_so(monkeypatch) -> None:
+    async def commits(quote: str, emit=None) -> float:
+        return 0.96
+
+    monkeypatch.setattr("app.commitments.jev.commits", commits)
+    call, llm = outside_the_vocabulary([json.dumps({"facts": [OTHER_PACK_PROMISE]})])
+
+    facts, _ = await extract.run(call, llm, [])
+
+    assert [fact.category for fact in facts] == ["commitment"]
+    assert facts[0].confidence == 0.75
+    assert "commitment_recalled" in types_of(call)
+    assert "fact_rejected" not in types_of(call)
+
+
+async def test_the_vocabulary_answering_first_never_asks_for_a_second_opinion(monkeypatch) -> None:
+    async def commits(quote: str, emit=None) -> float:
+        raise AssertionError("asked for a second opinion the vocabulary did not need")
+
+    monkeypatch.setattr("app.commitments.jev.commits", commits)
+    call, llm = promising([json.dumps({"facts": [PROMISE]})])
+
+    facts, _ = await extract.run(call, llm, [])
+
+    assert [fact.category for fact in facts] == ["commitment"]
+    assert "commitment_recalled" not in types_of(call)

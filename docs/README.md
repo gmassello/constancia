@@ -36,7 +36,7 @@ Start here. The repo carries four kinds of document and mixing them up wastes ti
 |---|---|
 | [`PRODUCT.md`](PRODUCT.md) | The problem, who buys it, what the patient hears, the three verticals, what the professional sees. No jargon. |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | One call end to end, the six phases, the three modes, how memory and supersession work, and the system's limits. |
-| [`BACKEND.md`](BACKEND.md) | The twenty-one modules, the four pieces worth reading first, configuration and the import-time rule. |
+| [`BACKEND.md`](BACKEND.md) | The twenty-two modules, the four pieces worth reading first, configuration and the import-time rule. |
 | [`FRONTEND.md`](FRONTEND.md) | Build and serving, the token rule and its gate, the bilingual machinery, the panel's components — the front end **as it stands**, which is what to check before assuming a piece of [`DESIGN.md`](DESIGN.md) is built. |
 | [`API.md`](API.md) | All twenty-four routes, the Twilio webhooks and the SSE contract. |
 | [`OPERATIONS.md`](OPERATIONS.md) | The three ways to run it, every environment variable, the database, Docker and Render. |

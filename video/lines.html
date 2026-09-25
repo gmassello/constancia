@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>constancia — Ana's lines</title>
+    <link rel="stylesheet" href="../web/src/tokens.css" />
+    <style>
+      .warn {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: var(--danger-fill);
+        color: var(--color-danger);
+        padding: var(--space-3) var(--space-6);
+        font-weight: 600;
+        border-bottom: 1px solid var(--color-divider-strong);
+      }
+      main { max-width: 900px; margin: 0 auto; padding: var(--space-6) var(--space-4) 240px; }
+      h1 { font-size: 34px; margin: var(--space-6) 0 var(--space-2); }
+      h2 { font-size: 21px; margin: 0 var(--space-2) var(--space-1) 0; }
+      .lede { color: var(--text-secondary); margin: 0 0 var(--space-8); max-width: 68ch; }
+      .controls {
+        position: sticky;
+        top: 49px;
+        z-index: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+        align-items: center;
+        padding: var(--space-3) var(--space-4);
+        margin-bottom: var(--space-8);
+        background: var(--color-surface);
+        border: 1px solid var(--color-divider);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+      }
+      .eyebrow {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      select, input[type="range"] { font: inherit; font-size: 14px; }
+      select {
+        background: var(--color-bg);
+        color: var(--color-text);
+        border: 1px solid var(--color-divider-strong);
+        border-radius: var(--radius-sm);
+        padding: 6px 8px;
+        max-width: 280px;
+      }
+      section { margin-bottom: var(--space-8); }
+      .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); }
+      .hint { color: var(--text-muted); font-size: 13px; margin: var(--space-2) 0 var(--space-4); max-width: 68ch; }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: var(--space-4);
+        align-items: center;
+        padding: var(--space-4);
+        border: 1px solid var(--color-divider);
+        border-left: 3px solid transparent;
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-2);
+        background: var(--color-surface);
+      }
+      .row[data-current="true"] { border-left-color: var(--color-accent); box-shadow: var(--shadow-md); }
+      .row[data-said="true"] .line { color: var(--tone-dim); }
+      .cue { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+      .cue b { color: var(--text-secondary); font-weight: 600; }
+      .line { font-size: 25px; line-height: 1.35; }
+      .flag { margin-bottom: 6px; }
+      .agent-only { background: none; border-style: dashed; }
+      .agent-only .line { font-size: 15px; color: var(--text-secondary); font-style: italic; }
+      footer { color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--color-divider); padding-top: var(--space-4); }
+      kbd {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        border: 1px solid var(--color-divider-strong);
+        border-radius: var(--radius-sm);
+        padding: 1px 5px;
+        color: var(--text-secondary);
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .row { transition: box-shadow 120ms ease, border-color 120ms ease; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="warn">
+      This page speaks out loud — keep it off the window being recorded, on a second screen or behind it.
+    </div>
+
+    <main>
+      <h1>Ana's lines</h1>
+      <p class="lede">
+        One row per turn, in the order they are filmed. Press <kbd>space</kbd> to speak the highlighted
+        line and move to the next one. Hold the phone's microphone to the laptop speaker; do not put the
+        phone on speaker, or the agent's own voice feeds back into the call.
+      </p>
+
+      <div class="controls">
+        <span class="eyebrow">Voice</span>
+        <select id="voice" aria-label="English voice"></select>
+        <span class="eyebrow">Rate</span>
+        <input id="rate" type="range" min="0.7" max="1.3" step="0.05" value="1" aria-label="Speech rate" />
+        <span id="rateOut" class="eyebrow"></span>
+        <button id="test" class="btn btn-secondary">Test voice</button>
+        <button id="stop" class="btn btn-secondary">Stop</button>
+        <span id="warnVoice" class="tag tag-danger" hidden>No English voice found</span>
+      </div>
+
+      <div id="calls"></div>
+
+      <footer>
+        <p>
+          <kbd>space</kbd> speak and advance · <kbd>R</kbd> repeat · <kbd>&uarr;</kbd> <kbd>&darr;</kbd>
+          move without speaking · <kbd>esc</kbd> stop
+        </p>
+        <p>
+          Lines are copied from <code>seed/scripts.json</code>. Numbers are written the way they are
+          spoken on purpose — <em>seven out of ten</em>, never <em>7</em>. If a script changes, this page
+          has to change with it.
+        </p>
+      </footer>
+    </main>
+
+    <script>
+      // ponytail: the browser's own speechSynthesis, so this page is one file with no build step and
+      // no audio in the repo. The ceiling is that the voice list belongs to the machine and the timing
+      // cannot be rehearsed exactly. If it garbles a number on the take, pre-render each line with
+      // `say -v <voice> -o line.aiff`, the same tool build-audio.sh already uses for the narration, and
+      // swap speak() for an <audio> element.
+      const CALLS = [
+        {
+          beat: "Beat 3 · week one",
+          button: "Real phone, no memory",
+          memory: "memory off",
+          live: true,
+          hint: "With memory off the recall phase is skipped, so nothing primes the recogniser and this is the call where a number is most likely to come out wrong. The promise in the third line is what creates the commitment that beat 5 asks about.",
+          turns: [
+            { cue: "greeting", agent: "Hi Ana, I am your physio's follow-up assistant. I am calling to see how you are doing with your recovery this week.", line: "Hello, yes, this is Ana." },
+            { cue: "pain", agent: "Tell me, how much does it hurt today from one to ten, and at what moment or with what movement do you notice it most?", line: "My right knee hurts seven out of ten, especially when I climb stairs." },
+            { cue: "adherence", agent: "How many times did you manage the exercises this week? Was it hard to keep the routine up?", line: "I did the exercises three times, I skipped two days because I had a lot of work. Next week I will do them every day." },
+            { cue: "read-back", agent: "Sorry, I want to be sure I heard that right. Did you say three?", line: "Yes, three times.", flag: "only if the agent asks you to confirm the number" },
+            { cue: "side effects", agent: "Did you have any new discomfort after the exercises, any swelling or stiffness?", line: "After the exercises it stays a little stiff, nothing strange." },
+            { cue: "red flags", agent: "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?", line: "No, no falls, nothing like that." }
+          ]
+        },
+        {
+          beat: "Beat 4 · week two, memory off",
+          button: "Real phone, no memory",
+          memory: "memory off",
+          live: true,
+          hint: "Same button as beat 3. The point of the beat is that the agent never asks about the knee, so answer plainly and let it ask the generic protocol.",
+          turns: [
+            { cue: "greeting", agent: "Hi Ana, I am your physio's follow-up assistant. I am calling to see how you are doing with your recovery this week.", line: "Hello, yes, this is Ana." },
+            { cue: "pain", agent: "Tell me, how much does it hurt today from one to ten, and at what moment or with what movement do you notice it most?", line: "My knee is a lot better, it is four out of ten on the stairs now." },
+            { cue: "adherence", agent: "How many times did you manage the exercises this week? Was it hard to keep the routine up?", line: "I did them five times this week, I got myself better organised." },
+            { cue: "side effects", agent: "Did you have any new discomfort after the exercises, any swelling or stiffness?", line: "No, no new discomfort." },
+            { cue: "red flags", agent: "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?", line: "No, nothing like that." }
+          ]
+        },
+        {
+          beat: "Beat 5 · week two, memory on",
+          button: "Real phone, with memory",
+          memory: "memory on",
+          live: true,
+          on: true,
+          hint: "Six turns, not five: the agent asks about the promise before it asks about adherence. This is also the only call where the key terms are sent, so it transcribes best.",
+          turns: [
+            { cue: "greeting", agent: "Hi Ana, I am your physio's follow-up assistant. Last week you told me your knee hurt seven out of ten climbing stairs, so I am calling to see how it has been this week.", line: "Hello, yes, this is Ana.", flag: "wait: the agent says two things first — the greeting, then the answer your physio left. Do not speak over the second one." },
+            { cue: "pain", agent: "Tell me, how much does it hurt today from one to ten climbing stairs?", line: "My knee is a lot better, it is four out of ten on the stairs now." },
+            { cue: "the promise", agent: "Last week you promised to do the exercises every day. How did that go?", line: "I did better with the daily plan, I managed five of the seven days." },
+            { cue: "adherence", agent: "Last week you did the exercises three times. How many times did you manage this week?", line: "I did them five times this week, I got myself better organised." },
+            { cue: "side effects", agent: "Did you have any new discomfort after the exercises, any swelling or stiffness?", line: "No, no new discomfort. Should I start going up the stairs normally again?" },
+            { cue: "red flags", agent: "One last one: did you have a fall, a sudden sharp pain, or anything that scared you?", line: "No, nothing like that." }
+          ]
+        },
+        {
+          beat: "Beat 6 · the red flag",
+          button: "call with a red flag",
+          memory: "keyless",
+          live: false,
+          hint: "This one stays keyless on purpose: the scripted patient says these lines, you say nothing. They are here so you know when the call is about to be cut short. Press it last — it retires the 4/10 that beat 5 just created.",
+          turns: [
+            { cue: "greeting", agent: "Hi Ana, I am your physio's follow-up assistant. Last week you told me your knee hurt seven out of ten climbing stairs, so I am calling to see how it has been this week.", line: "Hello, yes, this is Ana." },
+            { cue: "pain", agent: "Tell me, how much does it hurt today from one to ten climbing stairs?", line: "The knee is about the same, five out of ten climbing stairs." },
+            { cue: "the promise", agent: "Last week you promised to do the exercises every day. How did that go?", line: "I did not manage the daily plan this week, not once." },
+            { cue: "adherence", agent: "Last week you did the exercises three times. How many times did you manage this week?", line: "I only did them twice, because on Tuesday I fell coming down the stairs and I was left sore." },
+            { cue: "the guard stops the call", agent: "Ana, a fall is something that has to be looked at today. Please contact your physio now and tell them what you told me; I am flagging this call so they see it. Take good care.", agentOnly: true }
+          ]
+        }
+      ];
+
+      const escape = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const store = {
+        get(k, fallback) { try { return localStorage.getItem(k) ?? fallback; } catch { return fallback; } },
+        set(k, v) { try { localStorage.setItem(k, v); } catch { /* file:// or blocked */ } }
+      };
+
+      const container = document.getElementById("calls");
+      container.innerHTML = CALLS.map((call) => `
+        <section>
+          <div class="head">
+            <h2>${escape(call.beat)}</h2>
+            <span class="tag ${call.on ? "tag-outline" : "tag-neutral"}">${escape(call.memory)}</span>
+            <span class="tag ${call.live ? "tag-neutral" : "tag-danger"}">${call.live ? "press &ldquo;" + escape(call.button) + "&rdquo;" : "scripted &mdash; you say nothing"}</span>
+          </div>
+          <p class="hint">${escape(call.hint)}</p>
+          ${call.turns.map((turn) => `
+            <div class="row${turn.agentOnly ? " agent-only" : ""}">
+              <div>
+                <div class="cue"><b>${escape(turn.cue)}</b> &middot; ${escape(turn.agent)}</div>
+                ${turn.flag ? `<span class="tag tag-danger flag">${escape(turn.flag)}</span><br />` : ""}
+                ${turn.agentOnly ? "" : `<div class="line">${escape(turn.line)}</div>`}
+              </div>
+              ${turn.agentOnly ? "" : `<button class="btn btn-primary">Play</button>`}
+            </div>`).join("")}
+        </section>`).join("");
+
+      const rows = [...container.querySelectorAll(".row:not(.agent-only)")];
+      const textOf = (row) => row.querySelector(".line").textContent;
+      let at = 0;
+
+      function mark() {
+        rows.forEach((row, i) => {
+          row.dataset.current = String(i === at);
+          row.dataset.said = String(i < at);
+        });
+        rows[at]?.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+
+      const voices = document.getElementById("voice");
+      const rate = document.getElementById("rate");
+      const rateOut = document.getElementById("rateOut");
+      // ponytail: a preference order rather than a blocklist. The machine offers dozens of English
+      // voices, most of them novelties, and Ava is the narration's own voice — hearing the patient in
+      // it would make the two indistinguishable. The list stays complete; only the default is
+      // opinionated.
+      const PREFERRED = ["Samantha", "Evan (Enhanced)", "Karen", "Moira"];
+
+      const englishVoices = () =>
+        speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith("en"));
+
+      function loadVoices() {
+        const names = englishVoices().map((v) => v.name);
+        document.getElementById("warnVoice").hidden = names.length > 0;
+        const saved =
+          store.get("ana.voice", "") ||
+          PREFERRED.find((name) => names.includes(name)) ||
+          names.find((name) => !name.startsWith("Ava")) ||
+          "";
+        voices.innerHTML = englishVoices()
+          .map((v) => `<option value="${escape(v.name)}"${v.name === saved ? " selected" : ""}>${escape(v.name)} — ${escape(v.lang)}</option>`)
+          .join("");
+      }
+      loadVoices();
+      speechSynthesis.addEventListener("voiceschanged", loadVoices);
+
+      const showRate = () => { rateOut.textContent = Number(rate.value).toFixed(2) + "\u00d7"; };
+      rate.value = store.get("ana.rate", "1");
+      showRate();
+      rate.addEventListener("input", () => { showRate(); store.set("ana.rate", rate.value); });
+      voices.addEventListener("change", () => store.set("ana.voice", voices.value));
+
+      function speak(text) {
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "en-US";
+        const picked = englishVoices().find((v) => v.name === voices.value);
+        if (picked) utterance.voice = picked;
+        utterance.rate = Number(rate.value);
+        speechSynthesis.speak(utterance);
+      }
+
+      container.addEventListener("click", (event) => {
+        const row = event.target.closest("button") && event.target.closest(".row");
+        if (!row) return;
+        at = rows.indexOf(row);
+        mark();
+        speak(textOf(rows[at]));
+      });
+
+      document.getElementById("test").addEventListener("click", () => speak(CALLS[0].turns[1].line));
+      document.getElementById("stop").addEventListener("click", () => speechSynthesis.cancel());
+
+      document.addEventListener("keydown", (event) => {
+        if (event.target.matches("select, input, button")) return;
+        const keys = [" ", "r", "R", "ArrowDown", "ArrowUp", "Escape"];
+        if (!keys.includes(event.key)) return;
+        event.preventDefault();
+        if (event.key === "Escape") return speechSynthesis.cancel();
+        if (event.key !== "ArrowDown" && event.key !== "ArrowUp") speak(textOf(rows[at]));
+        if (event.key === " " || event.key === "ArrowDown") at = Math.min(at + 1, rows.length - 1);
+        if (event.key === "ArrowUp") at = Math.max(at - 1, 0);
+        mark();
+      });
+
+      mark();
+    </script>
+  </body>
+</html>

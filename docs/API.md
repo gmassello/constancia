@@ -128,7 +128,7 @@ the URL is reachable.
 | `POST` | `/voice/recording` | `voice_recording` — `main.py:291` | `204`. Stores the recording URL and queues the post-call analysis. `400` if the URL is not a Twilio URL. |
 | `WS` | `/media/{call_id}` | `media` — `main.py:371` | The Twilio Media Stream. This socket is where a live call actually happens. |
 
-`is_twilio_recording` (`app/config.py:53`) is the reason `/voice/recording` cannot be used to make
+`is_twilio_recording` (`app/config.py:56`) is the reason `/voice/recording` cannot be used to make
 the service fetch an arbitrary URL.
 
 ## Service

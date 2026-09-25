@@ -52,6 +52,14 @@ function describe(event: Event, c: Copy): Line | null {
         text: c.data(String(event.said)),
         detail: label(c.reason, event.reason),
       }
+    case "commitment_recalled":
+      return {
+        key,
+        tone: "muted",
+        label: c.railRecalled,
+        text: c.data(String(event.quote)),
+        detail: c.railRecalledText,
+      }
     case "guard_hit":
       return { key, tone: "alarm", label: c.railAlarm, text: label(c.rule, event.rule) }
     case "memory_off":

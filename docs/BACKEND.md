@@ -1,6 +1,6 @@
 # Backend reference
 
-Python 3.12, FastAPI, `uv`. Twenty-one modules, 2,951 lines, no framework beyond FastAPI and no
+Python 3.12, FastAPI, `uv`. Twenty-two modules, 3,028 lines, no framework beyond FastAPI and no
 ORM. [`ARCHITECTURE.md`](ARCHITECTURE.md) has the flow these modules implement; this file is what
 each one is for.
 
@@ -11,20 +11,21 @@ each one is for.
 | [`app/main.py`](../app/main.py) | 400 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty-four routes and mounts `web/dist` if it exists. |
 | [`app/memory.py`](../app/memory.py) | 465 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader and the `keyterms` computation. |
 | [`app/channel.py`](../app/channel.py) | 306 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
-| [`app/packs.py`](../app/packs.py) | 293 | The three verticals as content: system prompt, questions, red-flag patterns, measures, and the rendering of the memory block. |
+| [`app/packs.py`](../app/packs.py) | 312 | The three verticals as content: system prompt, questions, red-flag patterns, the action vocabulary a promise has to name, measures, and the rendering of the memory block. |
 | [`app/orchestrator.py`](../app/orchestrator.py) | 282 | The phase machine. Decides what is said, what is stored and when a call escalates. |
 | [`app/llm.py`](../app/llm.py) | 142 | `retrying`, the shared backoff every Gemini call site goes through; `GeminiLLM`; and `ScriptedLLM`, its deterministic double. |
 | [`app/replay.py`](../app/replay.py) | 113 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
-| [`app/extract.py`](../app/extract.py) | 168 | Structured extraction and the grounding check. |
+| [`app/extract.py`](../app/extract.py) | 174 | Structured extraction and the grounding check. |
 | [`app/analysis.py`](../app/analysis.py) | 150 | Post-call entity detection and sentiment on the recording. |
-| [`app/commitments.py`](../app/commitments.py) | 51 | The five rules that decide whether a quoted sentence is a promise, and what it scores. Read out of pact and rewritten for patients. |
+| [`app/commitments.py`](../app/commitments.py) | 80 | The four rules that decide whether a quoted sentence is a promise, and what it scores. Three are generic English and live here; the fourth, the action, is `pack.actions`, because what a patient promises to do is clinical content. Read out of pact and rewritten for patients. When the action vocabulary says no, `recall` asks [`app/jev.py`](../app/jev.py) — but only for a sentence that already pledged something in the first person — and still scores the answer itself. |
+| [`app/jev.py`](../app/jev.py) | 70 | The one call to Jev, a typed-decision model reached through Vercel AI Gateway: one boolean question about one sentence, asking the gateway not to retain it and pinning the provider that may serve it. Every failure is a `None`, so the deterministic rules decide alone. |
 | [`app/critic.py`](../app/critic.py) | 40 | Four deterministic checks between the model's reply and the phone: clinical advice, length, whether it asks anything, and whether every number in it is on file. |
 | [`app/numbers.py`](../app/numbers.py) | 42 | Digits and the words for them, in both languages. One table, because the critic and the STT read-back have to agree on what a number is. |
 | [`app/queries.py`](../app/queries.py) | 96 | Pure reducers over fact rows: the chain, the weekly series, the key terms of a past call. |
 | [`app/calls.py`](../app/calls.py) | 78 | The `Call` dataclass, the `emit`/`subscribe` event bus, and the global `CALLS` registry. |
 | [`app/stt.py`](../app/stt.py) | 69 | AssemblyAI Universal-Streaming v3 over WebSocket, with hot key-term updates. |
 | [`app/db.py`](../app/db.py) | 60 | The psycopg async pool, the query helpers and `init_schema()`. |
-| [`app/config.py`](../app/config.py) | 54 | `Settings`, `get_settings()`, `settings_or_none()`. |
+| [`app/config.py`](../app/config.py) | 58 | `Settings`, `get_settings()`, `settings_or_none()`. |
 | [`app/telephony.py`](../app/telephony.py) | 37 | The TwiML and the outbound Twilio call. |
 | [`app/guard.py`](../app/guard.py) | 51 | The deterministic red-flag guard. |
 | [`app/tts.py`](../app/tts.py) | 30 | ElevenLabs streaming in `ulaw_8000`. |
@@ -225,7 +226,7 @@ Two consequences visible throughout the code, and both are deliberate:
 ## Conventions
 
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.
-  There are **39** on this side — 38 in `app/` plus one in `schema.sql` — and they are the honest
+  There are **43** on this side — 42 in `app/` plus one in `schema.sql` — and they are the honest
   list of what was knowingly left simple. The densest are the ten in `app/orchestrator.py`, which
   are where the phase machine explains itself, then seven in `app/memory.py`, six in `app/main.py`,
   four in `app/analysis.py` and three each in `app/channel.py` and `app/llm.py`. The gate counts

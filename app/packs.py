@@ -67,6 +67,7 @@ class VerticalPack:
     summarize: str
     questions: tuple[Question, ...]
     keyterm_categories: tuple[str, ...]
+    actions: str
     measures: tuple[Measure, ...]
     red_flags: tuple[RedFlag, ...]
     escalation: str
@@ -97,6 +98,12 @@ REHAB = VerticalPack(
         Question("red_flags", "whether they had a fall, a sudden sharp pain, or anything that scared them", "Did you have a fall, a sudden sharp pain, or anything that scared you?"),
     ),
     keyterm_categories=("symptom", "adherence", "red_flag", "commitment"),
+    actions=(
+        r"\b(?:do|doing|start|starting|keep|keeping)\b[^.]{0,24}"
+        r"\b(?:exercis\w*|routine|stretch\w*|physio\w*|therapy|sessions?)\b"
+        r"|\b(?:stretch|stretching|exercise|exercising|swim|swimming|ice|icing|elevate|elevating)\b"
+        r"|\bgo(?: back)? to\b[^.]{0,24}\b(?:physio\w*|session|gym|pool)\b"
+    ),
     measures=(Measure("symptom", 10, True), Measure("adherence", 7, False)),
     red_flags=(
         RedFlag(
@@ -151,6 +158,12 @@ POSTPARTUM = VerticalPack(
         Question("red_flags", "whether they had a fever, a bad headache, or anything that scared them", "Did you have a fever, a bad headache, or anything that scared you?"),
     ),
     keyterm_categories=("symptom", "mood", "red_flag"),
+    actions=(
+        r"\b(?:feed|feeding|breastfeed\w*|nurse|nursing|latch\w*|express\w*|pump\w*)\b"
+        r"|\b(?:nap|napping|sleep|sleeping|lie down|sit down)\b"
+        r"|\bask\b[^.]{0,24}\bfor help\b"
+        r"|\b(?:change|changing|count|counting)\b[^.]{0,24}\bpads?\b"
+    ),
     measures=(Measure("symptom", 10, True), Measure("mood", 10, False)),
     red_flags=(
         RedFlag(
@@ -201,6 +214,12 @@ CHRONIC = VerticalPack(
         Question("red_flags", "whether they had chest pain, shortness of breath or blurred vision", "Did you have chest pain, shortness of breath or blurred vision?"),
     ),
     keyterm_categories=("symptom", "clinical_value", "adherence", "red_flag"),
+    actions=(
+        r"\b(?:measure|measuring|check|checking|log|logging|record|recording"
+        r"|weigh|weighing|monitor|monitoring)\b"
+        r"|\bwrite\b[^.]{0,24}\bdown\b"
+        r"|\bcut\b[^.]{0,24}\b(?:salt|sugar|carbs)\b"
+    ),
     measures=(
         Measure("symptom", 10, True),
         Measure("clinical_value", None, True),

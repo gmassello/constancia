@@ -8,7 +8,7 @@ Patients in home rehab abandon their exercise plan about 70% of the time. Nobody
 
 The same engine serves three verticals as config packs: `rehab`, `postpartum`, `chronic`.
 
-Built for the [lablab.ai × AssemblyAI Voice Agent Hackathon](docs/HACKATHON.md) on **Path B**: AssemblyAI Universal-Streaming v3 over a real phone call, Gemini Flash for phrasing, ElevenLabs for µ-law audio, Twilio Media Streams for the line.
+Built for the [lablab.ai × AssemblyAI Voice Agent Hackathon](docs/HACKATHON.md) on **Path B**: AssemblyAI Universal-Streaming v3 over a real phone call, Gemini Flash for phrasing, ElevenLabs for µ-law audio, Twilio Media Streams for the line. Off the call, Jev answers one typed question about one sentence — see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) § *System boundaries* for what crosses and what does not.
 
 ## Where the build is
 
@@ -19,6 +19,9 @@ Stage 3 of four plus the public landing (see [`docs/PLAN.md`](docs/PLAN.md) and 
 - Gemini Flash phrases each turn; the orchestrator decides which question comes next and will not let one be skipped.
 - Barge-in: the patient interrupts, the agent stops and the queued audio is cleared.
 - Deterministic red-flag guard with negation handling. The LLM only phrases the escalation.
+- Promises recognised by deterministic rules, and a typed second opinion from Jev only where the
+  rules' vocabulary runs out. The rules still set the score, and with no key the second opinion is
+  simply off (`make smoke-jev`).
 - Per-call trace as an append-only event stream at `GET /calls/{id}/trace`.
 - **Memory**: the call opens with every current fact for that patient in the system prompt, and their key
   terms in the STT `keyterms_prompt`. After hangup the transcript is extracted into facts, each grounded in a
@@ -54,7 +57,7 @@ The deploy, the video and the deliverables land in stage 4.
 |---|---|
 | [`docs/PRODUCT.md`](docs/PRODUCT.md) | what this is and who pays for it, without jargon |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | one call end to end, the phases, the three modes, memory |
-| [`docs/BACKEND.md`](docs/BACKEND.md) | the twenty-one modules and the four worth reading first |
+| [`docs/BACKEND.md`](docs/BACKEND.md) | the twenty-two modules and the four worth reading first |
 | [`docs/FRONTEND.md`](docs/FRONTEND.md) | build, design system, the bilingual machinery, the panel |
 | [`docs/API.md`](docs/API.md) | all twenty-four routes, the webhooks, the SSE contract |
 | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | running it, every environment variable, Docker and Render |
@@ -72,7 +75,7 @@ No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 280 tests, no network and no database
+make test          # 311 tests, no network and no database
 make lint          # ruff
 make web           # builds web/dist (needs node 24 and pnpm); tsc -b is the front-end check
 make dev           # http://localhost:8001 — the landing; the panel is at /panel

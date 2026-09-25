@@ -8,7 +8,7 @@ The service degrades on purpose. Pick the shallowest one that shows what you nee
 
 ```bash
 uv sync
-make test          # 280 tests, no network and no database
+make test          # 311 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session
@@ -101,14 +101,39 @@ can serve. `mode=live` is refused with `503`, and so is `GET /search`, which nee
 | `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-001` | |
 | `ASSEMBLYAI_SPEECH_MODEL` | `universal-3-6-pro` | A model offered *by* Universal-Streaming, not a different product: same `wss://streaming.assemblyai.com/v3/ws`, same API version. It was picked by measurement, not preference — on a real 8 kHz call it transcribed the patient's line verbatim where `universal-streaming-english` returned "My hair is 7 out of 10". The API rejects an unknown value and lists the ones it takes in the error, which is how the name was pinned. |
 | `ELEVENLABS_MODEL` | `eleven_flash_v2_5` | |
+| `AI_GATEWAY_API_KEY` | *(empty)* | The second opinion on promises. Without it [`../app/jev.py`](../app/jev.py) returns `None` before opening a socket and the deterministic rules decide alone — the three generic ones in `app/commitments.py` plus the vertical's own `pack.actions` — which is what every test and every offline demo does. A Vercel AI Gateway key, not a TypeSafe one: TypeSafe paused signups, and the gateway is the documented way in. |
 | `VALIDATE_TWILIO_SIGNATURE` | `true` | Turn it off only against a local tunnel you control. |
 
-Five more tuning knobs are defaulted in [`../app/config.py`](../app/config.py) and deliberately left
+Seven more tuning knobs are defaulted in [`../app/config.py`](../app/config.py) and deliberately left
 out of `.env.example`, because nobody needs to set them to run the project: `EMBEDDING_DIMS` (1536,
 and it has to match `vector(1536)` in the schema), `LANGUAGE` (`en`), `SILENCE_S` (8.0, how long the
 agent waits before re-prompting), `BARGE_MIN_WORDS` (2, how many words of the patient count as an
-interruption) and `STT_CONFIDENCE_FLOOR` (0.6, below which a number the recogniser heard earns one
-read-back turn; `0` switches the read-back off entirely).
+interruption), `STT_CONFIDENCE_FLOOR` (0.6, below which a number the recogniser heard earns one
+read-back turn; `0` switches the read-back off entirely) `JEV_FLOOR` (0.8, how sure Jev has to be
+before a sentence every vocabulary rejected still counts as a promise) and `JEV_ZERO_RETENTION`
+(`false`). That last one is not a preference: Zero Data Retention is a Pro tier, and asking for it on
+a hobby plan is not ignored — the gateway answers **403 on every call**, which the client turns into a
+`None` that looks exactly like the vocabulary deciding. Turn it on only on a plan that has it, and
+`make smoke-jev` is how you find out.
+
+`JEV_FLOOR` is measured, not chosen. `make smoke-jev` posts the sentences the deterministic rules
+reject, one per line, and prints the probability for each next to the pack it was judged under.
+
+Measured on 24 Sep 2026, thirteen sentences, of which eight reach Jev. The four everyday plans that
+are not health promises scored **0.01, 0.01, 0.02 and 0.03**. The four promises about the patient's own
+care scored **0.06, 0.15, 0.85 and 0.89**. So 0.8 keeps a 0.77 margin against the highest non-promise,
+and the two positives under it — *"I will take the pram to the corner every afternoon"* and *"I will put
+my feet up whenever I sit down"* — are genuine misses: Jev reads them as ordinary life rather than
+care. That is the trade this floor makes on purpose. A missed promise costs nothing, the fact is simply
+not stored as a `commitment`; a false one puts a promise in a patient's mouth and reads it back to them
+a week later.
+
+**The wording is what the number depends on, and it moved once already.** The first question asked only
+whether the patient was *promising to do something themselves*, which is true of any first-person plan:
+*"I will call my brother tonight"* scored 0.83 while a real promise scored 0.49, and no floor separates
+those. Naming health, care and recovery in the question is what opened the gap. Re-run `make smoke-jev`
+after touching `INSTRUCTIONS` or `CRITERIA` in `app/jev.py`, and read the gap off that output rather
+than trusting the number here.
 
 `STT_CONFIDENCE_FLOOR` is the one that needs calibrating on real calls. µ-law at 8 kHz scores lower
 than clean audio across the board, so a floor tuned on a laptop microphone makes the agent read

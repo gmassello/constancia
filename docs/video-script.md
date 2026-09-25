@@ -25,7 +25,7 @@ socket rather than spending a transcript; neither prints a key. Each
 of them reads as a model bug from the other side of the camera, which is why none of them is left to
 be noticed during a take.
 
-`.env` needs `DEMO_PHONE` set to the phone Anita will answer off camera, and `PUBLIC_BASE_URL` set
+`.env` needs `DEMO_PHONE` set to the phone **you** answer off camera, and `PUBLIC_BASE_URL` set
 to the tunnel URL **before** `make take`. A stale tunnel URL makes every webhook 403 in
 `twilio_form()` (`app/security.py`), and the symptom is a phone that rings and then goes silent — it
 reads as a model bug and it is not one. With `.env` complete but `DEMO_PHONE` empty the live buttons
@@ -87,7 +87,7 @@ spends about seven Gemini requests**, so a rehearsal plus a take plus a verifica
 sixty, and an exhausted quota does not fail cleanly: it answers with a generic error that reads, on
 camera, as a bug in the agent.
 
-**Rehearsal 1 — the choreography. No phone, no Anita, nothing spent.**
+**Rehearsal 1 — the choreography. No phone, no voice, nothing spent.**
 
 ```bash
 GEMINI_API_KEY= make take     # ScriptedLLM: the keyless buttons are free and repeatable
@@ -98,14 +98,14 @@ the window at 1280×800, the debugger banner gone, the hydration pause before th
 it and throw it away, then sweep the file for a notification or a second tab. **This is where takes
 are lost, and here they cost nothing.**
 
-**Rehearsal 2 — the phone. Anita answers; Gemini is not involved.**
+**Rehearsal 2 — the phone. You answer it; Gemini is not involved.**
 
 ```bash
 make smoke PHONE=+54911...    # one <Say>, nothing else
 ```
 
-Proves the geographic permissions, the trial-number verification, how the line sounds, and that she
-picks up in time. Cheapest thing in the session and the one worth repeating.
+Proves the geographic permissions, the trial-number verification, how the line sounds, and that you
+pick up in time. Cheapest thing in the session and the one worth repeating.
 
 **Rehearsal 3 — one full call, once.**
 
@@ -114,10 +114,13 @@ MEMORY=off make call          # no phone argument: it resolves DEMO_PHONE, the b
 curl localhost:8001/calls/<id>/trace
 ```
 
-She reads the week-1 lines. The trace has to show the greeting, the four questions in order, both
-speakers in the transcript, and the facts with their quotes. **That closes C1.** It also gives her
-the rhythm — waiting for the agent to finish before answering is the part that takes practice — and
-it is where a mis-transcribed number shows up, because beats 3 and 4 run the recogniser unprimed. If
+Answer the phone and play the week-1 lines from [`video/lines.html`](../video/lines.html), one per
+question. The trace has to show the greeting, the four questions in order, both speakers in the
+transcript, and the facts with their
+quotes. **That closes C1.** It is also where the rhythm is learned, and the rhythm is now yours rather
+than an actor's: **wait for the agent to stop talking before pressing space.** Press early and the
+recogniser hears the two voices at once. And it is where a mis-transcribed number shows up, because
+beats 3 and 4 run the recogniser unprimed. If
 *seven out of ten* comes out wrong here, it comes out wrong on camera.
 
 Then `make smoke-analysis URL=<recording url>` on that call, and the panel rehearsal: `bash
@@ -142,13 +145,17 @@ fall back to if a quota dies mid-session; the red flag in beat 6 stays keyless e
 | | **live** — the one to aim for | **keyless** — the fallback |
 |---|---|---|
 | Needs | `.env` filled, ngrok up, C1 and C2 done | nothing |
-| The call | a real phone rings; Anita answers and reads the lines below | the panel's own buttons |
+| The call | a real phone rings; you answer it and [`video/lines.html`](../video/lines.html) speaks the lines below | the panel's own buttons |
 | AssemblyAI | Universal-Streaming on real audio | not exercised |
-| What she says | the lines in each beat, out loud | nothing — the lines are already in `seed/scripts.json` |
+| What the patient says | the lines in each beat, spoken by the page into the phone | nothing — the lines are already in `seed/scripts.json` |
 | Risk | the model phrases differently every take | **the same risk, in the recording session** |
 
 The patient lines are **the same in both paths**, because the keyless scripts were written from
 them. So the extraction, the supersession and the key terms behave identically either way.
+[`video/lines.html`](../video/lines.html) is the operating copy of those lines: it carries the agent's
+cues, marks the conditional turns, and
+speaks each line in English. The tables in the beats below are the same lines for reading; the page is
+the one to have open during a take.
 
 **Keyless does not mean deterministic on the day.** `build_llm` (`app/replay.py`) returns the real
 model the moment `GEMINI_API_KEY` is readable, and the live path needs a filled `.env` — so during
@@ -168,7 +175,7 @@ That is the rehearsal server, not the take server.
 |---|---|---|---|
 | 1 | `1:problem` | 21 s | The landing at `/`, the opening claim |
 | 2 | `2:product` | 24 s | The landing: one sentence, then the three packs |
-| 3 | `3:call-one` | 56 s | 🎯 Week 1 live. Nothing recalled, four questions, two facts extracted |
+| 3 | `3:call-one` | 56 s | 🎯 Week 1 live. Nothing recalled, four questions, three facts extracted |
 | 4 | `4:memory-off` | 24 s | Week 2 live with memory off: the generic protocol |
 | 5 | `5:memory-on` | 42 s | 🎯 Week 2 live with memory on: the knee, and the 7/10 retired |
 | 6 | `6:panel` | 31 s | The chart, the file, the key terms, what AssemblyAI heard, a red flag |
@@ -208,27 +215,33 @@ is what makes it week one.
 
 **live:** press **Real phone, no memory**. A call started from a terminal never reaches this card —
 the page only follows the call its own `POST /calls` returned — so every call in this video is
-pressed on screen. Anita answers off camera and reads one line per question, waiting for the agent
-to finish each one:
+pressed on screen. You answer off camera and play one line per question from
+[`video/lines.html`](../video/lines.html), waiting for the agent to finish each one:
 
-| | You say |
+| | The patient says |
 |---|---|
 | greeting | «Hello, yes, this is Ana.» |
 | pain | «My right knee hurts seven out of ten, especially when I climb stairs.» |
-| adherence | «I did the exercises three times, I skipped two days because I had a lot of work.» |
+| adherence | «I did the exercises three times, I skipped two days because I had a lot of work. Next week I will do them every day.» |
+| read-back | «Yes, three times.» — **only if the agent asks you to confirm the number** |
 | side effects | «After the exercises it stays a little stiff, nothing strange.» |
 | red flags | «No, no falls, nothing like that.» |
+
+The last sentence of the adherence line is the promise, and it is the reason beat 5 has a turn the
+other two calls do not: it is what the extractor stores as a `commitment`, and what the agent asks
+about a week later. Dropping it costs beat 5 its best turn.
 
 With memory off the `recall` phase is skipped, so the agent genuinely has nothing in its prompt —
 that is what makes it week one on a seeded patient. It also means **no `keyterms_prompt` is sent**:
 `set_keyterms` lives inside `recall` (`app/orchestrator.py:36`), so this transcription runs unprimed
-and the "patient line mis-transcribed" row below is at its most likely here. Rehearse the four
-numbers out loud before the take.
+and the "patient line mis-transcribed" row below is at its most likely here. Play the four numbered
+lines through the chosen voice before the take and listen to them: a voice that says *seventh* instead
+of *seven out of ten* is found here or it is found on camera.
 
 **keyless:** the panel's **Call without memory** button, which runs the week-1 script.
 
 **What the camera must catch:** the transcript filling turn by turn, and then the activity rail:
-`MEMORY OFF recall skipped`, `EXTRACTION 2 facts from the transcript`, `MEMORY OFF storage skipped`.
+`MEMORY OFF recall skipped`, `EXTRACTION 3 facts from the transcript`, `MEMORY OFF storage skipped`.
 
 Those three are the ones the narration names. A live call writes more around them — `SUMMARY`,
 `RECORDING ready`, `ANALYSIS N entities`, `CALL ended`, and `RETRY` or `DISCARDED` when something
@@ -248,13 +261,17 @@ later"; nothing on screen has to.
 **live:** press **Real phone, no memory** again — same button as beat 3, same switch off. Answer
 with the week-2 lines:
 
-| | You say |
+| | The patient says |
 |---|---|
 | greeting | «Hello, yes, this is Ana.» |
 | pain | «My knee is a lot better, it is four out of ten on the stairs now.» |
 | adherence | «I did them five times this week, I got myself better organised.» |
 | side effects | «No, no new discomfort.» |
 | red flags | «No, nothing like that.» |
+
+Five turns, not six: with memory off `questions_for()` has no `commitment` on file to ask about
+(`app/orchestrator.py:119-128`). The same five lines are in
+[`video/lines.html`](../video/lines.html) under beat 4.
 
 **keyless:** the panel's **the same call without memory** link. It runs the `week2-off` script: the
 week-2 answers with the generic agent lines, because an agent with no memory block cannot open on the
@@ -287,15 +304,26 @@ Cut this beat first if the track ever needs to lose time.
 
 **live:** press **Real phone, with memory**. This is the only call in the video where the key terms
 are actually sent — `set_keyterms` is inside `recall`, which beats 3 and 4 skip — so it is also the
-best-transcribed of the three. Answer:
+best-transcribed of the three.
 
-| | You say |
+**Wait through two agent turns before the first line.** With memory on the greeting is followed by the
+answer the professional left for her, spoken word for word (`app/orchestrator.py:112-113`). Pressing
+space after the first one talks over the relay, which is the one turn that demonstrates it.
+
+Six turns here, not five — the promise is asked about before adherence:
+
+| | The patient says |
 |---|---|
 | greeting | «Hello, yes, this is Ana.» |
 | pain | «My knee is a lot better, it is four out of ten on the stairs now.» |
+| the promise | «I did better with the daily plan, I managed five of the seven days.» |
 | adherence | «I did them five times this week, I got myself better organised.» |
-| side effects | «No, no new discomfort.» |
+| side effects | «No, no new discomfort. Should I start going up the stairs normally again?» |
 | red flags | «No, nothing like that.» |
+
+The question at the end of the side-effects line is deliberate: the agent is not allowed to answer it,
+so the extractor puts it in the professional's queue. That is what the panel's question card shows in
+beat 6. Both turns are in [`video/lines.html`](../video/lines.html) under beat 5.
 
 **keyless:** **Call with memory**. With Ana's file populated, `run_scripted` picks the week-2 script
 on its own (`app/replay.py:49`) and the scripted patient says exactly those lines. This one runs the
@@ -431,6 +459,7 @@ The agent is not deterministic on the live path. Things that change between take
 | A fact landing without a quote | Impossible by construction — `ground()` rejects a blank quote too |
 | The patient line mis-transcribed | Re-shoot that call. The key terms exist to prevent exactly this, and beats 3 and 4 do not get them |
 | Nobody answers, or the audio stream never opens | The panel says so — *Nobody picked up* / *audio stream timeout* — instead of hanging. Stop the take and dial again |
+| The read-back never fires | Nothing. A synthesised voice is cleaner than a person on a phone line, so `low_conf` may never cross the floor. The read-back is demonstrated by the keyless **Call without memory** button, where the script declares it |
 
 ## If the track goes over 300 s
 

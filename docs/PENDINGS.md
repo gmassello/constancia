@@ -21,7 +21,7 @@ URL and the video.
 | 1 | **Render deploy.** `curl https://constancia-voice.onrender.com/health` answers `404` with `x-render-routing: no-server`: the service does not exist | you | The six-step runbook in [`OPERATIONS.md`](OPERATIONS.md) § *The order*. Unblocks the README's public URL, the endcard, and three rows of `SUBMISSION.md` |
 | 2 | **The endcard URL.** `video/endcard.sh:4` burns `constancia-voice.onrender.com` as its default, and that hostname 404s. A dead address on the last frame is worse than none | you | Decide before rendering the card: either the deploy lands first, or the card points at the GitHub repo |
 | 3 | **The narration track is stale.** `video/narration.tsv` is from 22 Sep 21:03; `narration.wav`, `captions.srt`, `clips/`, `sil/` and `timing.txt` are from 20 Sep 02:07 — 44 captions against 45 rows. Beat 1 lost a line and beat 6 gained the two AssemblyAI ones. Every number in `timing.txt` is wrong, and `OUTRO_REPLACE=2.4` with it | me | `build-audio.sh` (it wipes `video/out/` first, so re-render the endcard after). Gate: `video/out/timing.txt` says `HARD CAP 5:00 — OK`. Then re-derive `OUTRO_REPLACE` with the snippet in [`video-script.md`](video-script.md) beat 7 |
-| 4 | **Anita's line sheet.** Does not exist | me | The three calls, her lines in English, every number written as it is spoken (*seven out of ten*). One page she opens **on the phone** — never in the window being recorded |
+| 4 | **Ana's voice.** Anita is not available, so the patient's lines are synthesised: [`video/lines.html`](../video/lines.html) shows the 21 turns of the four calls, verbatim from `seed/scripts.json`, and speaks them in English through the browser. The page exists; what is open is the calibration | you | Open it, pick a voice that is **not** `Ava (Premium)` — that one is the narration's, and the patient would sound like the narrator — then test the acoustic coupling in rehearsal 1: laptop speaker against the phone's microphone, phone **not** on speaker, or the agent's own voice feeds back into the call. If a number comes out mis-transcribed, pre-render the lines with `say` instead |
 | 5 | **The cold open.** `video/hook.json` does not exist, and neither does the concept anywhere in the repo | me | **Blocked on you**: it needs one photograph with a clear licence for the scale shot. The other four shots are already in `video/shots/`. Droppable at no cost |
 | 6 | **The three rehearsals and the take.** Closes **C2** and **C3** | you and me | [`video-script.md`](video-script.md) § *The day, in order*. The order is not negotiable: the three calls back to back come **before** the final reset, never after |
 | 7 | **Assemble `demo.mp4`.** None of `raw-fitted.mov`, `demo.mp4` or `demo.en.srt` exist. The 20 Sep take is split across `raw-parte1.mov` and `raw-parte2.mov`, which the documented pipeline does not contemplate | me, after the take | `fit-to-audio.py --beats`, then `build-video.sh` with `OUTRO`/`OUTRO_REPLACE`. Under 300 s |
@@ -35,6 +35,16 @@ that no longer happens that way, and has to be written against the new behaviour
 `build-audio.sh` runs. What the panel's buttons show that they did not a day ago: a promise made in
 week 1 and asked about in week 2, a read-back of a number the recogniser was unsure of, an answer
 from the professional spoken word for word in the greeting, and a new question landing in the queue.
+
+**[`video-script.md`](video-script.md) is corrected.** Its three patient-line tables now match
+`seed/scripts.json` turn for turn — beat 3 with the promise and the conditional read-back, beat 5 with
+the promise answer and the stairs question — and the session it describes is the one that is actually
+possible: you answer the phone and [`video/lines.html`](../video/lines.html) speaks the lines.
+
+**What that leaves for row 3.** Two narration lines are now wrong rather than merely stale: beat 3's
+*"Two facts, and every one needs a literal quote"* is **three** facts, and beat 5 gained two patient
+turns, so its 42 s no longer covers what happens on screen. Both are inputs to the rewrite, not
+separate jobs.
 
 **Checkpoints.** C1 is closed. **C2** (three real calls back to back, no reset, the third superseding
 the 7/10) and **C3** (the panel live during a call) close during the recording session — row 6.
@@ -146,7 +156,7 @@ That file is now the record of where each one came from, not a plan. What each o
 | | Feature | What is still open |
 |---|---|---|
 | 1 | Out-of-range values | Nothing. The ceiling comes from the pack's own `Measure`, so a vertical with an unbounded reading is not capped — which is correct, not a gap. |
-| 2 | Commitments | The `ACTION` vocabulary is rehab-shaped (*walk, stretch, do the exercises*). A postpartum or chronic patient's promise will not match it. |
+| 2 | Commitments | **Closed for what a vertical can enumerate.** The action vocabulary moved out of `app/commitments.py` and into `pack.actions`, beside the red flags and the measures, so a postpartum or chronic promise is now scored deterministically by its own pack with no key and no network — in `make test`, `make demo`, `make fixtures` and the recording session alike. Three rules stay generic English in `commitments.py`; only the action is per vertical. `JEV_FLOOR` was re-measured on 24 Sep against the code as it stands: four everyday plans at 0.01 to 0.03 against four promises about the patient's own care at 0.06, 0.15, 0.85 and 0.89, so 0.8 keeps a 0.77 margin and misses two genuine promises it reads as ordinary life. What is open: **recall is roughly half** on that sample, and the sample is eight sentences. Sharpening the question is what opened the gap at all — the first wording scored *"I will call my brother tonight"* at 0.83 against a real promise at 0.49 — so the wording, not the floor, is the knob that matters next. Also open: Zero Data Retention is a Pro tier and this is a hobby plan, so `JEV_ZERO_RETENTION` defaults off and the sentence falls under the gateway's ordinary retention. Asking for it anyway is a 403 on every call, which is how we found out. |
 | 3 | The critic | The fifth rule the source design asked for — that the reply share a word with its goal — is **deliberately not built**: a goal here is one clause, so a legitimate recall question shares nothing with it and gets flagged. Measure the other four with `make smoke-call` before trusting them on a real line. |
 | 4 | Low-confidence read-back | **`words[].confidence` on a v3 `Turn` is still unverified.** The code treats a missing field as certain, so the read-back is off until a real call proves it arrives. `STT_CONFIDENCE_FLOOR` then needs calibrating on µ-law audio. |
 | 5 | Audio behind a quote | Cannot be shown offline: `scripted` and `replay` have no recording, so no quote in the demo has a play button. `/calls/{id}/audio` serves the whole mp3 with no `Range` support. |
@@ -159,3 +169,10 @@ That file is now the record of where each one came from, not a plan. What each o
 - A test runner in the front end. `tsc` is the check; presentational components do not earn one.
 - The hash-chained audit log (`INTENT.md` §12).
 - Authentication. The README's warning is the honest version.
+- **Jev anywhere but the promise rules.** Three other places were considered and dropped: the critic
+  (`app/critic.py`), where the fifth rule it would restore sits in the speech path and 500 ms of p99
+  is an audible pause on a phone line; ordering the professional's question queue by urgency; and a
+  second net behind the red-flag guard. The guard stays deterministic code either way — that rule is
+  not up for a second opinion.
+- **Jev's probability as the stored confidence.** Its own README asks for calibration against your
+  own data first, so `DEADLINE` and `HEDGE` still set the number.

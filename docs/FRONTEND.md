@@ -56,8 +56,8 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 | File | Lines | What it is |
 |---|---:|---|
 | `web/src/panel/panel.css` | 362 | Layout and styles, on the aliases. |
-| `web/src/panel/copy.ts` | 545 | Two languages, one register, plus the maps for raw backend values. |
-| `web/src/panel/ActivityRail.tsx` | 166 | Turns each trace event into a labelled line. An event with no `case` still renders, through the `default` — a new one costs a row here only when it deserves wording of its own. |
+| `web/src/panel/copy.ts` | 551 | Two languages, one register, plus the maps for raw backend values. |
+| `web/src/panel/ActivityRail.tsx` | 174 | Turns each trace event into a labelled line. An event with no `case` still renders, through the `default` — a new one costs a row here only when it deserves wording of its own. |
 | `web/src/panel/PatientView.tsx` | 170 | Loads the patient's data and composes five cards, plus the live one while a call runs. |
 | `web/src/panel/content.ts` | 160 | The EN→ES table for canned patient data, keyed by the English string the call produces. |
 | `web/src/panel/App.tsx` | 96 | Shell: sidebar, backend status, the two toggles, patient list. |

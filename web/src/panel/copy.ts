@@ -86,6 +86,8 @@ type Strings = {
   railSupersededText: string
   railRejected: string
   railCritic: string
+  railRecalled: string
+  railRecalledText: string
   playQuote: string
   questionsTitle: string
   questionsLede: string
@@ -218,6 +220,8 @@ const en = {
   railSupersededText: "the previous value stays, struck through",
   railRejected: "discarded",
   railCritic: "reworded",
+  railRecalled: "second opinion",
+  railRecalledText: "the rehab wording missed this promise; the typed model recognised it",
   playQuote: "play what the patient said",
   questionsTitle: "What the patient asked",
   questionsLede: "Questions the agent would not answer. What you write here is read out word for word on the next call.",
@@ -399,6 +403,8 @@ const es = {
   railSupersededText: "el valor anterior queda tachado en la ficha",
   railRejected: "descartado",
   railCritic: "reformulado",
+  railRecalled: "segunda opinión",
+  railRecalledText: "la redacción de rehabilitación no vio esta promesa; el modelo tipado sí",
   playQuote: "escuchar lo que dijo el paciente",
   questionsTitle: "Lo que preguntó la paciente",
   questionsLede: "Preguntas que el agente no respondió. Lo que escribas acá se lee textual en la próxima llamada.",
