@@ -55,10 +55,10 @@ function Row({ row, copy: c }: { row: CallRow; copy: Copy }) {
           <path d={escalated ? FLAG : PHONE} />
         </svg>
         <span className="call-day">{c.day(row.started_at)}</span>
-        <span className="pill">
+        <span className={row.memory_enabled ? "pill pill-accent" : "pill"}>
           {row.memory_enabled ? c.callWithMemoryTag : c.callWithoutMemoryTag}
         </span>
-        {escalated && <span className="pill pill-red_flag">{c.callEscalated}</span>}
+        {escalated && <span className="pill pill-danger">{c.callEscalated}</span>}
       </div>
       {row.summary ? (
         <p className="call-summary">{c.data(row.summary)}</p>

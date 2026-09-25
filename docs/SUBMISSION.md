@@ -10,8 +10,8 @@ says who closes it and how. This page does not repeat it.
 |---|---|---|
 | Public repo, MIT license | **done** | <https://github.com/gmassello/constancia> — public, MIT, [`LICENSE`](../LICENSE) at the root |
 | Deployed app, public URL | todo | [`PENDINGS.md`](PENDINGS.md) row 1 |
-| Demo video under 5 min | in progress | Shot list and the day's order in [`video-script.md`](video-script.md), narration in [`../video/narration.tsv`](../video/narration.tsv). Not shot, and the built track is stale against that file: [`PENDINGS.md`](PENDINGS.md) rows 3–7 |
-| Deck | in progress | [`deck.md`](deck.md) is the source and the slides are built; sharing the artifact and uploading it is [`PENDINGS.md`](PENDINGS.md) row 8 |
+| Demo video under 5 min | in progress | Shot list and the day's order in [`video-script.md`](video-script.md), narration in [`../video/narration.tsv`](../video/narration.tsv). The narration track is built (267.8 s); what is left is the take and the assembly: [`PENDINGS.md`](PENDINGS.md) rows 3–6 |
+| Deck | in progress | [`deck.md`](deck.md) is the source and the slides are built; sharing the artifact and uploading it is [`PENDINGS.md`](PENDINGS.md) row 7 |
 
 ## Judging criteria
 
@@ -34,9 +34,9 @@ command that runs with no credentials; the public URL that would replace several
 - [x] `scripts/test_outbound.py` places a real call — subsumed by C1: a full live call went out, which is the geographic permission proved end to end rather than with a `<Say>`
 - [x] C1 — a real call greets, asks the four questions in order, honours barge-in, says goodbye, and the trace shows both sides
 - [ ] Deployed backend with public `/health` and panel, tested from another network — [`PENDINGS.md`](PENDINGS.md) row 1
-- [ ] Demo video under 5 minutes, captions burned in — [`PENDINGS.md`](PENDINGS.md) rows 3–7
-- [ ] Deck shared and uploaded to lablab — [`PENDINGS.md`](PENDINGS.md) row 8
-- [ ] C2 — week-1 → week-2 live: three calls back to back with no reset. Replay is already green (`seed/replay/week2-on.json` and the panel's buttons); live is [`PENDINGS.md`](PENDINGS.md) row 6
-- [ ] C3 — the panel during a live call: transcript, rail with the highlight, the chain, the chart. Same session, [`PENDINGS.md`](PENDINGS.md) row 6
+- [ ] Demo video under 5 minutes, captions burned in — [`PENDINGS.md`](PENDINGS.md) rows 3–6
+- [ ] Deck shared and uploaded to lablab — [`PENDINGS.md`](PENDINGS.md) row 7
+- [ ] C2 — week-1 → week-2 live: three calls back to back with no reset. Replay is already green (`seed/replay/week2-on.json` and the panel's buttons); live is [`PENDINGS.md`](PENDINGS.md) row 5
+- [ ] C3 — the panel during a live call: transcript, rail with the highlight, the chain, the chart. Same session, [`PENDINGS.md`](PENDINGS.md) row 5
 - [ ] `video/reset.sh --check` green on the seed invariants, the Gemini quota and the tunnel. The credential and `DEMO_PHONE` rows stay red until `.env` is filled, which is on purpose and is not a failing gate
 - [ ] Every row above has evidence

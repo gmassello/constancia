@@ -499,6 +499,7 @@ const es = {
 export type Copy = Strings & {
   data: (text: string) => string
   day: (iso: string) => string
+  time: (iso: string) => string
 }
 
 
@@ -542,6 +543,8 @@ export function copy(lang: Lang): Copy {
     ...base[lang],
     data: (text) => speech(lang, text),
     day: (iso) => new Intl.DateTimeFormat(lang, { day: "numeric", month: "short" }).format(new Date(iso)),
+    time: (iso) =>
+      new Intl.DateTimeFormat(lang, { hour: "2-digit", minute: "2-digit" }).format(new Date(iso)),
   }
 }
 

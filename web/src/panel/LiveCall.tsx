@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 
 import ActivityRail from "./ActivityRail"
+import Wave from "./Wave"
 import { subscribe, type Event } from "./api"
 import { label, type Copy } from "./copy"
 
@@ -72,6 +73,7 @@ export default function LiveCall({
         </div>
         <ActivityRail events={events} copy={c} />
       </div>
+      <Wave events={events} />
     </section>
   )
 }

@@ -46,9 +46,10 @@ beat	gap	caption	speak
 3:call-one	3.0
 3:call-one	0.4	Right knee, 7 out of 10, climbing stairs	Right knee, seven out of ten, climbing stairs.
 3:call-one	0.5	The exercises, three times this week
-3:call-one	3.2
+3:call-one	0.5	And a promise, in her own words: every day next week
+3:call-one	4.5
 3:call-one	0.4	She hangs up and the extractor reads the transcript
-3:call-one	0.5	Two facts, and every one needs a literal quote
+3:call-one	0.5	Three facts, and every one needs a literal quote
 3:call-one	0.6	No quote, no fact. The extractor drops it	No quote, no fact. The extractor drops it.
 3:call-one	3.5
 
@@ -64,6 +65,7 @@ beat	gap	caption	speak
 5:memory-on	0.8	Now we dial once more, with memory on	Now we dial once more, with memory on.
 5:memory-on	0.5	Same number, same agent. One switch	Same number, same agent. One switch.
 5:memory-on	1.5
+5:memory-on	0.4	First it reads back the answer her physio left	First it reads back the answer her physiotherapist left.
 5:memory-on	0.4	It opens by asking about the knee on stairs
 5:memory-on	0.5	And it primes the recogniser with her own words
 5:memory-on	3.0
@@ -72,6 +74,12 @@ beat	gap	caption	speak
 5:memory-on	0.4	The 7 out of 10 is not overwritten	The seven out of ten is not overwritten.
 5:memory-on	0.5	It is retired, and it stays in the file
 5:memory-on	4.0
+5:memory-on	0.4	Then it asks how the promise went	Then it asks how the promise went.
+5:memory-on	0.5	That is memory doing something, not just recalling
+5:memory-on	2.0
+5:memory-on	0.4	She asks something it is not allowed to answer
+5:memory-on	0.5	So it does not. It puts the question in a queue
+5:memory-on	2.5
 
 6:panel	0.8	This is what the physio opens on Monday	This is what the physiotherapist opens on Monday.
 6:panel	0.5	Pain down, sessions up, week over week
@@ -79,6 +87,9 @@ beat	gap	caption	speak
 6:panel	0.4	Every line keeps the words the patient used
 6:panel	0.6	And the words that primed the recogniser	And the words that primed the speech recogniser.
 6:panel	2.5
+6:panel	0.4	Her question is waiting for the physio, in her words	Her question is waiting for the physiotherapist, in her words.
+6:panel	0.5	Answered here, and read back word for word next call
+6:panel	2.0
 6:panel	0.4	After she hangs up, the recording goes back to AssemblyAI	After she hangs up, the recording goes back to Assembly A I.
 6:panel	0.5	What she named, and how she sounded saying it
 6:panel	2.8

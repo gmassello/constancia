@@ -6,7 +6,7 @@ import { label, type Copy } from "./copy"
 const NEAR_BOTTOM = 40
 
 type Line = { key: number; tone: string; label: string; text: string; detail?: string }
-type Shown = Line & { fresh: boolean }
+type Shown = Line & { fresh: boolean; at: string }
 
 function describe(event: Event, c: Copy): Line | null {
   const key = event.seq
@@ -155,7 +155,7 @@ export default function ActivityRail({
   // Anything that makes these remount — reordering, a key that is not `seq` — flashes them again.
   const lines: Shown[] = events.flatMap((event) => {
     const line = describe(event, c)
-    return line ? [{ ...line, fresh: !event.replayed }] : []
+    return line ? [{ ...line, fresh: !event.replayed, at: c.time(String(event.at)) }] : []
   })
 
   return (
@@ -165,6 +165,7 @@ export default function ActivityRail({
       {lines.map((line) => (
         <div className={`event ${line.tone}${line.fresh ? " fresh" : ""}`} key={line.key}>
           <span className="event-label">{line.label}</span>
+          <span className="event-time">{line.at}</span>
           <span className="event-text">{line.text}</span>
           {line.detail && <span className="event-detail">{line.detail}</span>}
         </div>

@@ -73,7 +73,7 @@ function Settled({ question, copy: c }: { question: PatientQuestion; copy: Copy 
     <div className="ask settled">
       <div className="entry-head">
         <span className="entry-text">{c.data(question.question)}</span>
-        <span className={`pill pill-${question.status}`}>
+        <span className={question.status === "answered" ? "pill pill-accent" : "pill"}>
           {label(c.questionStatus, question.status)}
         </span>
       </div>

@@ -1,8 +1,12 @@
+import { useEffect, useRef, useState } from "react"
+
 import DemoCard from "./DemoCard"
 import { copy } from "./copy"
-import { usePrefs, type Lang, type Register } from "../prefs"
+import { prefersReducedMotion, usePrefs, type Lang, type Register } from "../prefs"
 
 const REPO = "https://github.com/gmassello/constancia"
+const COUNT_MS = 900
+const FIGURE = /^(\d+)(.*)$/
 
 const SUN = "M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0-14v2m0 18v-2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4m0-12.8-1.4 1.4m-10 10-1.4 1.4"
 const MOON = "M21 13a9 9 0 1 1-10-10 7 7 0 0 0 10 10Z"
@@ -44,9 +48,44 @@ function Pillar({ title, body }: { title: string; body: string }) {
   )
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
+function Stat({ value, label, lang }: { value: string; label: string; lang: Lang }) {
+  const found = FIGURE.exec(value)
+  const target = found ? Number(found[1]) : null
+  const suffix = found ? found[2] : ""
+  const [shown, setShown] = useState(() => (target !== null && !prefersReducedMotion() ? 0 : target))
+  const node = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (target === null || prefersReducedMotion() || !node.current) return
+    // ponytail: the timeout is the backstop, not a second clock. A hidden tab suspends
+    // requestAnimationFrame outright, so a counter that started counting and then lost the frames
+    // freezes at whatever it reached — 3% where the page claims 70%. The timeout is throttled but
+    // still fires, and it writes the value the animation would have landed on anyway.
+    let landed = 0
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return
+        observer.disconnect()
+        const from = performance.now()
+        const step = (now: number) => {
+          const through = Math.min((now - from) / COUNT_MS, 1)
+          setShown(Math.round(target * (1 - (1 - through) ** 3)))
+          if (through < 1) requestAnimationFrame(step)
+        }
+        requestAnimationFrame(step)
+        landed = window.setTimeout(() => setShown(target), COUNT_MS)
+      },
+      { threshold: 0.5 },
+    )
+    observer.observe(node.current)
+    return () => {
+      observer.disconnect()
+      window.clearTimeout(landed)
+    }
+  }, [target])
+
   return (
-    <div>
+    <div ref={node}>
       <div
         style={{
           fontFamily: "var(--font-heading)",
@@ -56,7 +95,7 @@ function Stat({ value, label }: { value: string; label: string }) {
           color: "var(--section-ink)",
         }}
       >
-        {value}
+        {shown === null ? value : `${new Intl.NumberFormat(lang).format(shown)}${suffix}`}
       </div>
       <div
         style={{
@@ -158,14 +197,13 @@ export default function Landing() {
         }}
       >
         <div
-          className="glow noc-breathe"
+          className="glow"
           style={{
             top: -180,
             left: -120,
             width: 620,
             height: 620,
-            background:
-              "radial-gradient(circle, color-mix(in srgb, var(--color-accent) 20%, transparent), transparent 68%)",
+            background: "radial-gradient(circle, var(--orb-mint), transparent 68%)",
           }}
         />
         <div
@@ -298,10 +336,10 @@ export default function Landing() {
             gap: 26,
           }}
         >
-          <Stat value={c.statAbandonValue} label={c.statAbandonLabel} />
-          <Stat value={c.statVerticalsValue} label={c.statVerticalsLabel} />
-          <Stat value={c.statHoursValue} label={c.statHoursLabel} />
-          <Stat value={c.statTestsValue} label={c.statTestsLabel} />
+          <Stat value={c.statAbandonValue} label={c.statAbandonLabel} lang={lang} />
+          <Stat value={c.statVerticalsValue} label={c.statVerticalsLabel} lang={lang} />
+          <Stat value={c.statHoursValue} label={c.statHoursLabel} lang={lang} />
+          <Stat value={c.statTestsValue} label={c.statTestsLabel} lang={lang} />
         </div>
       </section>
 
@@ -449,15 +487,13 @@ export default function Landing() {
         }}
       >
         <div
-          className="glow noc-breathe"
+          className="glow"
           style={{
             bottom: -260,
             right: -140,
             width: 560,
             height: 560,
-            background:
-              "radial-gradient(circle, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 70%)",
-            animationDuration: "11s",
+            background: "radial-gradient(circle, var(--orb-sky), transparent 70%)",
           }}
         />
         <div style={{ position: "relative", maxWidth: 1180, margin: "0 auto" }}>

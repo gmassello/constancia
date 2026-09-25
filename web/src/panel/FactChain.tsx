@@ -49,9 +49,11 @@ function Entry({
       <div className="entry-body">
         <div className="entry-head">
           <span className="entry-text">{c.data(fact.fact)}</span>
-          {fact.category === "red_flag" && <span className="pill pill-red_flag">{name}</span>}
+          {fact.category === "red_flag" && <span className="pill pill-danger">{name}</span>}
           {paired && (
-            <span className="entry-state">{current ? c.factCurrent : c.factRetired}</span>
+            <span className={current ? "pill pill-accent" : "pill"}>
+              {current ? c.factCurrent : c.factRetired}
+            </span>
           )}
         </div>
         <p className="entry-quote">«{c.data(fact.quote)}»</p>

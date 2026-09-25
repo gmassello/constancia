@@ -43,7 +43,7 @@ that reads as either source:
    clinical without being either parent, and it clears 5.87:1 on the light canvas.
 2. **Display is Bricolage Grotesque, not Inter.** Body stays Inter. Two families, and the change of
    voice between them is audible rather than silent.
-3. **The audio waveform is a live readout, not decoration.** It is driven by the call the page is
+3. **The waveform is a live readout, not decoration.** It is driven by the call the page is
    actually showing, and it is the protagonist effect.
 
 No logo, name, or proprietary typeface from either source appears here. Neither `DESIGN.md` is
@@ -322,10 +322,17 @@ shadow to say the same thing twice.
 
 Every state is specified. A component without a `:focus-visible` is not finished.
 
-> Not built yet: the `loading` state, the real `disabled` treatment, the card hover, the pill
-> geometry, the rail timestamp, and `.input` — which has no consumer in the product at all. The
-> `.btn-ghost` the panel uses three times is missing from this table. See
-> [`PENDINGS.md`](PENDINGS.md) § B and § *Decisions*, items 3 and 4.
+> Not built yet: the `loading` state, the real `disabled` treatment, and the card hover. The pill
+> geometry, the rail row and the transcript turn are built; `.input` exists and the question queue
+> uses it (`panel/Questions.tsx`), with a base, a focus ring and a placeholder rather than the five
+> states below. See [`PENDINGS.md`](PENDINGS.md) § B.
+
+**Button — ghost.** No fill and no border: `--color-accent` label, `--space-1` inline padding, and
+a wash of the accent behind it on hover (10%) and press (18%). It is for an action that sits inside
+a card and must not compete with the card's own primary — the panel's three keyless call buttons.
+It was in the code before it was in this table, which is what § *Decisions* item 4 was about; it
+earns its place because the alternative, three more bordered buttons in one row, is what the six-in-
+two-rows layout exists to avoid.
 
 **Button — primary.**
 
@@ -381,35 +388,60 @@ to level 2. A card that is a link gets the focus ring on the card, not on the te
 `--color-text` on hover, and the current section is `--color-accent` with a 2px underline in the same colour.
 
 **State pill.** `9999px`, `caption` uppercase with +0.03em, 2px/8px padding. Three variants:
-neutral (`--fill-subtle` / `--text-muted`), accent (`--color-accent-100` / `--color-accent-800`), danger
-(`--danger-fill` / `--color-danger`). `ESCALATED` and `RED FLAG` are the danger variant and they also carry
-a flag glyph, because a colour-blind judge has to see it too.
+neutral (`--fill-subtle` / `--text-muted`), accent, danger (`--danger-fill` / `--color-danger`).
+`ESCALATED` and `RED FLAG` are the danger variant and they also carry a flag glyph, because a
+colour-blind judge has to see it too. Measured on the panel card: neutral 4.17:1 light / 5.29:1
+dark, accent 7.55 / 10.12, danger 5.62 / 7.01.
 
-**Transcript turn.** Speaker label in `eyebrow`/`--text-muted`, text in `body`. **The accent marks
+The accent variant is **not** `--color-accent-100` on `--color-accent-800`, which is what an earlier
+draft of this section said. The dark theme overrides only the neutral ramp, so the accent steps carry
+one value for both themes and `accent-100` is a near-white pill on a `#14171a` panel. It flips per
+theme instead, exactly as `.tag-accent` already does: `--color-accent-900` / `--color-accent-200` on
+dark, `--color-accent-100` / `--color-accent-800` on light. Both live in `tokens.css`, which is the
+only file allowed to name a ramp step.
+
+`CURRENT` and `RETIRED` in the fact chain are the two states of one slot, so both are pills — the
+live fact accent, the retired one neutral. This section names only the `RETIRED` pill; rendering its
+sibling as loose text made two facts of the same kind look like two different things.
+
+**Transcript turn.** Speaker label in `eyebrow`/`--text-secondary`, text in `body`. The label is
+`--text-secondary` rather than `--text-muted` because the live call card is level 3: `--text-muted`
+on `--fill-subtle` under the turn wash measures 3.67:1 light and 4.48:1 dark, both under the 4.5:1
+this system asks of text that size. `--text-secondary` measures 7.85 and 7.54. **The accent marks
 the agent, not the patient** — `--turn-agent-bg` is the accent at 9% on light and 10% on dark, and
 the patient sits on a neutral wash of `--color-text`. That is the opposite of the obvious choice and
 it is deliberate: what the agent says is the thing the demo exists to show, and the money shot of the
 whole video is one agent sentence quoting last week. A quote inside a fact is `mono`, wrapped in
 `«»`, `--text-secondary`.
 
-**Activity rail row.** Phase name in `eyebrow` uppercase `--color-accent-800`, detail in `caption`
-`--text-muted`, timestamp right-aligned in `mono`/`--tone-dim`. A failed phase turns the phase name
-`--color-danger` and keeps the layout identical, so the rail does not jump when something breaks.
+**Activity rail row.** A two-column grid: phase name in `eyebrow` uppercase `--text-accent` and the
+timestamp right-aligned in `mono`, with the detail in `caption` spanning both. A failed phase turns
+the phase name `--color-danger` and keeps the layout identical, so the rail does not jump when
+something breaks.
+
+Two deviations from the first draft, both measured against the rail ground composited over the card
+— the ground is translucent, so reading the computed colour instead of compositing gives a number
+that is simply wrong. The phase name is `--text-accent`, not `--color-accent-800`: that step is a
+ramp step, forbidden outside `tokens.css`, and it has no dark value (2.01:1 on the dark rail).
+`--text-accent` measures 6.21:1 light and 9.72:1 dark. The timestamp is `--text-muted`, not
+`--tone-dim`: at `caption` size it is body text, and the rule below says `--tone-dim` never is —
+it measures 3.89:1 light. `--text-muted` measures 4.6 and 6.29.
 
 ## Screens
 
-> The landing matches this today except for the metrics band's background and the two orbs. The
-> panel does not: it has seven call buttons in three rows rather than six in two, its live call card
-> has no elevation of its own, the chart tiles are bar columns rather than sparklines, and there is
-> no waveform. See [`PENDINGS.md`](PENDINGS.md) § A, § D and § E.
+> The landing matches this today. The panel matches it except for the call buttons, which are seven
+> in three rows rather than six in two. See [`PENDINGS.md`](PENDINGS.md) § E1.
 
 **Landing (`/`)** — eight blocks, in order:
 
 1. **Header** — sticky nav, theme / language / register toggles, a link into the panel.
 2. **Hero** — `display-xl` headline left, body and two buttons under it; the **demo card** right,
    playing a scripted call. One orb (`--orb-mint`) blooms behind the headline.
-3. **Metrics band** — four figures on `--fill-subtle`: 70% non-adherence, 3 verticals, 333 free
-   streaming hours, 311 tests. **Animated counters.**
+3. **Metrics band** — four figures on the section gradient, `--color-section` to
+   `--color-section-glow` with `--section-ink` on top: 70% non-adherence, 3 verticals, 333 free
+   streaming hours, 311 tests. **Animated counters.** The band is dark in both themes on purpose —
+   it is the page's only high-contrast block, and `--section-ink` is the one alias declared
+   identically in both themes for that reason.
 4. **How it works** — four steps, 4-up at desktop, each an eyebrow index plus a card title and body.
 5. **Memory** — four pillars, 2×2.
 6. **Stack** — five service cards, the AssemblyAI one at level 2 to mark it as the protagonist, with
@@ -425,7 +457,18 @@ whole video is one agent sentence quoting last week. A quote inside a fact is `m
    live pair is `btn-primary`; the rest are secondary.
 3. **Live call card** — level 3 while a call runs. Transcript left, activity rail right, the
    **waveform** across the bottom, a state dot top right: live / ended / lost.
-4. **How she is doing** — two sparkline tiles, pain and sessions, with verdict arrows.
+4. **How she is doing** — two sparkline tiles, pain and sessions, with verdict arrows. The plot is
+   96px tall with no gridlines and no axis line: a 2px `--color-accent` polyline through one 7px dot
+   per call, each dot carrying its value above it, over a `mono` row of the real dates below. Points
+   sit at even intervals inset 4% from each edge, and the tallest reaches 88% of the box, so a
+   value at the scale ceiling still has air above it. One call draws a dot and no line, which is
+   what the *only one call* verdict says in words.
+
+   **The arrow carries the direction and the verdict, which is the whole point of it.** `↑` or `↓`
+   for the move, `→` when nothing changed, `--color-accent` when the change is good and
+   `--color-danger` when it is not — and *good* is per measure, so pain falling and sessions falling
+   are the same arrow in opposite colours. The sentence under it says the same thing in words, so
+   colour is never the only signal.
 5. **What the agent remembers** — the fact chain; a retired fact keeps its quote and gets a
    strike-through plus a `RETIRED` pill.
 6. **Words the agent listened for** — a three-step diagram and the key-term chips in `mono`.
@@ -439,20 +482,39 @@ components and the protagonist effect on one page.
 
 Two, and no more. Everything else in the system holds still.
 
-> **Neither is built.** Today the only wave is eight decorative bars in the landing's demo card, the
-> metrics figures are static strings, the orb tokens have no consumer, and seven keyframes run where
-> this section allows two. Where the waveform's level comes from is an open question — the browser
-> never has the call audio. [`PENDINGS.md`](PENDINGS.md) § A and § *Decisions*, item 1.
-
 **1. The live waveform — the protagonist.** It sits along the bottom of the live call card and it is
-a readout, not an ornament: 96 bars, each scaled by the audio level of the turn being spoken, in
-`--color-accent` at 70% opacity, with the bar under the playhead at full opacity. Bars are
-`9999px`, 4px wide, 3px apart, with a 32px maximum height, centred in their container. Fewer
-or thinner than that and it reads as a detail in a corner instead of the protagonist.
+a readout, not an ornament: 96 bars in `--color-accent` at 70% opacity, with the newest bar at full
+opacity. Bars are `9999px`, 4px wide, 3px apart, with a 32px maximum height, centred in their
+container. Fewer or thinner than that and it reads as a detail in a corner instead of the
+protagonist. At 96 bars the row is 669px wide, so it spans the card rather than sitting inside the
+transcript column, and the oldest bars are what a narrow window clips.
+
+**What scales a bar is an activity envelope, not an audio level, and the doc says so rather than
+letting the screen imply otherwise.** The browser never has the call audio — it is on the phone. The
+server does, as µ-law frames in `app/channel.py`, but the trace the SSE stream reads is a
+`deque(maxlen=500)` sized for the twenty semantic events a call emits, so ten levels a second would
+evict the events the activity rail is made of, and the four replay fixtures would show a flat wave
+next to a moving live one. The wave is therefore synthesised noise, gated by **who holds the floor**:
+it says that the call is moving and whose turn it is, which is what a muted viewer needs, and it does
+not claim a loudness it cannot measure. A measured level is the upgrade path, and it needs a carrier
+that is not the trace.
+
+Who holds the floor is read backwards off the event list, and the read is not the obvious one: a turn
+event lands when that turn is **over**, so an `agent_turn` means the patient now has the floor. The
+wave alternates on that, and latches idle on `call_ended`, `patient_hung_up`, or `phase_done` for the
+`converse` phase — the last of which is the only event that truthfully means there is no more audio.
+A speaker who holds the floor for more than four seconds drops to rest height while keeping the
+colour, because the call's own silence timeout is eight seconds and a wave that keeps waving through
+it would be lying twice.
 
 When the call is idle the bars rest at 15% height. When the patient is speaking the wave is
 `--color-accent`; when the agent is speaking it is `--tone-dim` — so a muted viewer can see who has the
-floor.
+floor. **The agent's bars are the one place the 70% does not apply**: `--tone-dim` at 70% measures
+2.47:1 on the light card and 2.55:1 on the dark one, under the 3:1 this system asks of a component
+boundary, and the wave reads as gone rather than as dim. At full opacity it measures 4.06:1 and
+3.91:1, so that is what it uses; the patient's accent at 70% measures 3.44:1 and 4.46:1. What
+separates the two speakers is the hue, teal against a desaturated grey, not the lightness — and
+colour is never the only signal here, because the transcript beside it labels every turn.
 
 ```css
 .wave-bar {
@@ -468,7 +530,8 @@ floor.
 ```
 
 With reduced motion the bars still render their current level — the wave is data, so it is never
-hidden — but they jump to it instead of easing, and the idle shimmer does not run at all.
+hidden — but they jump to it instead of easing, and the idle shimmer does not run at all: the clock
+keeps ticking and the tick returns early while nobody holds the floor, so the bars sit flat at 15%.
 
 **2. Animated counters — the metrics band.** Each figure counts up from zero to its value over
 900ms with an ease-out curve, triggered once by an `IntersectionObserver` at 50% visibility. Numbers

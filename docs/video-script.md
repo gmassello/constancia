@@ -173,12 +173,12 @@ That is the rehearsal server, not the take server.
 
 | # | Beat | Track | On screen |
 |---|---|---|---|
-| 1 | `1:problem` | 21 s | The landing at `/`, the opening claim |
+| 1 | `1:problem` | 17 s | The landing at `/`, the opening claim |
 | 2 | `2:product` | 24 s | The landing: one sentence, then the three packs |
-| 3 | `3:call-one` | 56 s | 🎯 Week 1 live. Nothing recalled, four questions, three facts extracted |
+| 3 | `3:call-one` | 62 s | 🎯 Week 1 live. Nothing recalled, four questions, three facts extracted |
 | 4 | `4:memory-off` | 24 s | Week 2 live with memory off: the generic protocol |
-| 5 | `5:memory-on` | 42 s | 🎯 Week 2 live with memory on: the knee, and the 7/10 retired |
-| 6 | `6:panel` | 31 s | The chart, the file, the key terms, what AssemblyAI heard, a red flag |
+| 5 | `5:memory-on` | 68 s | 🎯 Week 2 live with memory on: the knee, and the 7/10 retired |
+| 6 | `6:panel` | 55 s | The chart, the file, the key terms, what AssemblyAI heard, a red flag |
 | 7 | `7:close` | 18 s | The model band on the landing, then the endcard |
 
 Track lengths are what `video/out/timing.txt` measured; the recording can be longer, because
@@ -423,14 +423,7 @@ print(f"OUTRO_REPLACE={float(end) - start:.1f}")
 EOF
 ```
 
-> **The numbers in the rest of this section are stale.** `video/out/` was built on 20 Sep from a
-> narration that has since changed — 44 captions against the 45 rows `narration.tsv` carries today,
-> with a line gone from beat 1 and the two AssemblyAI ones added to beat 6. Re-run `build-audio.sh`
-> first ([`PENDINGS.md`](PENDINGS.md) row 3); then the snippet above prints the `OUTRO_REPLACE` that
-> matches, and `timing.txt` prints the total that goes with it. What follows is the shape of the
-> command, not its arguments.
-
-At 3:34.6 of the previous narration that was `2.4`. Assemble with:
+On the track built on 24 Sep — **267.8 s = 4:27.8**, 53 captions — it prints `2.4`. Assemble with:
 
 ```bash
 VIDEO_DIR=$PWD/video MAX_SECONDS=300 \
@@ -438,12 +431,12 @@ VIDEO_DIR=$PWD/video MAX_SECONDS=300 \
   bash ~/.claude/skills/personal-record-video/scripts/build-video.sh video/out/raw-fitted.mov
 ```
 
-Verified end to end against a synthetic recording, on that same previous narration: 1920x1080,
-**217.2 s = 3:37.2**, under the cap, the card up from 3:32.2 with the final caption on it and 2.6 s
-of quiet after. What the pipeline does was proved; the durations move with the track.
+The pipeline was verified end to end against a synthetic recording on an earlier, shorter track:
+1920x1080, under the cap, the card up with the final caption on it and quiet after. What it does was
+proved; the durations move with the track, so the figures to trust are the ones above.
 
 **One constraint this puts on the take:** `build-video.sh` refuses a recording that is not within
-0.75x–1.30x of `narration − OUTRO_REPLACE`, which is 212.2 s. Anywhere between about 2:39 and 4:36
+0.75x–1.30x of `narration − OUTRO_REPLACE`, which is **265.4 s**. Anywhere between **3:19 and 5:45**
 of raw screen time is fine; `fit-to-audio.py` lands it far closer than that.
 
 ## What can come out differently

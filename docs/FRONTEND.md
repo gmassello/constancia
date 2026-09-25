@@ -1,6 +1,6 @@
 # Frontend reference
 
-React 19 + Vite + TypeScript in [`../web/`](../web). Twenty files, about 4,150 lines, and **no UI
+React 19 + Vite + TypeScript in [`../web/`](../web). Twenty-two files, about 4,700 lines, and **no UI
 library, no router, no state library, no date library and no charting library**. The chart is `div`s
 with a percentage height; the dates are `Intl.DateTimeFormat`; the segmented control is native radios
 styled with `:has()`.
@@ -38,36 +38,37 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 
 | File | Lines | What it is |
 |---|---:|---|
-| [`web/src/tokens.css`](../web/src/tokens.css) | 263 | The design system: the tokens with light canonical and dark as the override, the semantic aliases, the reset, the `h1`–`h6` sizes and the five shared classes — `.text-muted`, `.hr`, `.btn`, `.tag` and `.seg`. |
+| [`web/src/tokens.css`](../web/src/tokens.css) | 308 | The design system: the tokens with light canonical and dark as the override, the semantic aliases, the reset, the `h1`–`h6` sizes, three steps of the type scale (`.eyebrow`, `.caption`, `.mono`) and the six shared classes — `.text-muted`, `.hr`, `.btn`, `.tag`, `.pill` and `.seg`. |
 | [`web/src/prefs.ts`](../web/src/prefs.ts) | 75 | `usePrefs()`, the three initial readers, `localStorage` persistence and `prefersReducedMotion()`. |
 
 ### Landing
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/landing/Landing.tsx` | 514 | A header, seven sections and a footer, with the design's inline styles kept. |
+| `web/src/landing/Landing.tsx` | 550 | A header, seven sections and a footer, with the design's inline styles kept. |
 | `web/src/landing/DemoCard.tsx` | 744 | The scripted demo card: two scripts, the fact chain, the player and its controls. |
 | `web/src/landing/copy.ts` | 553 | Two full sets, one per language, plus two partial plain-register overrides merged over them. |
-| `web/src/landing/landing.css` | 123 | Six keyframes, the pause rule and the reduced-motion block. |
+| `web/src/landing/landing.css` | 118 | Five keyframes, the pause rule and the reduced-motion block. |
 | `web/src/landing/main.tsx` | 12 | Mount. |
 
 ### Panel
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/panel/panel.css` | 362 | Layout and styles, on the aliases. |
-| `web/src/panel/copy.ts` | 551 | Two languages, one register, plus the maps for raw backend values. |
-| `web/src/panel/ActivityRail.tsx` | 174 | Turns each trace event into a labelled line. An event with no `case` still renders, through the `default` — a new one costs a row here only when it deserves wording of its own. |
+| `web/src/panel/panel.css` | 419 | Layout and styles, on the aliases. |
+| `web/src/panel/copy.ts` | 554 | Two languages, one register, plus the maps for raw backend values. |
+| `web/src/panel/ActivityRail.tsx` | 175 | Turns each trace event into a labelled line. An event with no `case` still renders, through the `default` — a new one costs a row here only when it deserves wording of its own. |
 | `web/src/panel/PatientView.tsx` | 170 | Loads the patient's data and composes five cards, plus the live one while a call runs. |
 | `web/src/panel/content.ts` | 160 | The EN→ES table for canned patient data, keyed by the English string the call produces. |
 | `web/src/panel/App.tsx` | 96 | Shell: sidebar, backend status, the two toggles, patient list. |
 | `web/src/panel/api.ts` | 155 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
-| `web/src/panel/FactChain.tsx` | 95 | The patient file: current facts and what they retired, each with a native `<audio>` for its quote when the recording placed it. |
+| `web/src/panel/FactChain.tsx` | 97 | The patient file: current facts and what they retired, each with a native `<audio>` for its quote when the recording placed it. |
 | `web/src/panel/Questions.tsx` | 109 | What the patient asked and the agent would not answer. An open one carries the only text field in the product; the rest show their status. |
 | `web/src/panel/Calls.tsx` | 102 | One row per past call: tags, the summary, and the transcript behind a `<details>`. |
-| `web/src/panel/WeeklyChart.tsx` | 70 | One series per measure, with scale, delta and verdict. |
+| `web/src/panel/WeeklyChart.tsx` | 93 | One sparkline tile per measure, with scale, delta and a verdict arrow that carries the direction. |
 | `web/src/panel/Keyterms.tsx` | 64 | The words handed to the recogniser: the three-step drawing and the chips. |
-| `web/src/panel/LiveCall.tsx` | 77 | The SSE subscription and the live transcript. |
+| `web/src/panel/LiveCall.tsx` | 79 | The SSE subscription, the live transcript and the wave at the foot of the card. |
+| `web/src/panel/Wave.tsx` | 60 | The activity wave: 96 bars, who holds the floor derived from the last turn event. |
 | `web/src/panel/main.tsx` | 12 | Mount. |
 
 ## Theming
@@ -108,7 +109,7 @@ ramp equivalent, listed here because the rule covers them too: use the name, nev
 | `--fill-subtle` | tinted fills |
 | `--color-divider-strong` | the outline of an input or a secondary button, where the hairline is not enough |
 | `--color-accent-hover` + `--color-accent-active` | a pair per theme, because the states run **opposite ways**: light darkens on press, dark lightens |
-| `--orb-mint` / `--orb-sky` / `--orb-amber` | atmosphere only, never a fill, a border or a text colour. **Declared and not yet consumed**: the two blooms on the landing are `color-mix()` on the accent. [`PENDINGS.md`](PENDINGS.md) § A3 |
+| `--orb-mint` / `--orb-sky` / `--orb-amber` | atmosphere only, never a fill, a border or a text colour. `--orb-mint` is the bloom behind the hero headline and `--orb-sky` the one bottom right of the closing; `--orb-amber` is declared and unconsumed, because [`DESIGN.md`](DESIGN.md) § *Screens* places two orbs and no third. |
 | `--color-danger` + `--danger-fill` | a pair, because no single hex clears both grounds |
 
 A step that reads on one ground does not read on the other; the indirection is what makes two themes
@@ -259,10 +260,15 @@ card has two clocks:
 
 Pausing normally has to stop both clocks too: the effect stops scheduling, and `animation-play-state`
 stops the looping CSS — scoped to the two the card owns, `noc-pulse` and `noc-wave`, because pausing
-an entrance animation inside its 0.34 s window would leave that row invisible. A third animation
-loops, `noc-breathe` on the two background blooms, and `.is-paused` does not cover it: it is page
-atmosphere rather than part of the card, and `DESIGN.md` has it slated for removal
-([`PENDINGS.md`](PENDINGS.md) § A3).
+an entrance animation inside its 0.34 s window would leave that row invisible. Those two are now the
+only loops on the page: `noc-breathe` used to pulse the two background blooms and `.is-paused` never
+covered it, which is why the orbs are static gradients instead.
+
+The panel's wave keeps a clock of its own, a 90 ms interval in `Wave.tsx`. Under reduced motion the
+interval keeps running but the tick returns early while nobody holds the floor, so the bars sit flat
+at 15% instead of shimmering; when a speaker does hold it the bars still move, because the wave is a
+readout and `DESIGN.md` § *Effects* does not allow hiding it. The easing is CSS, so
+`prefers-reduced-motion` drops `transition` and the bars jump to each level.
 
 Contrast is measured, not assumed, and the method matters: colours are composited on a canvas and the
 pixel is read, because `getComputedStyle().color` returns `color(srgb r g b / a)` with 0–1 components

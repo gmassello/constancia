@@ -2,7 +2,7 @@
 
 The content of the slides, kept here so the claims stay next to the code that backs them. They are
 written and not yet submitted — [`SUBMISSION.md`](SUBMISSION.md) has the state, and sharing and
-uploading them is row 8 of [`PENDINGS.md`](PENDINGS.md).
+uploading them is row 7 of [`PENDINGS.md`](PENDINGS.md).
 Eleven slides. The market numbers come from [`INTENT.md`](INTENT.md) §3 and §4, with the citations;
 everything about the system is checkable in this repo today.
 

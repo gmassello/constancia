@@ -14,10 +14,6 @@
   from { text-decoration-color: transparent; }
   to { text-decoration-color: var(--color-accent); }
 }
-@keyframes noc-breathe {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.95; }
-}
 @keyframes noc-wave {
   0%, 100% { transform: scaleY(0.25); }
   50% { transform: scaleY(1); }
@@ -31,7 +27,6 @@
   text-decoration-color: var(--color-accent);
   animation: noc-strike 0.5s ease both;
 }
-.noc-breathe { animation: noc-breathe 9s ease-in-out infinite; }
 .noc-wave { animation: noc-wave 0.9s ease-in-out infinite; }
 
 .is-paused .noc-pulse,
@@ -44,7 +39,6 @@
   .noc-slide,
   .noc-pulse,
   .noc-strike,
-  .noc-breathe,
   .noc-wave {
     animation: none;
   }
@@ -92,7 +86,8 @@ a:hover { color: var(--text-accent); }
 .glow {
   position: absolute;
   border-radius: 50%;
-  filter: blur(30px);
+  filter: blur(120px);
+  opacity: 0.4;
   pointer-events: none;
 }
 
