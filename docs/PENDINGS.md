@@ -23,10 +23,9 @@ panel renders no button that dials a real phone. The endcard now names that addr
 | | What is open | Who | How it closes |
 |---|---|---|---|
 | 1 | **Ana's voice.** Anita is not available, so the patient's lines are synthesised: [`video/lines.html`](../video/lines.html) shows the 21 turns of the four calls, verbatim from `seed/scripts.json`, and speaks them in English through the browser. **Choosing the voice is no longer part of this**: the page's preference order is `Samantha`, `Evan (Enhanced)`, `Karen`, `Moira`, and all four are installed on the recording machine (`say -v '?'`, checked 25 Sep), so it opens on **Samantha**, `en_US`, which is neither a novelty nor `Ava (Premium)` — the narration's own voice. What is open is the acoustic calibration, which needs a phone | you | Rehearsal 1: laptop speaker against the phone's microphone, phone **not** on speaker, or the agent's own voice feeds back into the call. If a number still comes out mis-transcribed, the fallback is pre-rendering the lines with `say -v Samantha -o line.aiff` — deliberately not built in advance, because to be usable mid-take it would have to replace `speechSynthesis` inside the page you will have rehearsed with |
-| 2 | **The cold open.** `video/hook.json` does not exist, and neither does the concept anywhere in the repo — not in [`video-script.md`](video-script.md), not in `narration.tsv`, not in any script. ~~The other four shots are already in `video/shots/`.~~ **That was wrong**: the directory holds two panel stills, `chain.png` and `escalated.png`, and nothing that a cold open could use. The narration is built and measured at 267.8 s against 53 captions, so an opening beat means re-synthesising it | me | **Recommend dropping it.** It is the one row on this page whose cost is re-deriving something already finished, and it was always marked droppable at no cost. If it stays, it needs the concept written first and then one photograph with a clear licence |
-| 3 | **The three rehearsals and the take.** Closes **C2** and **C3** | you and me | [`video-script.md`](video-script.md) § *The day, in order*. The order is not negotiable: the three calls back to back come **before** the final reset, never after |
-| 4 | **Assemble `demo.mp4`.** None of `raw-fitted.mov`, `demo.mp4` or `demo.en.srt` exist. The 20 Sep take is split across `raw-parte1.mov` and `raw-parte2.mov`, which the documented pipeline does not contemplate | me, after the take | `fit-to-audio.py --beats`, then `build-video.sh` with `OUTRO="video/out/endcard.png:5" OUTRO_REPLACE=2.4`. The track is 267.8 s, so the finished file lands under the 300 s cap |
-| 5 | **Share the deck and submit on lablab** | you | The artifact is linked from [`SUBMISSION.md`](SUBMISSION.md); it has to be shared before it can be uploaded |
+| 2 | **The three rehearsals and the take.** Closes **C2** and **C3** | you and me | [`video-script.md`](video-script.md) § *The day, in order*. The order is not negotiable: the three calls back to back come **before** the final reset, never after |
+| 3 | **Assemble `demo.mp4`.** None of `raw-fitted.mov`, `demo.mp4` or `demo.en.srt` exist. The 20 Sep take is split across `raw-parte1.mov` and `raw-parte2.mov`, which the documented pipeline does not contemplate | me, after the take | `fit-to-audio.py --beats`, then `build-video.sh` with `OUTRO="video/out/endcard.png:5" OUTRO_REPLACE=2.4`. The track is 267.8 s, so the finished file lands under the 300 s cap |
+| 4 | **Share the deck and submit on lablab** | you | The artifact is linked from [`SUBMISSION.md`](SUBMISSION.md); it has to be shared before it can be uploaded |
 
 **The video is now shot after the features, not before.** Three of the six changed what the agent
 says on the call, so `seed/scripts.json` and all four fixtures moved with them. What the panel's
@@ -43,11 +42,11 @@ possible: you answer the phone and [`video/lines.html`](../video/lines.html) spe
 captions in 74 rows; `build-audio.sh` measured **267.8 s = 4:27.8** against the 300 s cap with zero
 drift, and `OUTRO_REPLACE` re-derives to `2.4`. Beat 3 says *three* facts, and beat 5 narrates the
 relayed answer, the promise check-in and the question that lands in the queue. The one constraint
-that leaves for row 3: the raw screen recording has to run between **3:19 and 5:45**, or
+that leaves for row 2: the raw screen recording has to run between **3:19 and 5:45**, or
 `build-video.sh` refuses it.
 
 **Checkpoints.** C1 is closed. **C2** (three real calls back to back, no reset, the third superseding
-the 7/10) and **C3** (the panel live during a call) close during the recording session — row 3.
+the 7/10) and **C3** (the panel live during a call) close during the recording session — row 2.
 **C4** is the submission itself. Their definitions are in [`PLAN.md`](PLAN.md).
 
 ---
@@ -159,6 +158,11 @@ there and its behaviour is described in [`BACKEND.md`](BACKEND.md), [`API.md`](A
 
 **Deliberately out of scope.** Decided, and not to be reopened without saying so:
 
+- **The cold open.** `video/hook.json` was never written and the concept exists nowhere — not in
+  [`video-script.md`](video-script.md), not in `narration.tsv`, not in any script. `video/shots/`
+  holds two panel stills and nothing an opening beat could use. The narration is built and
+  measured at 267.8 s across 53 captions, so a beat in front of it means re-synthesising a
+  finished track five days from the deadline. Dropped on 25 Sep, deliberately.
 - Re-recording `seed/replay/*.json` from real calls — the fixtures stay synthetic.
 - Deleting the 20 Sep takes. They stay on disk.
 - A test runner in the front end. `tsc` is the check; presentational components do not earn one.
