@@ -53,66 +53,35 @@ the 7/10) and **C3** (the panel live during a call) close during the recording s
 
 ## 2. The Cadence build programme
 
-[`DESIGN.md`](DESIGN.md) is the **target** design system, not a description of what is built. What it
-defines and the front end does not have yet is this list, ordered by how visible it is.
+**Closed.** [`DESIGN.md`](DESIGN.md) was written as the target and the code has caught up with it:
+the tokens, the thirteen type steps, the component states, the layout numbers and both effects are
+built. What the four passes took, in order — Group A, the landing and the live call card: the
+waveform, the animated counters, the static orbs. The panel's own set: the pill geometry and its
+three variants, `CURRENT` / `RETIRED` as pills, the fact quote in `mono`, the speaker label and the
+rail row on the type scale, the rail's timestamp, level 3 on the live call card, the selected patient
+row, and the sparkline tiles with a verdict arrow that carries the direction. The three the camera
+uses: the call controls, the nav's current section, and the animation rule's named exception. And
+the last eight: the type scale defined and consumed, the fonts on `<link>` tags instead of a
+render-blocking `@import`, the container and gutter from a token, the loading and disabled states,
+the card at `--radius-lg` with a hover, and the second accent deleted.
 
-**Group A, the panel's own set, and the three items the camera uses are built and out of this list.**
-Group A was the landing and the live call card — the waveform, the animated counters, the static orbs.
-The second pass took the panel: the pill geometry and its three variants, `CURRENT` / `RETIRED` as
-pills, the fact quote in `mono`, the speaker label and the rail row on the type scale, the rail's
-timestamp, level 3 on the live call card, the selected patient row, and the chart's sparkline tiles
-with a verdict arrow that finally carries the direction. The third pass took the three the camera does
-not just look at but *uses*: **E1**, the call controls, pressed in four beats and now five keyless
-buttons in one row plus the live pair, which the header wraps below the patient's name to give them
-their line; **D4**, the nav, which beat 7 navigates from and which now marks the current section and
-only draws its bottom edge once the page has scrolled; and **F1**, the animation rule, which now
-names the demo card as its one exception instead of forbidding what the landing exists to show. All of
-it was done before the take, because after the take it is worth nothing.
+**Two numbers worth keeping.** The scale replaced **104** literal sizes across five files, and
+`tests/test_docs.py` now fails the build on the next one. Nothing in the product is under 12px at
+any width, which is what `DESIGN.md`'s own checklist asked for and never got — the panel's ten sizes
+between 9.5px and 11.5px are the ones that moved.
 
-**A correction, because it was published wrong here.** This section used to say *"None of what is
-left shows up on camera"*. That was false: thirteen of the nineteen items were on camera, and four
-of them were on the shot list's own *what the camera must catch*. What makes what is left droppable
-is not that it is invisible — it is that **no caption depends on it**. Only three items are never on
-screen at all: C3, F2 and F3.
+**What it deliberately did not do**, each written where it happens rather than dropped: the panel
+takes the small half of the scale, because the video records it at 1280×800 and 22px display headings
+push the live call card further under the fold — it already ends 188px below it. The spinner does
+not freeze under reduced motion, it disappears and the label comes back. The disabled state keeps the
+pair `DESIGN.md` names even though it measures 3.23:1 dark and 3.53:1 light, because WCAG exempts an
+inactive control.
 
-**Honest sizing.** What is left is eight items, there is no test runner in the front end, and it
-competes with part 1 for the days that are left. Group C is the largest and, by the corrected
-measure, the one the narration never names.
-
-The gate for every item is `make web` (`tsc -b && vite build`) plus a look at both themes and both
-languages, and contrast measured per theme.
-
-### B. Components and states
+**One row stays open**, and it is one the pass found rather than one it left:
 
 | | What | Where |
 |---|---|---|
-| B1 | `[data-loading]` with a 14px spinner and the width preserved. The attribute is already set — `panel/Questions.tsx:53` puts it on the answer button while the request is in flight — and no rule anywhere styles it, so today it does nothing. And the real `disabled`: `--fill-subtle` / `--tone-dim` instead of the `opacity: 0.45` at `tokens.css:228`, which is the one resource the rules discourage | `tokens.css` |
-| B2 | Card at `--radius-lg` with `--space-6` padding and a hover that moves it to level 2. Today `.card` is `--radius-md` with 16px and has no hover rule. Level 2 is the one elevation step still unbuilt; level 3 landed on `.live` | `panel/panel.css:73` |
-
-### C. The type scale
-
-The largest item, and the one no caption names. Three of the thirteen steps now exist as classes —
-`.eyebrow`, `.caption` and `.mono`, built because the pill, the speaker label and the rail row needed
-them. The other ten do not, and every size outside those three is still a literal in px.
-
-| | What | Where |
-|---|---|---|
-| C1 | Define the remaining **ten** steps as classes in `tokens.css` — `display-xl` through `button`. `.eyebrow`, `.caption` and `.mono` are built | `tokens.css` |
-| C2 | Replace every loose px size with them. This is what makes the rule *"display type never below `card-title`"* enforceable: there are seven violations today, from 12px to 20px | `landing/Landing.tsx`, `landing/DemoCard.tsx`, `panel/panel.css`, `panel/Keyterms.tsx` |
-| C3 | Fonts: move the `@import` at `tokens.css:1` to the two `<link rel="preconnect">` plus the stylesheet link the doc publishes, in both HTML heads — today the import blocks the CSS and there is no preconnect. Resolve Inter 700, which is downloaded and not declared | `web/index.html`, `web/panel/index.html`, `tokens.css` |
-
-### D. Layout and elevation
-
-| | What | Where |
-|---|---|---|
-| D1 | Container at 1280px (1180 today), 16px minimum gutter (20 today), prose capped at `68ch`, and the published section-padding clamp | `landing/Landing.tsx`, `landing/landing.css`, `panel/panel.css:70` |
-
-### F. Rules and cleanup
-
-| | What | Where |
-|---|---|---|
-| F2 | `--color-accent-2` is declared in both themes and used nowhere, while the rules forbid a second accent. Give it a use or remove it | `tokens.css:10,81` |
-| F3 | After each change, contrast measured per theme by compositing on a canvas — `getComputedStyle` returns `color(srgb …)` for `color-mix()` values | — |
+| F4 | **The hairlines do not clear 3:1.** Against `--color-surface`, `--color-divider` measures 1.29:1 light / 1.21:1 dark and `--color-divider-strong` 1.54 / 1.56, where `DESIGN.md` asks 3:1 of a component boundary — and the input's border and the secondary button's border are boundaries in that sense, not decoration. Raising them re-derives every hairline in both themes, which is a colour decision and not a cleanup | `tokens.css`, the two `--color-divider*` pairs |
 
 ---
 
@@ -146,7 +115,7 @@ the doc disagreed.
    panel, and the component table did not name it while a rule forbids components the system does
    not name — so the rule was being broken by the doc's omission, not by the code. It is now
    specified in `DESIGN.md` § *Components* with its hover and press washes. Zero visual change, and
-   E1 shrinks to a layout change.
+   it left E1 a layout change, which is how E1 closed.
 
 ---
 

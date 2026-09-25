@@ -48,6 +48,10 @@ COUNTS = (
     re.compile(r'statTestsValue: "(\d+)"'),
 )
 RAMP = re.compile(r"color-neutral-[0-9]|color-accent-[0-9]")
+# ponytail: the same shape as RAMP, on the other half of the design system. A `font:` shorthand
+# is allowed because that is how a stylesheet takes a step — but only as `var(--type-…)`, never
+# with a length of its own, which is the loophole a hurry would reach for.
+SIZE = re.compile(r"font-size|fontSize|font:(?!\s*(?:var\(--type-|inherit))")
 STYLED = ("*.tsx", "*.ts", "*.css")
 # ponytail: only API.md. Its anchors are written `symbol` — `file.py:NN`, one symbol per
 # cell, so a shift is unambiguous. ARCHITECTURE.md anchors routes and prose, where a line
@@ -141,6 +145,24 @@ def test_no_ramp_step_survives_outside_tokens_css() -> None:
         if path.name != "tokens.css"
         for number, line in enumerate(path.read_text().splitlines(), start=1)
         if RAMP.search(line)
+    ]
+
+    assert stray == []
+
+
+def test_no_loose_type_size_survives_outside_tokens_css() -> None:
+    # The scale's own gate. Thirteen steps published in DESIGN.md were 104 literal sizes in the
+    # code, and three classes that named a step had no consumer at all — the drift is silent and it
+    # returns the first time someone is in a hurry. The one place a size may be written is the file
+    # that declares the steps.
+    root = ROOT / "web" / "src"
+    stray = [
+        f"{path.relative_to(ROOT)}:{number}"
+        for pattern in STYLED
+        for path in root.rglob(pattern)
+        if path.name != "tokens.css"
+        for number, line in enumerate(path.read_text().splitlines(), start=1)
+        if SIZE.search(line)
     ]
 
     assert stray == []

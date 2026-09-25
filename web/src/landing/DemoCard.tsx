@@ -311,36 +311,23 @@ function Link({
           border: `1px solid ${ring}`,
         }}
       />
-      <div
-        style={{
-          fontSize: 9.5,
-          letterSpacing: "0.07em",
-          textTransform: "uppercase",
-          color: "var(--text-muted)",
-          marginBottom: 3,
-        }}
-      >
+      <div className="eyebrow" style={{ color: "var(--text-muted)", marginBottom: 3 }}>
         {label}
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
         <span
-          className={struck ? "noc-strike" : undefined}
-          style={{
-            fontSize: struck ? 12 : 13,
-            lineHeight: 1.45,
-            flex: 1,
-            color: struck ? "var(--tone-dim)" : undefined,
-          }}
+          className={struck ? "caption noc-strike" : "caption"}
+          style={{ flex: 1, color: struck ? "var(--tone-dim)" : undefined }}
         >
           {text}
         </span>
-        <span
-          style={{ fontFamily: "var(--font-heading)", fontSize: struck ? 15 : 20, color: valueColor }}
-        >
+        <span className="card-title" style={{ color: valueColor }}>
           {value}
         </span>
       </div>
-      <div style={{ fontSize: 10.5, color: "var(--text-muted)", marginTop: 2 }}>{meta}</div>
+      <div className="caption" style={{ color: "var(--text-muted)", marginTop: 2 }}>
+        {meta}
+      </div>
     </div>
   )
 }
@@ -461,8 +448,8 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
             animationDuration: "1.6s",
           }}
         />
-        <span style={{ fontFamily: "var(--font-heading)", fontSize: 13 }}>{c.demoCaption}</span>
-        <div className="seg" style={{ marginLeft: "auto", fontSize: 10 }}>
+        <span className="eyebrow">{c.demoCaption}</span>
+        <div className="seg" style={{ marginLeft: "auto" }}>
           {(["week1", "week2"] as Week[]).map((option) => (
             <label className="seg-opt" key={option}>
               <input
@@ -475,10 +462,7 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
             </label>
           ))}
         </div>
-        <span
-          className={first ? "tag tag-outline" : "tag tag-accent"}
-          style={{ fontSize: 10 }}
-        >
+        <span className={first ? "tag tag-outline" : "tag tag-accent"}>
           {first ? c.demoMemoryOff : c.demoMemoryOn}
         </span>
       </div>
@@ -493,7 +477,7 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
             gap: 12,
           }}
         >
-          <h6 style={{ margin: 0, fontSize: 10, color: "var(--text-muted)" }}>
+          <h6 style={{ margin: 0, color: "var(--text-muted)" }}>
             {first ? c.demoChainFirst : c.demoChain}
           </h6>
           {(Object.keys(CHAIN) as Array<keyof typeof CHAIN>).map((key) => {
@@ -511,7 +495,7 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
                   gap: 9,
                 }}
               >
-                <span className="tag tag-accent" style={{ fontSize: 10, alignSelf: "flex-start" }}>
+                <span className="tag tag-accent" style={{ alignSelf: "flex-start" }}>
                   {c.demoCategory[row.category] ?? row.category}
                 </span>
                 <div
@@ -561,7 +545,7 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
               </div>
             )
           })}
-          <div style={{ marginTop: "auto", fontSize: 11.5, color: "var(--text-muted)" }}>
+          <div className="caption" style={{ marginTop: "auto", color: "var(--text-muted)" }}>
             {first ? c.demoChainNoteFirst : c.demoChainNote}
           </div>
         </div>
@@ -583,25 +567,16 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
               gap: 10,
             }}
           >
-            <h6 style={{ margin: 0, fontSize: 10, color: "var(--text-muted)" }}>{c.demoTranscript}</h6>
+            <h6 style={{ margin: 0, color: "var(--text-muted)" }}>{c.demoTranscript}</h6>
             {turns.map(({ beat, at }) => (
               <div className="noc-in" key={at}>
-                <div
-                  style={{
-                    fontSize: 10,
-                    letterSpacing: "0.07em",
-                    textTransform: "uppercase",
-                    color: "var(--text-muted)",
-                    marginBottom: 3,
-                  }}
-                >
+                <div className="eyebrow" style={{ color: "var(--text-muted)", marginBottom: 3 }}>
                   {beat.turn!.who === "agent" ? c.demoAgent : c.demoPatient}
                 </div>
                 <p
+                  className="body-sm"
                   style={{
                     margin: 0,
-                    fontSize: 13,
-                    lineHeight: 1.5,
                     color: beat.turn!.who === "agent" ? "var(--text-accent)" : "var(--color-text)",
                   }}
                 >
@@ -634,7 +609,7 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
               background: "color-mix(in srgb, var(--color-bg) 45%, transparent)",
             }}
           >
-            <h6 style={{ margin: 0, fontSize: 10, color: "var(--text-muted)" }}>{c.demoActivity}</h6>
+            <h6 style={{ margin: 0, color: "var(--text-muted)" }}>{c.demoActivity}</h6>
             {rail.map(({ beat, at }) => {
               const line = railText(c, beat, t)
               const tone = TONE[beat.rail!.key]
@@ -644,27 +619,12 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
                   key={at}
                   style={{ borderLeft: `2px solid ${tone}`, paddingLeft: 9 }}
                 >
-                  <div
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.06em",
-                      textTransform: "uppercase",
-                      color: tone,
-                      marginBottom: 2,
-                    }}
-                  >
+                  <div className="eyebrow" style={{ color: tone, marginBottom: 2 }}>
                     {line.label}
                   </div>
-                  <div style={{ fontSize: 12, lineHeight: 1.45 }}>{line.text}</div>
+                  <div className="caption">{line.text}</div>
                   {line.detail && (
-                    <div
-                      style={{
-                        fontSize: 10.5,
-                        lineHeight: 1.45,
-                        marginTop: 2,
-                        color: "var(--text-muted)",
-                      }}
-                    >
+                    <div className="caption" style={{ marginTop: 2, color: "var(--text-muted)" }}>
                       {line.detail}
                     </div>
                   )}
@@ -688,7 +648,6 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
           className="btn btn-ghost"
           aria-label={c.demoRestart}
           onClick={() => setWeek("week1")}
-          style={{ fontSize: 12 }}
         >
           ↺
         </button>
@@ -697,7 +656,6 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
           aria-label={c.demoBack}
           disabled={step === 0}
           onClick={() => stepTo(step - 1)}
-          style={{ fontSize: 11 }}
         >
           ◀
         </button>
@@ -705,7 +663,6 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
           <button
             className="btn btn-ghost"
             onClick={() => setPaused(!paused)}
-            style={{ fontSize: 12 }}
           >
             {paused ? c.demoResume : c.demoPause}
           </button>
@@ -715,7 +672,6 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
           aria-label={c.demoForward}
           disabled={step === script.length && !first}
           onClick={() => stepTo(step + 1)}
-          style={{ fontSize: 11 }}
         >
           ▶
         </button>
@@ -725,11 +681,10 @@ export default function DemoCard({ copy: c, lang }: { copy: Copy; lang: Lang }) 
             setStep(still ? script.length : 0)
             setPaused(false)
           }}
-          style={{ fontSize: 12 }}
         >
           {c.demoReplay}
         </button>
-        <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-muted)" }}>
+        <span className="caption" style={{ marginLeft: "auto", color: "var(--text-muted)" }}>
           {ended
             ? first
               ? c.demoEndedFirst

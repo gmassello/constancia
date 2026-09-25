@@ -1,13 +1,14 @@
 # Cadence — the constancia design system
 
-> **This is the target, not a description of what is built.** The colour tokens in *Tokens* below are
-> live — `web/src/tokens.css` matches them line for line — but a good part of the typography, the
-> component states, the layout numbers and both effects are specified here and not implemented yet.
-> When this file and the code disagree, **the code is what ships and this file is what it should
-> become**; the gap is tracked item by item in [`PENDINGS.md`](PENDINGS.md) § *The Cadence build
-> programme*, and four open questions it does not answer are in § *Decisions the programme needs*.
-> For the tokens as they resolve today, `web/src/tokens.css` is the source, and
-> [`FRONTEND.md`](FRONTEND.md) describes the front end as it stands.
+> **This was written as the target, and the code has caught up with it.** Every section below is
+> built: the tokens, the thirteen type steps, the component states, the layout numbers and both
+> effects. Where the two still differ it is named on the spot, with the measurement that decided it —
+> the panel's half of the type scale, the disabled contrast, the spinner under reduced motion, the
+> four token choices that failed their own checklist. The rule has not changed: **when this file and
+> the code disagree, the code is what ships**. What is still open is one measured gap, in
+> [`PENDINGS.md`](PENDINGS.md) § *The Cadence build programme*. For the tokens as they resolve
+> today, `web/src/tokens.css` is the source, and [`FRONTEND.md`](FRONTEND.md) describes the front end
+> as it stands.
 
 ## Context
 
@@ -87,7 +88,6 @@ test, not by discipline (see **Rules**).
   --color-surface: #ffffff;
   --color-text: #0c0a09;
   --color-accent: #046a63;
-  --color-accent-2: #035c56;
   --color-accent-hover: #03544f;
   --color-accent-active: #10302e;
   --color-divider: #e4e2df;
@@ -158,7 +158,6 @@ test, not by discipline (see **Rules**).
   --color-surface: #14171a;
   --color-text: #f2f4f5;
   --color-accent: #3fbfae;
-  --color-accent-2: #6fdccd;
   --color-accent-hover: #5ad3c4;
   --color-accent-active: #92cbc4;
   --color-divider: #23282d;
@@ -226,18 +225,23 @@ rather than mirrored, because a warm off-white and a cool near-black are not eac
 Two families, both from Google Fonts, plus the system mono — which is not loaded, so it costs
 nothing.
 
-> Not built yet: the scale below exists as a table here and as literal pixel sizes in the code —
-> there is no token or class for any of its thirteen steps. The fonts load through an `@import` at
-> the top of `tokens.css` rather than the links below, so there is no preconnect, and Inter's 700 is
-> downloaded without being declared here. [`PENDINGS.md`](PENDINGS.md) § C.
+> Built. Each step is a `--type-*` shorthand in `tokens.css`, and nine of them are also a class —
+> the nine the landing sets on an element. `tests/test_docs.py` fails the build on a `font-size`, a
+> `fontSize` or a `font:` shorthand with a length of its own anywhere under `web/src` outside
+> `tokens.css`; before the gate there were 104 of them.
 
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 ```
 
-- **Bricolage Grotesque** — `--font-heading`. Headlines only, weight 500–600.
+Both heads carry those three tags and nothing imports a font from CSS. The URL asks for **three**
+weight-family pairs, which is exactly what the code declares: an earlier draft of this section asked
+for Bricolage 500 as well, and no rule has ever paired `--font-heading` with 500 — the two that use
+it take 600. Inter 700 went the same way.
+
+- **Bricolage Grotesque** — `--font-heading`. Headlines only, weight 600.
 - **Inter** — `--font-body`. Body, labels, navigation, captions, buttons.
 - **`ui-monospace`** — `--font-mono`. Verbatim quotes, phase names, IDs, key terms. Anything the
   machine said or the patient said word for word.
@@ -276,17 +280,33 @@ Responsive display: clamp the two largest steps rather than stepping them at bre
 .display-lg { font-size: clamp(1.875rem, 4vw, 3.5rem); }
 ```
 
+**How a step is taken.** Each row is one custom property holding a `font` shorthand —
+`--type-caption: 400 0.75rem/1.4 var(--font-body)` — so a stylesheet takes a step with
+`font: var(--type-caption)` and never reaches into the markup for a class. Tracking is not part of
+the `font` shorthand, so the four steps that track carry it beside the token; that is the one number
+written twice, and both copies live in `tokens.css`. Nine steps are *also* a class, for the landing,
+which styles inline. `button` is neither: it is spelled once in `.btn`, which every button in the
+product already carries, and a `.button` class would have been a tenth class with no consumer —
+which is exactly what `.eyebrow`, `.caption` and `.mono` were before this pass.
+
+**The panel takes the small half of the scale.** Its card headings are `body-lg` at weight 500 and
+not `card-title`, and nothing in it is smaller than `caption`. The reason is the frame: the video
+records the panel at 1280×800, where height is the scarce resource, and seven stacked cards with
+22px display headings push the live call card further under the fold than it already is. What the
+scale did buy there is the floor — ten sizes between 9.5px and 11.5px became 12 or 13, so no text in
+the product is under 12px at any width, which is what the checklist below asks for and never got.
+
 ## Spacing, grid, radii and shadows
 
-> Not built yet: the container is 1180px and the panel's 980px, the minimum gutter is 20px, no rule
-> caps prose at `68ch`, and elevation levels 2 and 3 have no implementation — the live call card
-> carries a `.live` class that is defined nowhere. [`PENDINGS.md`](PENDINGS.md) § D.
+> Built, and from four tokens: `--container`, `--gutter`, `--measure` and `--section-pad` in
+> `tokens.css`. The container was the number 1180 written inline seven times in `Landing.tsx` and
+> 980 once in `panel.css`; one place decides now. Levels 2 and 3 both exist — 3 on `.live`, 2 as the
+> card hover.
 
 **Spacing.** 4px base. `--space-1` 4 · `--space-2` 8 · `--space-3` 12 · `--space-4` 16 ·
 `--space-6` 24 · `--space-8` 32 · `--space-12` 48 · `--space-16` 96.
 
-The first six are declared in `tokens.css`; `--space-12` and `--space-16` are not yet, and the two
-section rhythms below use literals until they are.
+All eight are declared in `tokens.css`.
 
 - Card interior padding: `--space-6` (24px); `--space-8` (32px) on the hero and the live call card.
 - Button padding: 8px vertical, 14px horizontal.
@@ -303,7 +323,8 @@ Section padding scales rather than stepping:
 **Radii.** `--radius-sm` 6 (status chips, inline tags) · `--radius-md` 8 (buttons) · `--radius-lg` 12
 (cards) · `--radius-xl` 16 (the live call card, the demo card) · `9999px` (toggles, state pills).
 
-Four steps and one constant, no more. All four are declared; `--radius-xl` has no consumer yet.
+Four steps and one constant, no more. All four are declared and all four are used: `--radius-xl` is
+the live call card.
 
 **Elevation.** Five levels, and only two of them use a shadow — and only in light.
 
@@ -322,17 +343,17 @@ shadow to say the same thing twice.
 
 Every state is specified. A component without a `:focus-visible` is not finished.
 
-> Not built yet: the `loading` state, the real `disabled` treatment, and the card hover. The pill
-> geometry, the rail row and the transcript turn are built; `.input` exists and the question queue
-> uses it (`panel/Questions.tsx`), with a base, a focus ring and a placeholder rather than the five
-> states below. See [`PENDINGS.md`](PENDINGS.md) § B.
+> Built, except for the input's `aria-invalid` error pattern, which has no error to carry yet —
+> `panel/Questions.tsx` is the only consumer of `.input` and its one failure mode is the card's own
+> error line. The `loading` state, the real `disabled` treatment and the card hover all landed in
+> this pass.
 
 **Button — ghost.** No fill and no border: `--color-accent` label, `--space-1` inline padding, and
 a wash of the accent behind it on hover (10%) and press (18%). It is for an action that sits inside
 a card and must not compete with the card's own primary — the panel's three keyless call buttons.
 It was in the code before it was in this table, which is what § *Decisions* item 4 was about; it
-earns its place because the alternative, three more bordered buttons in one row, is what the six-in-
-two-rows layout exists to avoid.
+earns its place because the alternative, three more bordered buttons in one row, is what the
+seven-in-two-rows layout exists to avoid.
 
 **Button — primary.**
 
@@ -354,7 +375,18 @@ two-rows layout exists to avoid.
 ```
 
 Loading shows a 14px spinner in `--color-bg` centred on the button; the label is hidden but the
-button keeps its width, so nothing reflows.
+button keeps its width, so nothing reflows. Measured: 81px wide with the label and 81px with the
+spinner. The ring is `--color-bg` at 35% with an opaque head, which is 2.06:1 against the accent for
+the ring and 8.6:1 for the head — a shape read by its motion, not by its edge, which is why
+**reduced motion does not freeze it**: the rule puts the label back and drops the spinner entirely.
+A stopped spinner reads as a broken button, and a button that says what it is doing in words is the
+better failure. That is a deliberate departure from the line above.
+
+The disabled treatment measures **3.23:1 in dark and 3.53:1 in light** — `--tone-dim` on
+`--fill-subtle`, the pair this section names. It is under the 4.5:1 the checklist asks of body text,
+and it stays: WCAG exempts an inactive control from contrast on purpose, and the alternative it
+replaced, `opacity: 0.45`, measured 4.18 dark but **3.15 light** and broke the rule against an
+opacity on text.
 
 **Button — secondary.** `background: transparent`, `1px solid var(--color-divider-strong)`,
 `color: var(--color-text)`. Hover raises the border to `--tone-dim` and the background to `--color-surface`. Same
@@ -381,7 +413,9 @@ The error message sits below the input in `caption`/`--color-danger`, and is ref
 `aria-describedby`. Colour is never the only carrier of the error.
 
 **Card.** `--color-surface` on `--color-bg`, 1px `--color-divider`, `--radius-lg`, `--space-6` padding. Hover moves it
-to level 2. A card that is a link gets the focus ring on the card, not on the text inside it.
+to level 2. A card that is a link gets the focus ring on the card, not on the text inside it. The
+live call card is the one exception to the hover, because it is already at level 3 and a hover that
+lowered it would be a lie about what is happening.
 
 **Navigation.** Sticky header, 64px tall, `--color-bg` at 85% with `backdrop-filter: blur(12px)`, a 1px
 `--color-divider` bottom edge that only appears once the page has scrolled. Links are
@@ -437,9 +471,7 @@ it measures 3.89:1 light. `--text-muted` measures 4.6 and 6.29.
 
 ## Screens
 
-> Both screens match this list today. What the front end has not caught up with is in
-> § *Components* and § *Spacing, grid, radii and shadows*, tracked in
-> [`PENDINGS.md`](PENDINGS.md) § 2.
+> Both screens match this list today.
 
 **Landing (`/`)** — eight blocks, in order:
 
@@ -449,7 +481,7 @@ it measures 3.89:1 light. `--text-muted` measures 4.6 and 6.29.
    playing a scripted call. One orb (`--orb-mint`) blooms behind the headline.
 3. **Metrics band** — four figures on the section gradient, `--color-section` to
    `--color-section-glow` with `--section-ink` on top: 70% non-adherence, 3 verticals, 333 free
-   streaming hours, 311 tests. **Animated counters.** The band is dark in both themes on purpose —
+   streaming hours, 312 tests. **Animated counters.** The band is dark in both themes on purpose —
    it is the page's only high-contrast block, and `--section-ink` is the one alias declared
    identically in both themes for that reason.
 4. **How it works** — four steps, 4-up at desktop, each an eyebrow index plus a card title and body.
@@ -469,9 +501,10 @@ it measures 3.89:1 light. `--text-muted` measures 4.6 and 6.29.
    live pair, which dials a real phone, is `btn-primary`. The seventh button is **replay a recorded
    call**: it re-emits a trace recorded under `seed/replay/`, so it is the one path that shows a
    whole call with no API key set, and it is how the panel is checked. The block always takes its own line under
-   the patient's name, right-aligned, because five buttons do not fit beside it in a 940px card. On
-   one line at 1280px in English; the Spanish labels need 992px and take two. At 390px the row
-   stacks, nothing clipped.
+   the patient's name, right-aligned, because five buttons do not fit beside it. The card is 997px
+   wide at 1280px since the container moved, so the five fit on one line in English, which needs
+   843px against 949px of card interior; the Spanish labels need 992px and still take two. At 390px
+   the row stacks, nothing clipped.
 3. **Live call card** — level 3 while a call runs. Transcript left, activity rail right, the
    **waveform** across the bottom, a state dot top right: live / ended / lost.
 4. **How she is doing** — two sparkline tiles, pain and sessions, with verdict arrows. The plot is
@@ -637,6 +670,11 @@ make test       # includes the token gate and the bilingual parity gate
       boundaries. Measure by compositing on a canvas, not by parsing the computed style:
       `getComputedStyle` returns `color(srgb r g b / a)` for `color-mix()` values, and a token with
       one value cannot clear 4.5:1 against both a light and a dark background.
+- [ ] **The hairlines do not clear 3:1, and that is known.** Measured against `--color-surface`:
+      `--color-divider` 1.29:1 light / 1.21:1 dark, `--color-divider-strong` 1.54 / 1.56. The
+      checklist above asks 3:1 of a component boundary, and the input's border and the secondary
+      button's border are boundaries in that sense. Raising them means re-deriving every hairline in
+      the system, so it is one open row in [`PENDINGS.md`](PENDINGS.md) rather than a silent pass.
 - [ ] **`--tone-dim` is never body text.** It measures 3.7:1 in light. It is for large text,
       disabled states and non-text boundaries.
 - [ ] **Reduced motion** — with `prefers-reduced-motion: reduce`, the counters show their final

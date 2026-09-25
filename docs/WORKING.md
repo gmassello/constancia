@@ -56,9 +56,9 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 311 tests, the 3 that need a database skipped
+uv run pytest -q          # 312 tests, the 3 that need a database skipped
 make db && DATABASE_URL=postgresql://constancia:constancia@localhost:5432/constancia \
-  uv run pytest -q        # 311 passed, nothing skipped — run this before touching app/memory.py
+  uv run pytest -q        # 312 passed, nothing skipped — run this before touching app/memory.py
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
@@ -76,7 +76,7 @@ missing translation fails the build, and presentational components do not earn a
 
 ## Tests
 
-Seventeen test files, 311 collected with no environment variable set. Every one of them passes
+Seventeen test files, 312 collected with no environment variable set. Every one of them passes
 except the three Postgres integration tests, which skip themselves.
 
 | File | Covers |
@@ -127,7 +127,7 @@ The hard rules are in [`../AGENTS.md`](../AGENTS.md). The ones that bite most of
   bilingual interface (the two `copy.ts` and `panel/content.ts`), where English is the annotated base
   and Spanish the translation.
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.
-  There are **62** in the code and they are the honest list of what was knowingly left simple:
+  There are **63** in the code and they are the honest list of what was knowingly left simple:
 
   ```bash
   grep -ro 'ponytail:' app/*.py web/src scripts tests schema.sql \

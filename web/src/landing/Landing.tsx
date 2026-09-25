@@ -54,7 +54,7 @@ function Kicker({ text }: { text: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
       <span className="rule-mark" />
-      <h6 style={{ margin: 0, fontSize: 11, color: "var(--text-accent)" }}>{text}</h6>
+      <h6 style={{ margin: 0, color: "var(--text-accent)" }}>{text}</h6>
     </div>
   )
 }
@@ -62,18 +62,13 @@ function Kicker({ text }: { text: string }) {
 function Step({ index, title, body }: { index: string; title: string; body: string }) {
   return (
     <div className="step-column">
-      <div
-        style={{
-          fontFamily: "var(--font-heading)",
-          fontSize: 12,
-          color: "var(--color-accent)",
-          marginBottom: 14,
-        }}
-      >
+      <div className="caption" style={{ color: "var(--color-accent)", marginBottom: 14 }}>
         {index}
       </div>
-      <h4 style={{ margin: "0 0 8px", fontSize: 18 }}>{title}</h4>
-      <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.6, color: "var(--text-secondary)" }}>{body}</p>
+      <h4 style={{ margin: "0 0 8px" }}>{title}</h4>
+      <p className="body-sm" style={{ margin: 0, color: "var(--text-secondary)" }}>
+        {body}
+      </p>
     </div>
   )
 }
@@ -81,8 +76,10 @@ function Step({ index, title, body }: { index: string; title: string; body: stri
 function Pillar({ title, body }: { title: string; body: string }) {
   return (
     <div className="step-column">
-      <h4 style={{ margin: "0 0 9px", fontSize: 19 }}>{title}</h4>
-      <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.65, color: "var(--text-secondary)" }}>{body}</p>
+      <h4 style={{ margin: "0 0 9px" }}>{title}</h4>
+      <p className="body-sm" style={{ margin: 0, color: "var(--text-secondary)" }}>
+        {body}
+      </p>
     </div>
   )
 }
@@ -125,23 +122,12 @@ function Stat({ value, label, lang }: { value: string; label: string; lang: Lang
 
   return (
     <div ref={node}>
-      <div
-        style={{
-          fontFamily: "var(--font-heading)",
-          fontSize: "clamp(30px, 3.4vw, 42px)",
-          letterSpacing: "-0.02em",
-          lineHeight: 1,
-          color: "var(--section-ink)",
-        }}
-      >
+      <div className="display-md" style={{ color: "var(--section-ink)" }}>
         {shown === null ? value : `${new Intl.NumberFormat(lang).format(shown)}${suffix}`}
       </div>
       <div
-        style={{
-          fontSize: 12.5,
-          marginTop: 6,
-          color: "color-mix(in srgb, var(--section-ink) 80%, transparent)",
-        }}
+        className="caption"
+        style={{ marginTop: 6, color: "color-mix(in srgb, var(--section-ink) 80%, transparent)" }}
       >
         {label}
       </div>
@@ -152,13 +138,12 @@ function Stat({ value, label, lang }: { value: string; label: string; lang: Lang
 function StackCard({ name, body, focus }: { name: string; body: string; focus?: boolean }) {
   return (
     <div className={focus ? "stack-card is-focus" : "stack-card"}>
-      <div style={{ fontFamily: "var(--font-heading)", fontSize: 14.5, marginBottom: 5 }}>{name}</div>
+      <div className="body-sm" style={{ fontWeight: 500, marginBottom: 5 }}>
+        {name}
+      </div>
       <div
-        style={{
-          fontSize: 11.5,
-          lineHeight: 1.5,
-          color: focus ? "var(--text-secondary)" : "var(--text-muted)",
-        }}
+        className="caption"
+        style={{ color: focus ? "var(--text-secondary)" : "var(--text-muted)" }}
       >
         {body}
       </div>
@@ -191,16 +176,7 @@ export default function Landing() {
               boxShadow: "0 0 12px var(--color-accent)",
             }}
           />
-          <span
-            style={{
-              fontFamily: "var(--font-heading)",
-              fontWeight: 500,
-              fontSize: 16,
-              letterSpacing: "-0.01em",
-            }}
-          >
-            constancia
-          </span>
+          <span className="card-title">constancia</span>
         </div>
         <nav className="landing-nav">
           {SECTIONS.map((id) => (
@@ -244,7 +220,7 @@ export default function Landing() {
       <section
         style={{
           position: "relative",
-          padding: "clamp(48px, 7vw, 96px) clamp(20px, 5vw, 64px) clamp(40px, 6vw, 80px)",
+          padding: "var(--section-pad)",
         }}
       >
         <div
@@ -261,7 +237,7 @@ export default function Landing() {
           className="hero-grid"
           style={{
             position: "relative",
-            maxWidth: 1180,
+            maxWidth: "var(--container)",
             margin: "0 auto",
             display: "grid",
             gridTemplateColumns: "minmax(0, 1.02fr) minmax(0, 1fr)",
@@ -271,44 +247,28 @@ export default function Landing() {
         >
           <div style={{ minWidth: 0 }}>
             <Kicker text={c.heroKicker} />
-            <h1
-              style={{
-                fontSize: "clamp(38px, 5.4vw, 66px)",
-                lineHeight: 1.04,
-                letterSpacing: "-0.03em",
-                margin: "0 0 20px",
-                textWrap: "pretty",
-              }}
-            >
+            <h1 className="display-xl" style={{ margin: "0 0 20px", textWrap: "pretty" }}>
               {c.heroTitleTop}
               <br />
               {c.heroTitleBottom}
             </h1>
             <p
-              style={{
-                fontSize: "clamp(16px, 1.5vw, 19px)",
-                lineHeight: 1.6,
-                maxWidth: "46ch",
-                color: "var(--text-secondary)",
-                margin: "0 0 14px",
-              }}
+              className="body-lg"
+              style={{ maxWidth: "46ch", color: "var(--text-secondary)", margin: "0 0 14px" }}
             >
               {c.heroBodyProblem}
             </p>
             <p
-              style={{
-                fontSize: "clamp(16px, 1.5vw, 19px)",
-                lineHeight: 1.6,
-                maxWidth: "46ch",
-                color: "var(--text-secondary)",
-                margin: "0 0 20px",
-              }}
+              className="body-lg"
+              style={{ maxWidth: "46ch", color: "var(--text-secondary)", margin: "0 0 20px" }}
             >
               {c.heroBodyProduct}
             </p>
 
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
-              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.registerLabel}</span>
+              <span className="caption" style={{ color: "var(--text-muted)" }}>
+                {c.registerLabel}
+              </span>
               <div className="seg">
                 {(
                   [
@@ -330,10 +290,10 @@ export default function Landing() {
             </div>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 34 }}>
-              <a className="btn btn-primary" href="#demo" style={{ fontSize: 15, padding: "11px 20px" }}>
+              <a className="btn btn-primary" href="#demo" style={{ padding: "11px 20px" }}>
                 {c.heroCtaDemo}
               </a>
-              <a className="btn btn-secondary" href={REPO} style={{ fontSize: 15, padding: "11px 20px" }}>
+              <a className="btn btn-secondary" href={REPO} style={{ padding: "11px 20px" }}>
                 {c.heroCtaRepo}
               </a>
             </div>
@@ -359,10 +319,12 @@ export default function Landing() {
                 [c.featureQuoteTitle, c.featureQuoteBody],
               ].map(([title, body]) => (
                 <div key={title}>
-                  <div style={{ fontFamily: "var(--font-heading)", fontSize: 15, marginBottom: 3 }}>
+                  <div className="body-sm" style={{ fontWeight: 500, marginBottom: 3 }}>
                     {title}
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{body}</div>
+                  <div className="caption" style={{ color: "var(--text-muted)" }}>
+                    {body}
+                  </div>
                 </div>
               ))}
             </div>
@@ -375,12 +337,12 @@ export default function Landing() {
       <section
         style={{
           background: "linear-gradient(120deg, var(--color-section), var(--color-section-glow))",
-          padding: "clamp(30px, 4vw, 46px) clamp(20px, 5vw, 64px)",
+          padding: "clamp(30px, 4vw, 46px) var(--gutter)",
         }}
       >
         <div
           style={{
-            maxWidth: 1180,
+            maxWidth: "var(--container)",
             margin: "0 auto",
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
@@ -396,27 +358,16 @@ export default function Landing() {
 
       <section
         id="how"
-        style={{ padding: "clamp(56px, 7vw, 96px) clamp(20px, 5vw, 64px)", scrollMarginTop: 80 }}
+        style={{ padding: "var(--section-pad)", scrollMarginTop: 80 }}
       >
-        <div style={{ maxWidth: 1180, margin: "0 auto" }}>
+        <div style={{ maxWidth: "var(--container)", margin: "0 auto" }}>
           <Kicker text={c.howKicker} />
-          <h2
-            style={{
-              fontSize: "clamp(28px, 3.4vw, 42px)",
-              letterSpacing: "-0.025em",
-              margin: "0 0 12px",
-              maxWidth: "22ch",
-            }}
-          >
+          <h2 className="display-lg" style={{ margin: "0 0 12px", maxWidth: "22ch" }}>
             {c.howTitle}
           </h2>
           <p
-            style={{
-              maxWidth: "56ch",
-              fontSize: 15.5,
-              color: "var(--text-secondary)",
-              margin: "0 0 40px",
-            }}
+            className="body"
+            style={{ maxWidth: "56ch", color: "var(--text-secondary)", margin: "0 0 40px" }}
           >
             {c.howIntro}
           </p>
@@ -438,14 +389,14 @@ export default function Landing() {
       <section
         id="memory"
         style={{
-          padding: "clamp(48px, 6vw, 86px) clamp(20px, 5vw, 64px)",
+          padding: "var(--section-pad)",
           scrollMarginTop: 80,
           borderTop: "1px solid var(--color-divider)",
         }}
       >
         <div
           style={{
-            maxWidth: 1180,
+            maxWidth: "var(--container)",
             margin: "0 auto",
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
@@ -461,18 +412,11 @@ export default function Landing() {
 
       <section
         id="stack"
-        style={{ padding: "clamp(48px, 6vw, 86px) clamp(20px, 5vw, 64px)", scrollMarginTop: 80 }}
+        style={{ padding: "var(--section-pad)", scrollMarginTop: 80 }}
       >
-        <div style={{ maxWidth: 1180, margin: "0 auto" }}>
+        <div style={{ maxWidth: "var(--container)", margin: "0 auto" }}>
           <Kicker text={c.stackKicker} />
-          <h2
-            style={{
-              fontSize: "clamp(26px, 3vw, 36px)",
-              letterSpacing: "-0.025em",
-              margin: "0 0 32px",
-              maxWidth: "26ch",
-            }}
-          >
+          <h2 className="display-lg" style={{ margin: "0 0 32px", maxWidth: "26ch" }}>
             {c.stackTitle}
           </h2>
           <div
@@ -489,7 +433,10 @@ export default function Landing() {
             <StackCard name="Postgres · pgvector" body={c.stackPostgres} />
           </div>
           <div className="hr" style={{ margin: "34px 0 20px" }} />
-          <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)", maxWidth: "70ch" }}>
+          <p
+            className="body-sm"
+            style={{ margin: 0, color: "var(--text-muted)", maxWidth: "var(--measure)" }}
+          >
             {c.stackLimits}
           </p>
         </div>
@@ -498,21 +445,14 @@ export default function Landing() {
       <section
         id="business"
         style={{
-          padding: "clamp(48px, 6vw, 86px) clamp(20px, 5vw, 64px)",
+          padding: "var(--section-pad)",
           scrollMarginTop: 80,
           borderTop: "1px solid var(--color-divider)",
         }}
       >
-        <div style={{ maxWidth: 1180, margin: "0 auto" }}>
+        <div style={{ maxWidth: "var(--container)", margin: "0 auto" }}>
           <Kicker text={c.businessKicker} />
-          <h2
-            style={{
-              fontSize: "clamp(26px, 3vw, 36px)",
-              letterSpacing: "-0.025em",
-              margin: "0 0 32px",
-              maxWidth: "26ch",
-            }}
-          >
+          <h2 className="display-lg" style={{ margin: "0 0 32px", maxWidth: "26ch" }}>
             {c.businessTitle}
           </h2>
           <div
@@ -531,7 +471,7 @@ export default function Landing() {
 
       <section
         style={{
-          padding: "clamp(56px, 7vw, 100px) clamp(20px, 5vw, 64px) clamp(64px, 8vw, 110px)",
+          padding: "var(--section-pad)",
           borderTop: "1px solid var(--color-divider)",
           position: "relative",
           overflow: "hidden",
@@ -547,34 +487,21 @@ export default function Landing() {
             background: "radial-gradient(circle, var(--orb-sky), transparent 70%)",
           }}
         />
-        <div style={{ position: "relative", maxWidth: 1180, margin: "0 auto" }}>
-          <h2
-            style={{
-              fontSize: "clamp(30px, 4vw, 50px)",
-              letterSpacing: "-0.03em",
-              lineHeight: 1.06,
-              margin: "0 0 16px",
-              maxWidth: "24ch",
-            }}
-          >
+        <div style={{ position: "relative", maxWidth: "var(--container)", margin: "0 auto" }}>
+          <h2 className="display-lg" style={{ margin: "0 0 16px", maxWidth: "24ch" }}>
             {c.closingTitle}
           </h2>
           <p
-            style={{
-              maxWidth: "50ch",
-              fontSize: 16,
-              lineHeight: 1.6,
-              color: "var(--text-secondary)",
-              margin: "0 0 28px",
-            }}
+            className="body"
+            style={{ maxWidth: "50ch", color: "var(--text-secondary)", margin: "0 0 28px" }}
           >
             {c.closingBody}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            <a className="btn btn-primary" href="#demo" style={{ fontSize: 15, padding: "11px 20px" }}>
+            <a className="btn btn-primary" href="#demo" style={{ padding: "11px 20px" }}>
               {c.closingCtaDemo}
             </a>
-            <a className="btn btn-secondary" href="/panel" style={{ fontSize: 15, padding: "11px 20px" }}>
+            <a className="btn btn-secondary" href="/panel" style={{ padding: "11px 20px" }}>
               {c.closingCtaPanel}
             </a>
           </div>
@@ -582,14 +509,14 @@ export default function Landing() {
       </section>
 
       <footer
+        className="body-sm"
         style={{
-          padding: "20px clamp(20px, 5vw, 64px)",
+          padding: "var(--space-6) var(--gutter)",
           borderTop: "1px solid var(--color-divider)",
           display: "flex",
           flexWrap: "wrap",
           gap: 14,
           alignItems: "center",
-          fontSize: 11.5,
           color: "var(--text-muted)",
         }}
       >

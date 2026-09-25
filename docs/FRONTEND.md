@@ -1,6 +1,6 @@
 # Frontend reference
 
-React 19 + Vite + TypeScript in [`../web/`](../web). Twenty-two files, about 4,800 lines, and **no UI
+React 19 + Vite + TypeScript in [`../web/`](../web). Twenty-two files, about 4,700 lines, and **no UI
 library, no router, no state library, no date library and no charting library**. The chart is one inline
 `<svg>` polyline in a stretched `viewBox` with the dots placed in percentages beside it; the dates are
 `Intl.DateTimeFormat`; the segmented control is native radios styled with `:has()`.
@@ -38,24 +38,24 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 
 | File | Lines | What it is |
 |---|---:|---|
-| [`web/src/tokens.css`](../web/src/tokens.css) | 308 | The design system: the tokens with light canonical and dark as the override, the semantic aliases, the reset, the `h1`–`h6` sizes, three steps of the type scale (`.eyebrow`, `.caption`, `.mono`) and the six shared classes — `.text-muted`, `.hr`, `.btn`, `.tag`, `.pill` and `.seg`. |
+| [`web/src/tokens.css`](../web/src/tokens.css) | 325 | The design system: the tokens with light canonical and dark as the override, the semantic aliases, the four layout tokens (`--container`, `--gutter`, `--measure`, `--section-pad`), the thirteen `--type-*` steps with nine of them also as a class, the `h1`–`h6` reset written in those steps, and the six shared classes — `.text-muted`, `.hr`, `.btn`, `.tag`, `.pill` and `.seg`. It is the only file in the tree allowed to write a size. |
 | [`web/src/prefs.ts`](../web/src/prefs.ts) | 75 | `usePrefs()`, the three initial readers, `localStorage` persistence and `prefersReducedMotion()`. |
 
 ### Landing
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/landing/Landing.tsx` | 601 | A header whose nav marks the current section, seven sections and a footer, with the design's inline styles kept. |
-| `web/src/landing/DemoCard.tsx` | 744 | The scripted demo card: two scripts, the fact chain, the player and its controls. |
+| `web/src/landing/Landing.tsx` | 528 | A header whose nav marks the current section, seven sections and a footer, with the design's inline styles kept. |
+| `web/src/landing/DemoCard.tsx` | 699 | The scripted demo card: two scripts, the fact chain, the player and its controls. |
 | `web/src/landing/copy.ts` | 553 | Two full sets, one per language, plus two partial plain-register overrides merged over them. |
-| `web/src/landing/landing.css` | 126 | Five keyframes, the pause rule, the reduced-motion block and the sticky header. |
+| `web/src/landing/landing.css` | 131 | Five keyframes, the pause rule, the reduced-motion block and the sticky header. |
 | `web/src/landing/main.tsx` | 12 | Mount. |
 
 ### Panel
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/panel/panel.css` | 425 | Layout and styles, on the aliases. |
+| `web/src/panel/panel.css` | 414 | Layout and styles, on the aliases. |
 | `web/src/panel/copy.ts` | 554 | Two languages, one register, plus the maps for raw backend values. |
 | `web/src/panel/ActivityRail.tsx` | 175 | Turns each trace event into a labelled line. An event with no `case` still renders, through the `default` — a new one costs a row here only when it deserves wording of its own. |
 | `web/src/panel/PatientView.tsx` | 168 | Loads the patient's data and composes five cards, plus the live one while a call runs. |
@@ -75,7 +75,7 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 
 There is no `prefers-color-scheme` query anywhere. **The theme is an attribute.**
 
-1. An inline pre-paint script in both HTML entries (`web/index.html:8-18`) reads `localStorage` and
+1. An inline pre-paint script in both HTML entries (`web/index.html:14-24`) reads `localStorage` and
    writes `documentElement.dataset.theme` and `documentElement.lang` before the CSS arrives, so
    nothing flashes.
 2. The `:root` in `tokens.css` is the **light** theme — the canonical one, the one the demo video
@@ -86,7 +86,11 @@ There is no `prefers-color-scheme` query anywhere. **The theme is an attribute.*
    applied.
 
 The default is **light**, and that is three lines that have to agree: `web/src/prefs.ts:31` and
-`:12` in each of the two `index.html` files.
+`:18` in each of the two `index.html` files.
+
+The fonts come from three `<link>` tags in the same heads — two `preconnect` and the stylesheet —
+and nothing imports a font from CSS. The `@import` that used to sit at the top of `tokens.css`
+blocked the stylesheet it was inside, and the URL asked for two weights nothing declares.
 
 The two themes are measured separately rather than mirrored: a warm off-white canvas and a cool
 near-black one are not each other's inverse, and a token with one value cannot clear 4.5:1 against
@@ -220,10 +224,10 @@ Seven buttons in `PatientView`, in two rows. The first row is the five that cost
 without memory* and *Call with memory* as `btn-secondary`, because the comparison between them is the
 demo, then three ghost links — *the same call without memory* (the `week2-off` script), a replay of a
 recorded call, and a call with a red flag. Five buttons need 843px in English and 992px in
-Spanish, against a 940px card, so they never fit beside the patient's name: `.chart-head` wraps and the
-controls take their own line under it, right-aligned. At 1280px the English row is one line and the
-Spanish one is two — the Spanish labels are the longer half and this is the one place the difference
-shows in the layout. At 390px the row stacks and nothing is clipped.
+Spanish, and the card holds 949px of interior at 1280px, so they never fit beside the patient's name:
+`.chart-head` wraps and the controls take their own line under it, right-aligned. At 1280px the
+English row is one line and the Spanish one is two — the Spanish labels are the longer half and this
+is the one place the difference shows in the layout. At 390px the row stacks and nothing is clipped.
 
 The second row only renders when `GET /health` reports `live: true`, and mirrors the scripted pair:
 *Real phone, no memory* and *Real phone, with memory*, both `mode: "live"` and both `btn-primary`,
@@ -259,7 +263,9 @@ and a key that is not `seq` remounts the lines and flashes them all again.
 `prefers-reduced-motion` is honoured in CSS **and** in JS (`prefersReducedMotion()`), because the demo
 card has two clocks:
 
-- The CSS keyframes are switched off in `landing.css` and `panel.css`.
+- The CSS keyframes are switched off in `landing.css` and `panel.css`, and the seventh, the button
+  spinner in `tokens.css`, does not stop — it disappears and the label comes back, because a frozen
+  spinner reads as a broken button.
 - The card's `setTimeout` chain never schedules: the initial step is the end of the script, so the
   card opens on the fact chain — the payoff — and stays there.
 - The pause button is not rendered at all in that path; there is nothing to pause. Step back and step

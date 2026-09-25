@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=Inter:wght@400;500;600;700&display=swap');
-
 :root {
   color-scheme: light;
 
@@ -7,7 +5,6 @@
   --color-surface: #ffffff;
   --color-text: #0c0a09;
   --color-accent: #046a63;
-  --color-accent-2: #035c56;
   --color-accent-hover: #03544f;
   --color-accent-active: #10302e;
   --color-divider: #e4e2df;
@@ -50,7 +47,6 @@
   --orb-amber: #f0cfa4;
 
   --font-heading: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
-  --font-heading-weight: 600;
   --font-body: "Inter", system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 
@@ -60,6 +56,27 @@
   --space-4: 16px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 96px;
+
+  --container: 1280px;
+  --gutter: clamp(16px, 5vw, 64px);
+  --measure: 68ch;
+  --section-pad: clamp(3rem, 6vw, 6rem) var(--gutter);
+
+  --type-display-xl: 600 clamp(2.5rem, 6vw, 5rem)/1.05 var(--font-heading);
+  --type-display-lg: 600 clamp(1.875rem, 4vw, 3.5rem)/1.1 var(--font-heading);
+  --type-display-md: 600 2.5rem/1.15 var(--font-heading);
+  --type-headline: 600 1.75rem/1.2 var(--font-heading);
+  --type-card-title: 500 1.375rem/1.25 var(--font-heading);
+  --type-subhead: 400 1.25rem/1.4 var(--font-body);
+  --type-body-lg: 400 1.125rem/1.5 var(--font-body);
+  --type-body: 400 1rem/1.5 var(--font-body);
+  --type-body-sm: 400 0.875rem/1.5 var(--font-body);
+  --type-caption: 400 0.75rem/1.4 var(--font-body);
+  --type-button: 500 0.875rem/1.2 var(--font-body);
+  --type-eyebrow: 500 0.8125rem/1.3 var(--font-body);
+  --type-mono: 400 0.8125rem/1.5 var(--font-mono);
 
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -78,7 +95,6 @@
   --color-surface: #14171a;
   --color-text: #f2f4f5;
   --color-accent: #3fbfae;
-  --color-accent-2: #6fdccd;
   --color-accent-hover: #5ad3c4;
   --color-accent-active: #92cbc4;
   --color-divider: #23282d;
@@ -125,10 +141,7 @@ body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.5;
-  font-weight: 400;
+  font: var(--type-body);
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
@@ -139,25 +152,15 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
-  line-height: 1.12;
-  letter-spacing: -0.025em;
   margin: 0 0 var(--space-2);
 }
 
-h1 { font-size: 44px; letter-spacing: -0.04em; line-height: 1.05; }
-h2 { font-size: 34px; letter-spacing: -0.032em; }
-h3 { font-size: 26px; }
-h4 { font-size: 20px; letter-spacing: -0.018em; }
-h5 { font-size: 16px; letter-spacing: -0.01em; }
-h6 {
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 13px;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
+h1 { font: var(--type-display-lg); letter-spacing: -0.032em; }
+h2 { font: var(--type-display-md); letter-spacing: -0.025em; }
+h3 { font: var(--type-headline); letter-spacing: -0.021em; }
+h4 { font: var(--type-card-title); letter-spacing: -0.018em; }
+h5 { font: var(--type-subhead); letter-spacing: -0.01em; }
+h6 { font: var(--type-eyebrow); letter-spacing: 0.03em; text-transform: uppercase; }
 
 p { margin: 0 0 var(--space-3); }
 a { color: var(--color-accent); text-underline-offset: 3px; }
@@ -165,29 +168,20 @@ img { display: block; max-width: 100%; }
 
 .text-muted { color: var(--text-muted); }
 
-/* ponytail: three of the thirteen steps the type scale publishes, and only the three that have a
-   consumer. The other ten stay literal pixels until something needs them — a class per row of a
-   table nobody reads from is a scale on paper, not in the build. */
-.eyebrow {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.3;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-.caption {
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1.4;
-  letter-spacing: 0;
-}
-.mono {
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  font-weight: 400;
-  line-height: 1.5;
-  letter-spacing: 0;
-}
+/* ponytail: the thirteen steps live as `--type-*` shorthands so a stylesheet can take a step
+   without a class reaching into the markup, and the classes below exist only for the steps the
+   landing sets inline. Tracking is not part of the `font` shorthand, so a step with tracking
+   carries it beside the token — the one place the number appears twice. */
+.display-xl { font: var(--type-display-xl); letter-spacing: -0.04em; }
+.display-lg { font: var(--type-display-lg); letter-spacing: -0.032em; }
+.display-md { font: var(--type-display-md); letter-spacing: -0.025em; }
+.card-title { font: var(--type-card-title); letter-spacing: -0.018em; }
+.body-lg { font: var(--type-body-lg); }
+.body { font: var(--type-body); }
+.body-sm { font: var(--type-body-sm); }
+.caption { font: var(--type-caption); }
+.eyebrow { font: var(--type-eyebrow); letter-spacing: 0.03em; text-transform: uppercase; }
+.mono { font: var(--type-mono); }
 
 :focus { outline: none; }
 :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
@@ -213,10 +207,7 @@ img { display: block; max-width: 100%; }
   gap: 6px;
   cursor: pointer;
   text-decoration: none;
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 1.2;
+  font: var(--type-button);
   color: var(--color-text);
   background: transparent;
   border: 1px solid transparent;
@@ -225,7 +216,12 @@ img { display: block; max-width: 100%; }
   transition: background 120ms ease, border-color 120ms ease;
 }
 .btn svg { display: block; }
-.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn:disabled {
+  background: var(--fill-subtle);
+  color: var(--tone-dim);
+  border-color: var(--color-divider);
+  cursor: not-allowed;
+}
 .btn-primary { background: var(--color-accent); color: var(--color-bg); border-color: transparent; }
 .btn-primary:hover { background: var(--color-accent-hover); }
 .btn-primary:active { background: var(--color-accent-active); }
@@ -237,10 +233,32 @@ img { display: block; max-width: 100%; }
 .btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
 .btn-icon { width: 36px; height: 36px; padding: 0; }
 
+.btn-primary[data-loading] { color: transparent; position: relative; }
+.btn-primary[data-loading]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border: 2px solid color-mix(in srgb, var(--color-bg) 35%, transparent);
+  border-top-color: var(--color-bg);
+  border-radius: 9999px;
+  animation: spin 600ms linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary[data-loading] { color: var(--color-bg); }
+  .btn-primary[data-loading]::after { content: none; }
+}
+
 .tag {
   display: inline-flex;
   align-items: center;
-  font-size: 11px;
+  font: var(--type-caption);
   font-weight: 500;
   letter-spacing: 0.03em;
   padding: 3px 10px;
@@ -263,8 +281,7 @@ img { display: block; max-width: 100%; }
 .pill {
   display: inline-flex;
   align-items: center;
-  font-size: 0.75rem;
-  line-height: 1.4;
+  font: var(--type-caption);
   letter-spacing: 0.03em;
   text-transform: uppercase;
   padding: 2px 8px;
@@ -292,7 +309,7 @@ img { display: block; max-width: 100%; }
   align-items: center;
   gap: 6px;
   padding: 5px 10px;
-  font-size: 12px;
+  font: var(--type-caption);
   cursor: pointer;
 }
 .seg-opt input {

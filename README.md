@@ -75,7 +75,7 @@ No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 311 tests, no network and no database
+make test          # 312 tests, no network and no database
 make lint          # ruff
 make web           # builds web/dist (needs node 24 and pnpm); tsc -b is the front-end check
 make dev           # http://localhost:8001 — the landing; the panel is at /panel

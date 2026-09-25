@@ -61,7 +61,7 @@ a:hover { color: var(--text-accent); }
   align-items: center;
   gap: 22px;
   min-height: 64px;
-  padding: 8px clamp(20px, 5vw, 64px);
+  padding: var(--space-2) var(--gutter);
   border-bottom: 1px solid transparent;
   position: sticky;
   top: 0;
@@ -75,7 +75,7 @@ a:hover { color: var(--text-accent); }
 .landing-nav {
   display: flex;
   gap: 20px;
-  font-size: 13px;
+  font: var(--type-body-sm);
 }
 .landing-nav a {
   color: var(--text-secondary);
@@ -106,8 +106,13 @@ a:hover { color: var(--text-accent); }
 
 .stack-card {
   border: 1px solid var(--color-divider);
-  border-radius: var(--radius-md);
-  padding: 16px 15px;
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.stack-card:hover {
+  border-color: var(--color-divider-strong);
+  box-shadow: var(--shadow-md);
 }
 .stack-card.is-focus {
   border-color: var(--color-accent);
