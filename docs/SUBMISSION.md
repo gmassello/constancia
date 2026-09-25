@@ -29,8 +29,8 @@ the half that needs a phone — the live call is C2, in the recording session.
 ## Definition of done (INTENT §13)
 
 - [x] Public GitHub repo, MIT license visible in the About section
-- [x] `make test` green — 321 tests, no environment variable set; the ones that need a database skip themselves
-- [x] `make test` green against a real Postgres too — `make db` and `DATABASE_URL=…`: 321 passed, nothing skipped
+- [x] `make test` green — 322 tests, no environment variable set; the ones that need a database skip themselves
+- [x] `make test` green against a real Postgres too — `make db` and `DATABASE_URL=…`: 322 passed, nothing skipped
 - [x] `scripts/test_outbound.py` places a real call — subsumed by C1: a full live call went out, which is the geographic permission proved end to end rather than with a `<Say>`
 - [x] C1 — a real call greets, asks the four questions in order, honours barge-in, says goodbye, and the trace shows both sides
 - [x] Deployed backend with public `/health` and panel, tested from another network — <https://constancia-voice.onrender.com>/health, answered from outside Render on 25 Sep

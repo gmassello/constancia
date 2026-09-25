@@ -129,7 +129,7 @@ before the first call — not a generic "I accept the terms".
 
 ## 10 · What is actually built
 
-- The full pipeline runs **with no keys and no database**: `make test` runs 321 tests with no
+- The full pipeline runs **with no keys and no database**: `make test` runs 322 tests with no
   environment variable set, and the panel's buttons run the real orchestrator against a scripted
   patient.
 - **AssemblyAI in two places, wired into a loop:** Universal-Streaming v3 live over the phone call,

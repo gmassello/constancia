@@ -26,11 +26,11 @@ Nocturne is **CSS only**. `_ds_bundle.js` is empty (`components: []`) and `suppo
 
 From `styles.css` we take the tokens — `--color-bg #161826`, `--color-surface #232532`, `--color-text #e9e9ed`, the blurple accent `--color-accent #9184d9`, the `neutral-100..900` and `accent-100..900` ramps, `--color-section` / `--color-section-glow`, Inter, `--radius-*`, `--shadow-*`, `--space-*` — and the classes `.btn`, `.tag`, `.hr`, and `.seg` + `.seg-opt`, the system's own segmented control on native radios with no script. That last one is what the toggles are built from.
 
-The landing is eight blocks: sticky header; hero with copy left and a live demo card right; a metrics band on the section gradient (70% / 3 verticals / 333 h / 321 tests); *How it works* in four steps; *Memory* in four cards; *Stack* with seven cards — Twilio, AssemblyAI, Gemini Flash, ElevenLabs, Jev, Postgres·pgvector and the FastAPI·React runtime — and the honest limits; *The model* in three columns — who pays, what it costs, what it costs to run; a closing CTA; a footer. Six own keyframes: `noc-in`, `noc-slide`, `noc-pulse`, `noc-strike`, `noc-breathe`, `noc-wave`.
+The landing is eight blocks: sticky header; hero with copy left and a live demo card right; a metrics band on the section gradient (70% / 3 verticals / 333 h / 322 tests); *How it works* in four steps; *Memory* in four cards; *Stack* with seven cards — Twilio, AssemblyAI, Gemini Flash, ElevenLabs, Jev, Postgres·pgvector and the FastAPI·React runtime — and the honest limits; *The model* in three columns — who pays, what it costs, what it costs to run; a closing CTA; a footer. Six own keyframes: `noc-in`, `noc-slide`, `noc-pulse`, `noc-strike`, `noc-breathe`, `noc-wave`.
 
 The demo card is a scripted loop (`SCRIPTS.week1` and `SCRIPTS.week2`, each a list of beats with delays) behind a week selector, played at `PACE` (1.6) times the delays written into the beats, with two views: `call` (transcript plus activity rail) and `chain` (the facts as dated links, the retired one struck through). Step back, pause, step forward and replay sit under both.
 
-Every number the design prints is already true of this repo: 70% non-adherence (`INTENT.md` §3.1), three packs, 333 free STT hours, 321 tests.
+Every number the design prints is already true of this repo: 70% non-adherence (`INTENT.md` §3.1), three packs, 333 free STT hours, 322 tests.
 
 ## Decisions
 
@@ -245,7 +245,7 @@ The panel gets its own `copy.ts` with its own type and **one register**. The two
 ## Verification
 
 ```bash
-uv run ruff check . && uv run pytest -q     # 321 tests, with no environment variable set
+uv run ruff check . && uv run pytest -q     # 322 tests, with no environment variable set
 cd web && pnpm build                        # tsc is the copy check; two HTML outputs
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
   --include='*.tsx' --include='*.ts' --include='*.css' | grep -v tokens.css

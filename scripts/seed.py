@@ -14,6 +14,9 @@ from app.packs import get_pack  # noqa: E402
 
 async def wipe(patient_id: str) -> None:
     await db.execute(
+        "delete from patient_questions where patient_id = %s", (patient_id,)
+    )
+    await db.execute(
         "delete from patient_memories where patient_id = %s", (patient_id,)
     )
     await db.execute("delete from calls where patient_id = %s", (patient_id,))

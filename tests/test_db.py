@@ -6,9 +6,10 @@ import pytest
 
 from app import db
 from app.calls import Call
-from app.extract import Fact
+from app.extract import Fact, OpenQuestion
 from app.memory import MemoryStore
 from app.packs import get_pack
+from scripts.seed import wipe
 
 pytestmark = [
     pytest.mark.integration,
@@ -110,3 +111,36 @@ async def test_the_schema_can_be_applied_twice() -> None:
     names = [row["table_name"] for row in tables]
     assert {"patients", "calls", "patient_memories"} <= set(names)
     await db.close_pool()
+
+
+async def test_reseeding_clears_a_question_left_in_the_queue() -> None:
+    db.init_schema()
+    store = MemoryStore()
+    patient_id = str(uuid.uuid4())
+    call = Call(patient_id=patient_id, patient_name="Ana", pack=get_pack("rehab"))
+
+    await db.execute(
+        "insert into patients (id, professional_id, program_type, name, phone_e164) "
+        "values (%s, %s, 'rehab', 'Ana', '+541100000000')",
+        (patient_id, PROFESSIONAL),
+    )
+    try:
+        await store.save_call(call)
+        await store.insert_question(
+            call, OpenQuestion(question="Can I swim?", quote="Can I swim?", turn_id=3)
+        )
+
+        await wipe(patient_id)
+
+        assert await db.fetch("select id from patients where id = %s", (patient_id,)) == []
+        assert (
+            await db.fetch(
+                "select id from patient_questions where patient_id = %s", (patient_id,)
+            )
+            == []
+        )
+    finally:
+        await db.execute("delete from patient_questions where patient_id = %s", (patient_id,))
+        await db.execute("delete from calls where patient_id = %s", (patient_id,))
+        await db.execute("delete from patients where id = %s", (patient_id,))
+        await db.close_pool()
