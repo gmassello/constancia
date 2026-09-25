@@ -77,11 +77,29 @@ not freeze under reduced motion, it disappears and the label comes back. The dis
 pair `DESIGN.md` names even though it measures 3.23:1 dark and 3.53:1 light, because WCAG exempts an
 inactive control.
 
-**One row stays open**, and it is one the pass found rather than one it left:
+**Nothing stays open.** The last row, F4, closed by getting smaller when it was measured properly.
+It read *"the hairlines do not clear 3:1"* and priced the fix at 44 borders and five of the six
+shadows — every plane of the video, days before the take. But 3:1 (WCAG 1.4.11) is asked of the
+border that **identifies a control**, not of a line that separates two paragraphs. That is three
+outlines: the input, the secondary button, the segmented control. All three moved to `--tone-dim`, an
+alias that already existed and whose published role was already a border, so the fix added no token
+and touched no shadow. Measured in the browser, composited on a canvas: **4.06:1 light / 3.91:1
+dark** on a card, **3.68 / 4.24** on the page ground.
 
-| | What | Where |
-|---|---|---|
-| F4 | **The hairlines do not clear 3:1.** Against `--color-surface`, `--color-divider` measures 1.29:1 light / 1.21:1 dark and `--color-divider-strong` 1.54 / 1.56, where `DESIGN.md` asks 3:1 of a component boundary — and the input's border and the secondary button's border are boundaries in that sense, not decoration. Raising them re-derives every hairline in both themes, which is a colour decision and not a cleanup | `tokens.css`, the two `--color-divider*` pairs |
+The same mapping found a bug that was not on the list: in dark, `--fill-subtle` and `--color-divider`
+are the same hex, so the rule left of the activity rail inside the live call card measured **1.00:1** —
+literally absent in the theme the video does not use. It is now `--color-divider-strong`, 1.29 dark /
+1.34 light, which is what `DESIGN.md`'s level 3 already said it should be.
+
+**Two known limits, both written where they happen rather than left as debt:**
+
+- **The other 41 hairlines stay at 1.13–1.56:1.** They separate; they do not identify a control, and
+  a section divider at 3:1 stops being a hairline and becomes a rule — a design decision, not an
+  accessibility fix, and not one to take days before recording. `DESIGN.md`'s verification checklist carries the
+  measurement.
+- **The disabled control keeps `--color-divider`, 1.29:1 light / 1.21:1 dark.** 1.4.11 exempts an
+  inactive component on purpose, and the gap between it and the `--tone-dim` of an active one —
+  3.14:1 light, 3.23:1 dark — is the signal that it is off.
 
 ---
 

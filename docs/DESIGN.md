@@ -339,6 +339,11 @@ the live call card.
 Depth is the surface ladder plus hairlines. A card does not get both a heavier border and a heavier
 shadow to say the same thing twice.
 
+Level 3 names `--color-divider-strong` and not `--color-divider` for a measurable reason: in dark
+`--fill-subtle` and `--color-divider` are the same hex (`#23282d`), so a divider drawn on a level-3
+ground measures **1.00:1** — it is not there. On `--fill-subtle` the strong step measures 1.34 light /
+1.29 dark. Still decoration, but visible decoration.
+
 ## Components
 
 Every state is specified. A component without a `:focus-visible` is not finished.
@@ -388,9 +393,16 @@ and it stays: WCAG exempts an inactive control from contrast on purpose, and the
 replaced, `opacity: 0.45`, measured 4.18 dark but **3.15 light** and broke the rule against an
 opacity on text.
 
-**Button — secondary.** `background: transparent`, `1px solid var(--color-divider-strong)`,
-`color: var(--color-text)`. Hover raises the border to `--tone-dim` and the background to `--color-surface`. Same
-focus ring. Disabled drops the text to `--tone-dim` and the border to `--color-divider`.
+**Button — secondary.** `background: transparent`, `1px solid var(--tone-dim)`,
+`color: var(--color-text)`. Hover raises the border to `--text-muted` and the background to
+`--color-surface`. Same focus ring. Disabled drops the text to `--tone-dim` and the border to
+`--color-divider`.
+
+The border is `--tone-dim` and not a divider step because it is what identifies the control: measured
+in the browser it is **4.06:1 light / 3.91:1 dark** on a card and **3.68 / 4.24** on the page ground,
+so the outline clears 3:1 wherever the button lands. Hover is carried by the fill together with a
+border at **4.80 / 6.41**; the two borders differ by only 1.18:1 in light, which is why the fill
+moves too and the border alone is not the signal. Disabled is the deliberate exception below.
 
 **Input.**
 
@@ -401,13 +413,19 @@ focus ring. Disabled drops the text to `--tone-dim` and the border to `--color-d
   border-radius: var(--radius-md);
   background: var(--color-surface);
   color: var(--color-text);
-  border: 1px solid var(--color-divider-strong);
+  border: 1px solid var(--tone-dim);
 }
 .input::placeholder { color: var(--tone-dim); }
 .input:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 1px; border-color: var(--color-accent); }
 .input:disabled { background: var(--fill-subtle); color: var(--tone-dim); }
 .input[aria-invalid="true"] { border-color: var(--color-danger); }
 ```
+
+The border is the same `--tone-dim` as the secondary button, for the same reason and with the same
+measurement: **4.06:1 light / 3.91:1 dark** against the card it sits on. The segmented control's
+outline is the third of these boundaries and carries the same token, **3.68 / 4.24** on the page
+ground; the hairline *between* its two options stays `--color-divider`, because what identifies the
+control is its outline and a 3:1 line down the middle would read as two separate buttons.
 
 The error message sits below the input in `caption`/`--color-danger`, and is referenced by
 `aria-describedby`. Colour is never the only carrier of the error.
@@ -670,10 +688,13 @@ make test       # includes the token gate and the bilingual parity gate
       boundaries. Measure by compositing on a canvas, not by parsing the computed style:
       `getComputedStyle` returns `color(srgb r g b / a)` for `color-mix()` values, and a token with
       one value cannot clear 4.5:1 against both a light and a dark background.
-- [ ] **The hairlines do not clear 3:1, and that is known.** Measured against `--color-surface`:
-      `--color-divider` 1.29:1 light / 1.21:1 dark, `--color-divider-strong` 1.54 / 1.56. The
-      checklist above asks 3:1 of a component boundary, and the input's border and the secondary
-      button's border are boundaries in that sense. Raising them means re-deriving every hairline in
+- [ ] **The three control boundaries clear 3:1; the decorative hairlines do not, and that is
+      known.** What identifies a control — the input, the secondary button, the segmented control —
+      carries `--tone-dim`: **4.06:1 light / 3.91:1 dark** on a card, **3.68 / 4.24** on the page
+      ground. The 41 lines that only separate things stay on the divider steps, measured against
+      `--color-surface`: `--color-divider` 1.29:1 light / 1.21:1 dark, `--color-divider-strong`
+      1.54 / 1.56. That is decoration, not a boundary anyone has to find, and raising it means
+      re-deriving every hairline in
       the system, so it is one open row in [`PENDINGS.md`](PENDINGS.md) rather than a silent pass.
 - [ ] **`--tone-dim` is never body text.** It measures 3.7:1 in light. It is for large text,
       disabled states and non-text boundaries.

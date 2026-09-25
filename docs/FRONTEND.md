@@ -109,9 +109,9 @@ ramp equivalent, listed here because the rule covers them too: use the name, nev
 | `--text-muted` | labels, metadata, footers |
 | `--text-accent` | accented text that has to clear the accent base |
 | `--section-ink` | the same declaration in both themes — the metrics band is dark in both, so the ink stays light |
-| `--tone-dim` | the "retired" border and label |
+| `--tone-dim` | the outline of a control — an input, a secondary button, the segmented control — and the "retired" label. It is the dimmest step that still clears 3:1 on every ground: 4.06:1 light / 3.91:1 dark on a card, 3.68 / 4.24 on the page |
 | `--fill-subtle` | tinted fills |
-| `--color-divider-strong` | the outline of an input or a secondary button, where the hairline is not enough |
+| `--color-divider-strong` | the hairline where `--color-divider` disappears — on a level-3 ground in dark the two are the same hex, so the divider measures 1.00:1. Decoration either way: it does not clear 3:1 and is not a control boundary |
 | `--color-accent-hover` + `--color-accent-active` | a pair per theme, because the states run **opposite ways**: light darkens on press, dark lightens |
 | `--orb-mint` / `--orb-sky` / `--orb-amber` | atmosphere only, never a fill, a border or a text colour. `--orb-mint` is the bloom behind the hero headline and `--orb-sky` the one bottom right of the closing; `--orb-amber` is declared and unconsumed, because [`DESIGN.md`](DESIGN.md) § *Screens* places two orbs and no third. |
 | `--color-danger` + `--danger-fill` | a pair, because no single hex clears both grounds |
