@@ -1,9 +1,9 @@
 # Frontend reference
 
-React 19 + Vite + TypeScript in [`../web/`](../web). Twenty-two files, about 4,700 lines, and **no UI
-library, no router, no state library, no date library and no charting library**. The chart is `div`s
-with a percentage height; the dates are `Intl.DateTimeFormat`; the segmented control is native radios
-styled with `:has()`.
+React 19 + Vite + TypeScript in [`../web/`](../web). Twenty-two files, about 4,800 lines, and **no UI
+library, no router, no state library, no date library and no charting library**. The chart is one inline
+`<svg>` polyline in a stretched `viewBox` with the dots placed in percentages beside it; the dates are
+`Intl.DateTimeFormat`; the segmented control is native radios styled with `:has()`.
 
 Two pages, built as two HTML entries: the public landing at `/` and the professional's panel at
 `/panel`.
@@ -45,20 +45,20 @@ The whole block is inside `if WEB_DIST.is_dir()`, so the API boots fine with no 
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/landing/Landing.tsx` | 550 | A header, seven sections and a footer, with the design's inline styles kept. |
+| `web/src/landing/Landing.tsx` | 601 | A header whose nav marks the current section, seven sections and a footer, with the design's inline styles kept. |
 | `web/src/landing/DemoCard.tsx` | 744 | The scripted demo card: two scripts, the fact chain, the player and its controls. |
 | `web/src/landing/copy.ts` | 553 | Two full sets, one per language, plus two partial plain-register overrides merged over them. |
-| `web/src/landing/landing.css` | 118 | Five keyframes, the pause rule and the reduced-motion block. |
+| `web/src/landing/landing.css` | 126 | Five keyframes, the pause rule, the reduced-motion block and the sticky header. |
 | `web/src/landing/main.tsx` | 12 | Mount. |
 
 ### Panel
 
 | File | Lines | What it is |
 |---|---:|---|
-| `web/src/panel/panel.css` | 419 | Layout and styles, on the aliases. |
+| `web/src/panel/panel.css` | 425 | Layout and styles, on the aliases. |
 | `web/src/panel/copy.ts` | 554 | Two languages, one register, plus the maps for raw backend values. |
 | `web/src/panel/ActivityRail.tsx` | 175 | Turns each trace event into a labelled line. An event with no `case` still renders, through the `default` — a new one costs a row here only when it deserves wording of its own. |
-| `web/src/panel/PatientView.tsx` | 170 | Loads the patient's data and composes five cards, plus the live one while a call runs. |
+| `web/src/panel/PatientView.tsx` | 168 | Loads the patient's data and composes five cards, plus the live one while a call runs. |
 | `web/src/panel/content.ts` | 160 | The EN→ES table for canned patient data, keyed by the English string the call produces. |
 | `web/src/panel/App.tsx` | 96 | Shell: sidebar, backend status, the two toggles, patient list. |
 | `web/src/panel/api.ts` | 155 | Backend types, `get`/`post`, `ApiError` carrying the status and the backend's `detail`, and `subscribe()` over `EventSource`. |
@@ -209,18 +209,25 @@ own pre-paint script and reads the same three keys.
 | `PatientView` | Header, the call controls, five cards, and the live one while a call runs | `GET /patients/{id}/chain`, `/weekly`, `/calls`, `/questions`, then `/calls/{id}/keyterms` |
 | `LiveCall` | The call in progress and its transcript | SSE `GET /calls/{id}/events` |
 | `ActivityRail` | One line per trace event | props, from `LiveCall` |
-| `WeeklyChart` | One series per measure: previous → current, verdict, bars, real dates | props |
+| `WeeklyChart` | One series per measure: previous → current, verdict, sparkline, real dates | props |
 | `FactChain` | The patient file, current facts with what they retired hanging below | props |
 | `Keyterms` | Where the key terms came from and what they are for, then the terms themselves | props |
 | `Calls` | One row per past call: date, memory and escalation tags, the summary, and the transcript folded away | props |
 
 ### The call controls
 
-Seven buttons in `PatientView`, in two groups. The scripted row pairs *Call without memory* with
-*Call with memory*; under it, three ghost links run *the same call without memory* (the `week2-off`
-script), a replay of a recorded call, and a call with a red flag. The live row only renders when
-`GET /health` reports `live: true`, and mirrors the scripted pair: *Real phone, no memory* and *Real
-phone, with memory*, both `mode: "live"`. They dial `DEMO_PHONE`, since the seeded patient carries no
+Seven buttons in `PatientView`, in two rows. The first row is the five that cost nothing: *Call
+without memory* and *Call with memory* as `btn-secondary`, because the comparison between them is the
+demo, then three ghost links — *the same call without memory* (the `week2-off` script), a replay of a
+recorded call, and a call with a red flag. Five buttons need 843px in English and 992px in
+Spanish, against a 940px card, so they never fit beside the patient's name: `.chart-head` wraps and the
+controls take their own line under it, right-aligned. At 1280px the English row is one line and the
+Spanish one is two — the Spanish labels are the longer half and this is the one place the difference
+shows in the layout. At 390px the row stacks and nothing is clipped.
+
+The second row only renders when `GET /health` reports `live: true`, and mirrors the scripted pair:
+*Real phone, no memory* and *Real phone, with memory*, both `mode: "live"` and both `btn-primary`,
+separated from the first row by a hairline. They dial `DEMO_PHONE`, since the seeded patient carries no
 number of her own.
 
 ### Consuming the SSE

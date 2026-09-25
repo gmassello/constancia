@@ -384,8 +384,16 @@ The error message sits below the input in `caption`/`--color-danger`, and is ref
 to level 2. A card that is a link gets the focus ring on the card, not on the text inside it.
 
 **Navigation.** Sticky header, 64px tall, `--color-bg` at 85% with `backdrop-filter: blur(12px)`, a 1px
-`--color-divider` bottom edge that only appears once the page has scrolled. Links are `body-sm`/`--text-muted`,
-`--color-text` on hover, and the current section is `--color-accent` with a 2px underline in the same colour.
+`--color-divider` bottom edge that only appears once the page has scrolled. Links are
+`body-sm`/`--text-secondary`, `--color-text` on hover, and the current section is `--color-accent`
+with a 2px underline in the same colour. The unmarked link is `--text-secondary` and not
+`--text-muted`, which this section asked for first: composited over the translucent header,
+`--text-muted` measures **4.39:1** in light and fails, where `--text-secondary` measures 9.4:1 light /
+11.73:1 dark and the marked link 5.92 / 8.65. Which section is current is read off an
+`IntersectionObserver` over the four section ids, taking the topmost one inside a strip that starts
+below the header; the strip starts at 88px rather than at the header's 64 because the sections carry
+`scroll-margin-top: 80px`, so a nav click parks the boundary at exactly 80 and a narrower strip marks
+the section the reader just left.
 
 **State pill.** `9999px`, `caption` uppercase with +0.03em, 2px/8px padding. Three variants:
 neutral (`--fill-subtle` / `--text-muted`), accent, danger (`--danger-fill` / `--color-danger`).
@@ -429,12 +437,14 @@ it measures 3.89:1 light. `--text-muted` measures 4.6 and 6.29.
 
 ## Screens
 
-> The landing matches this today. The panel matches it except for the call buttons, which are seven
-> in three rows rather than six in two. See [`PENDINGS.md`](PENDINGS.md) § E1.
+> Both screens match this list today. What the front end has not caught up with is in
+> § *Components* and § *Spacing, grid, radii and shadows*, tracked in
+> [`PENDINGS.md`](PENDINGS.md) § 2.
 
 **Landing (`/`)** — eight blocks, in order:
 
-1. **Header** — sticky nav, theme / language / register toggles, a link into the panel.
+1. **Header** — sticky nav marking the current section, theme / language / register toggles, a
+   link into the panel. Its bottom edge appears on scroll.
 2. **Hero** — `display-xl` headline left, body and two buttons under it; the **demo card** right,
    playing a scripted call. One orb (`--orb-mint`) blooms behind the headline.
 3. **Metrics band** — four figures on the section gradient, `--color-section` to
@@ -453,8 +463,15 @@ it measures 3.89:1 light. `--text-muted` measures 4.6 and 6.29.
 
 1. **Patient rail** — one row per patient; the selected row is `--color-surface` with a 2px `--color-accent`
    left rule.
-2. **Call controls** — six buttons in two rows: the four keyless ones, then the two live ones. The
-   live pair is `btn-primary`; the rest are secondary.
+2. **Call controls** — seven buttons in two rows: the five keyless ones, then the two live ones,
+   separated by a hairline. The first two of the keyless row — the same call with memory and without
+   — are `btn-secondary`, because the comparison is the demo; the other three are `btn-ghost`. The
+   live pair, which dials a real phone, is `btn-primary`. The seventh button is **replay a recorded
+   call**: it re-emits a trace recorded under `seed/replay/`, so it is the one path that shows a
+   whole call with no API key set, and it is how the panel is checked. The block always takes its own line under
+   the patient's name, right-aligned, because five buttons do not fit beside it in a 940px card. On
+   one line at 1280px in English; the Spanish labels need 992px and take two. At 390px the row
+   stacks, nothing clipped.
 3. **Live call card** — level 3 while a call runs. Transcript left, activity rail right, the
    **waveform** across the bottom, a state dot top right: live / ended / lost.
 4. **How she is doing** — two sparkline tiles, pain and sessions, with verdict arrows. The plot is
@@ -574,8 +591,25 @@ page at most, and never behind a paragraph a judge has to read.
 - Do not add a second accent. One accent; the semantics are `--color-danger` and `--color-accent-700` and they mean
   what they say.
 - Do not reach for a drop shadow on dark. It resolves to `none` on purpose.
-- Do not animate anything except the two effects above.
+- Do not animate anything except the two effects above and the one exception named below.
 - Do not write a raw hex, `rgba()`, or an opacity on text anywhere outside `tokens.css`.
+
+**The exception, named: the landing's demo card.** Five keyframes run inside it and they stay.
+Two are entrances that play once (`noc-in`, `noc-slide`). The third is the strike-through that
+retires a superseded fact, and it is not decoration: the crossing-out *is* what the landing exists
+to show, so deleting the animation deletes the argument. The fourth is an eight-bar wave that says
+the card is playing a call, and the fifth a pulsing dot that says the same thing in the header of the
+card. All five are consumed by `web/src/landing/DemoCard.tsx` and by nothing else. The activity
+rail's `flash`, which marks the line that just landed during a live call, is in the same exception
+for the same reason: it is a readout of arrival, not an ornament.
+
+What makes the exception acceptable is two conditions the code meets today, and they are conditions
+rather than an excuse. Every one of the six is switched off under `prefers-reduced-motion` — the five
+in `landing.css`, `flash` in `panel.css`. And the only two that loop for ever, `noc-pulse` and
+`noc-wave`, stop with the card's own pause button, because `.is-paused` pauses them from the card's
+subtree: that is why `noc-pulse` has exactly one consumer and why it is no longer on the header logo.
+An infinite animation with a consumer outside that subtree would break the second condition and is
+therefore not covered by this exception.
 
 That last rule is enforced, not trusted. `tests/test_docs.py` walks `web/src` in Python and fails the
 build on any ramp step outside `tokens.css`; it is walked in Python rather than run as a shell

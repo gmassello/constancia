@@ -7,6 +7,45 @@ import { prefersReducedMotion, usePrefs, type Lang, type Register } from "../pre
 const REPO = "https://github.com/gmassello/constancia"
 const COUNT_MS = 900
 const FIGURE = /^(\d+)(.*)$/
+const SECTIONS = ["how", "memory", "stack", "business"] as const
+
+function useNav() {
+  const [scrolled, setScrolled] = useState(false)
+  const [current, setCurrent] = useState("")
+  const showing = useRef(new Set<string>())
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 0)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+
+    // ponytail: the topmost section inside a strip under the header wins. The strip starts at 88px
+    // and not at the header's 64, because the sections carry `scroll-margin-top: 80px`: a nav click
+    // parks the boundary between two of them at exactly 80, and a strip that reaches it keeps the
+    // outgoing section intersecting by a few pixels, so the nav marks the one you just left.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) showing.current.add(entry.target.id)
+          else showing.current.delete(entry.target.id)
+        }
+        setCurrent(SECTIONS.find((id) => showing.current.has(id)) ?? "")
+      },
+      { rootMargin: "-88px 0px -70% 0px" },
+    )
+    for (const id of SECTIONS) {
+      const node = document.getElementById(id)
+      if (node) observer.observe(node)
+    }
+
+    return () => {
+      window.removeEventListener("scroll", onScroll)
+      observer.disconnect()
+    }
+  }, [])
+
+  return { scrolled, current }
+}
 
 const SUN = "M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0-14v2m0 18v-2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4m0-12.8-1.4 1.4m-10 10-1.4 1.4"
 const MOON = "M21 13a9 9 0 1 1-10-10 7 7 0 0 0 10 10Z"
@@ -131,13 +170,19 @@ export default function Landing() {
   const { theme, setTheme, lang, setLang, register, setRegister } = usePrefs()
   const c = copy(lang, register)
   const dark = theme === "dark"
+  const { scrolled, current } = useNav()
+  const navText = {
+    how: c.navHow,
+    memory: c.navMemory,
+    stack: c.navStack,
+    business: c.navBusiness,
+  }
 
   return (
     <div className="landing-shell">
-      <header className="landing-header">
+      <header className={scrolled ? "landing-header scrolled" : "landing-header"}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, marginRight: "auto" }}>
           <span
-            className="noc-pulse"
             style={{
               width: 9,
               height: 9,
@@ -158,10 +203,16 @@ export default function Landing() {
           </span>
         </div>
         <nav className="landing-nav">
-          <a href="#how">{c.navHow}</a>
-          <a href="#memory">{c.navMemory}</a>
-          <a href="#stack">{c.navStack}</a>
-          <a href="#business">{c.navBusiness}</a>
+          {SECTIONS.map((id) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              className={current === id ? "on" : undefined}
+              aria-current={current === id ? "true" : undefined}
+            >
+              {navText[id]}
+            </a>
+          ))}
         </nav>
         <div className="seg">
           {(["en", "es"] as Lang[]).map((option) => (

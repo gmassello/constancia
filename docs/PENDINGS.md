@@ -56,13 +56,18 @@ the 7/10) and **C3** (the panel live during a call) close during the recording s
 [`DESIGN.md`](DESIGN.md) is the **target** design system, not a description of what is built. What it
 defines and the front end does not have yet is this list, ordered by how visible it is.
 
-**Group A and the panel's own set are built and out of this list.** Group A was the landing and the
-live call card — the waveform, the animated counters, the static orbs. The second pass took the
-panel: the pill geometry and its three variants, `CURRENT` / `RETIRED` as pills, the fact quote in
-`mono`, the speaker label and the rail row on the type scale, the rail's timestamp, level 3 on the
-live call card, the selected patient row, and the chart's sparkline tiles with a verdict arrow that
-finally carries the direction. All of it was done before the take, because after the take it is
-worth nothing.
+**Group A, the panel's own set, and the three items the camera uses are built and out of this list.**
+Group A was the landing and the live call card — the waveform, the animated counters, the static orbs.
+The second pass took the panel: the pill geometry and its three variants, `CURRENT` / `RETIRED` as
+pills, the fact quote in `mono`, the speaker label and the rail row on the type scale, the rail's
+timestamp, level 3 on the live call card, the selected patient row, and the chart's sparkline tiles
+with a verdict arrow that finally carries the direction. The third pass took the three the camera does
+not just look at but *uses*: **E1**, the call controls, pressed in four beats and now five keyless
+buttons in one row plus the live pair, which the header wraps below the patient's name to give them
+their line; **D4**, the nav, which beat 7 navigates from and which now marks the current section and
+only draws its bottom edge once the page has scrolled; and **F1**, the animation rule, which now
+names the demo card as its one exception instead of forbidding what the landing exists to show. All of
+it was done before the take, because after the take it is worth nothing.
 
 **A correction, because it was published wrong here.** This section used to say *"None of what is
 left shows up on camera"*. That was false: thirteen of the nineteen items were on camera, and four
@@ -70,7 +75,7 @@ of them were on the shot list's own *what the camera must catch*. What makes wha
 is not that it is invisible — it is that **no caption depends on it**. Only three items are never on
 screen at all: C3, F2 and F3.
 
-**Honest sizing.** What is left is eleven items, there is no test runner in the front end, and it
+**Honest sizing.** What is left is eight items, there is no test runner in the front end, and it
 competes with part 1 for the days that are left. Group C is the largest and, by the corrected
 measure, the one the narration never names.
 
@@ -81,7 +86,7 @@ languages, and contrast measured per theme.
 
 | | What | Where |
 |---|---|---|
-| B1 | `[data-loading]` with a 14px spinner and the width preserved — zero matches in the repo today. And the real `disabled`: `--fill-subtle` / `--tone-dim` instead of `opacity: 0.45`, which is the one resource the rules discourage | `tokens.css` |
+| B1 | `[data-loading]` with a 14px spinner and the width preserved. The attribute is already set — `panel/Questions.tsx:53` puts it on the answer button while the request is in flight — and no rule anywhere styles it, so today it does nothing. And the real `disabled`: `--fill-subtle` / `--tone-dim` instead of the `opacity: 0.45` at `tokens.css:228`, which is the one resource the rules discourage | `tokens.css` |
 | B2 | Card at `--radius-lg` with `--space-6` padding and a hover that moves it to level 2. Today `.card` is `--radius-md` with 16px and has no hover rule. Level 2 is the one elevation step still unbuilt; level 3 landed on `.live` | `panel/panel.css:73` |
 
 ### C. The type scale
@@ -101,19 +106,11 @@ them. The other ten do not, and every size outside those three is still a litera
 | | What | Where |
 |---|---|---|
 | D1 | Container at 1280px (1180 today), 16px minimum gutter (20 today), prose capped at `68ch`, and the published section-padding clamp | `landing/Landing.tsx`, `landing/landing.css`, `panel/panel.css:70` |
-| D4 | Nav: 64px tall, background at 85%, `blur(12px)`, the bottom border appearing only on scroll, and the current section in `--color-accent` with a 2px underline. Today the border is unconditional and there is no current-section state | `landing/landing.css:65`, `landing/Landing.tsx` |
-
-### E. Panel
-
-| | What | Where |
-|---|---|---|
-| E1 | Call controls: six buttons in two rows with the live pair as `btn-primary`. Today there are **seven in three rows** and the live pair is secondary + primary. Decision 4 is settled, so the three `btn-ghost` ones stay ghost and this is a layout change only | `panel/PatientView.tsx:92-129` |
 
 ### F. Rules and cleanup
 
 | | What | Where |
 |---|---|---|
-| F1 | *"Do not animate anything except the two effects above."* `landing.css` defines five keyframes and `panel.css` a sixth, `@keyframes flash` at `panel.css:354-357`. A3 removed the awkward one: `noc-breathe` looped on the two background blooms and `.is-paused` never covered it. The two that loop now, `noc-pulse` and `noc-wave`, are both the demo card's and both pause with it. What is left is deciding whether the four entrance animations survive the rule at all | `landing/landing.css`, `panel/panel.css` |
 | F2 | `--color-accent-2` is declared in both themes and used nowhere, while the rules forbid a second accent. Give it a use or remove it | `tokens.css:10,81` |
 | F3 | After each change, contrast measured per theme by compositing on a canvas — `getComputedStyle` returns `color(srgb …)` for `color-mix()` values | — |
 
