@@ -201,9 +201,9 @@ Track lengths are what `video/out/timing.txt` measured; the recording can be lon
 **You:** nothing. Slow scroll to the problem statement, one pause on the number.
 
 INTENT §9 called for a slide here. The landing says the same thing and was designed for exactly this
-audience, so a slide would be a second copy to keep in sync. It is filmed locally: the public deploy
-does not exist yet ([`PENDINGS.md`](PENDINGS.md) row 1), which changes nothing on camera — the URL
-bar is not in frame.
+audience, so a slide would be a second copy to keep in sync. It is filmed locally even though
+<https://constancia-voice.onrender.com> serves the same page: the local run answers instantly and
+never sleeps, and the URL bar is not in frame either way.
 
 ---
 
@@ -411,24 +411,22 @@ because this beat filmed it before it did: the narration said *sold per professi
 that had nothing of the sort on it. Scroll to it from the nav (**Model**), do not hunt for it.
 
 **The card is rendered and it names no URL.** `video/endcard.sh` defaults to an empty `PUBLIC_URL`
-and drops the line rather than printing a placeholder, so `video/out/endcard.png` currently shows the
-wordmark, the tagline and `github.com/gmassello/constancia · MIT` — an address that works today. A
-burned-in hostname that answers nothing is worse than no hostname, and the default is what makes
-forgetting safe rather than expensive.
+and drops the line rather than printing a placeholder. A burned-in hostname that answers nothing is
+worse than no hostname, and the default is what makes forgetting safe rather than expensive.
 
-Once the deploy answers, re-render with the hostname and splice the new still; it goes in after the
-take, so it never delays recording. The hostname is `constancia-voice.onrender.com`, which is what
-`render.yaml` claims — plain `constancia.onrender.com` belongs to an unrelated app, so Render would
-have appended a random suffix and the card would have pointed at somebody else's form.
+**The deploy answers, so the card names it.** `video/out/endcard.png` was re-rendered on 25 Sep and
+shows the wordmark, the tagline, `constancia-voice.onrender.com` and `github.com/gmassello/constancia
+· MIT`. The hostname is `constancia-voice`, not plain `constancia` — that subdomain belongs to an
+unrelated app, so Render would have appended a random suffix and the card would have pointed at
+somebody else's form.
 
 ```bash
-curl -s -o /dev/null -D- https://constancia-voice.onrender.com/health | grep -i 'HTTP/\|x-render-routing'
-bash video/endcard.sh                                            # repo only, the current card
-PUBLIC_URL=constancia-voice.onrender.com bash video/endcard.sh   # once it answers; no scheme, a bare domain
+curl -s https://constancia-voice.onrender.com/health              # {"store":"postgres","live":true}
+PUBLIC_URL=constancia-voice.onrender.com bash video/endcard.sh    # no scheme, a bare domain
 ```
 
-`x-render-routing: no-server` means Render has no service on that hostname. **Re-render after every
-`build-audio.sh` run**, which wipes `video/out/`.
+**Re-render after every `build-audio.sh` run**, which wipes `video/out/` — and pass `PUBLIC_URL`
+every time, because without it the script silently drops the line again.
 
 The endcard covers the last spoken line, so "constancia. Thanks for watching" is heard *and* burned
 over the card instead of over a screenshot of the landing. `OUTRO_REPLACE` is what buys that, and it

@@ -219,9 +219,9 @@ The schema is [`../schema.sql`](../schema.sql), 46 lines, three tables. There is
 
 ## Deploying
 
-> **Nothing here has been applied yet.** `constancia-voice.onrender.com` answers `404` with
-> `x-render-routing: no-server`: no service, no database. This section is the runbook for when it
-> is, and the deploy is row 1 of [`PENDINGS.md`](PENDINGS.md).
+> **Applied on 25 Sep 2026.** `https://constancia-voice.onrender.com` answers `/health` with
+> `{"status":"ok","calls":0,"store":"postgres","live":true,"dialable":false}`, and `/patients` serves
+> the seeded Ana. This section is the runbook that was followed, and the one to follow again.
 
 A multi-stage [`../Dockerfile`](../Dockerfile): a `node:24-slim` stage builds `web/dist`, then a `uv`
 stage installs the Python deps, copies `app/`, `schema.sql`, `seed/` and the built front end, and runs
@@ -281,11 +281,24 @@ health check passed and every screen with data returned `500`.
 ```bash
 git push                      # 1. the Blueprint builds from the repo
                               # 2. New > Blueprint on Render, pick this repo, apply render.yaml
-                              # 3. type the nine credentials into the service's Environment tab
+                              # 3. type the nine credentials into the Blueprint form
                               # 4. PUBLIC_BASE_URL = the URL Render just assigned, then redeploy
 make seed                     # 5. from your laptop, with .env pointing at the managed database
 curl https://constancia-voice.onrender.com/health    # 6. from another network: {"store":"postgres","live":true}
 ```
+
+**Step 3 happens once, in the form.** A `sync: false` value is prompted while the Blueprint is being
+created and nowhere else; afterwards the same nine live in the service's *Environment* tab, which is
+also where step 4 is edited — and saving there triggers a redeploy on its own.
+
+**Step 5 needs the external connection string, and step 5 is not finished until it is gone again.**
+`fromDatabase` wires `DATABASE_URL` inside Render, so there is nothing to copy for the service; a
+seed run from a laptop is outside that network and needs the **External Database URL** on the
+database's *Info* page — the *Internal* one only resolves from inside Render. Paste it into `.env`,
+run `make seed`, then **blank it again**: the recording session runs `make take`, and
+[`../video/reset.sh`](../video/reset.sh) would wipe the database that was just seeded. Keeping the
+string parked on a commented line below it costs nothing and makes the next seed a copy rather than
+a dashboard trip.
 
 The service is named `constancia-voice`, not `constancia`: the plain subdomain is held by an
 unrelated application, and Render would have answered by appending a random suffix to the hostname —

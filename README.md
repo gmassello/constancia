@@ -2,6 +2,10 @@
 
 > An agent that phones the patient every week and remembers what they said last time. A follow-up nobody makes is a plan nobody follows.
 
+**Live**: <https://constancia-voice.onrender.com> — the landing at `/`, the professional's panel at
+`/panel`, one service. It runs on a free instance that sleeps after fifteen idle minutes, so the
+first request after it has slept spends the cold start waiting for the container.
+
 ## The 30-second version
 
 Patients in home rehab abandon their exercise plan about 70% of the time. Nobody calls to ask how it went, because the professional cannot scale it. **constancia** places the call: it asks the protocol questions in a fixed order, escalates deterministically when a red flag shows up, and — from stage 2 on — opens the next call by asking about what the patient reported the week before, with superseded facts retired instead of deleted.
