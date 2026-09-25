@@ -4,7 +4,7 @@ Open work only, and all of it. Every row says **what is open**, **who closes it*
 or step that closes it**. Anything not on this page is done and carries its evidence in
 [`SUBMISSION.md`](SUBMISSION.md).
 
-Deadline: **30 Sep 2026, 12:00 ART** ([`HACKATHON.md`](HACKATHON.md)). Last reviewed: **2026-09-24**.
+Deadline: **30 Sep 2026, 12:00 ART** ([`HACKATHON.md`](HACKATHON.md)). Last reviewed: **2026-09-25**.
 
 Four parts: what blocks the submission, the Cadence build programme, the decisions that programme
 needs, and what the six new features left behind alongside what is deliberately not being done.
