@@ -8,7 +8,7 @@ The service degrades on purpose. Pick the shallowest one that shows what you nee
 
 ```bash
 uv sync
-make test          # 313 tests, no network and no database
+make test          # 314 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session
@@ -155,12 +155,35 @@ about ±0.05 and a change smaller than that is noise. And **the gateway rate-lim
 requests in a row can come back `429 rate_limit_exceeded`, which `app/jev.py` turns into the same
 `None` as any other failure — the vocabulary decides alone and nothing on the call breaks.
 
-**One of the misses may not be a miss.** *"I will take the pram to the corner every afternoon"* scored
-0.06, 0.05 and 0.10 under three different wordings, and nothing in the sentence itself says it is
-about her body; a reader who did not know it came from a postpartum follow-up would not call it a care
-promise either. It is labelled `PROMISE` in the sample on the strength of context the model is never
-given. Any future attempt should decide whether the label or the wording is what is wrong, rather than
-chasing a sentence.
+**The label on the worst miss was questioned and it stands.** *"I will take the pram to the corner
+every afternoon"* scored 0.06, 0.05 and 0.10 under three different wordings, and nothing in the
+sentence itself says it is about her body, so the obvious move was to relabel it `EVERYDAY` and watch
+recall jump to 0.67. It is not the right move, for two reasons that are testable rather than
+editorial.
+
+The action in it is **walking**, and walking is already a promise by this system's own deterministic
+vocabulary: *"I will walk to the corner every afternoon"* scores 0.90 with no key and no network,
+because `walk` is in `GENERIC_ACTION`. What the pram wording lacks is the verb, not the clinical
+content — calling it an everyday plan would contradict a rule the code applies on every call.
+
+And it cannot be rescued by widening the enumeration either. Appending `pram|pushchair|buggy` to the
+postpartum pack's `actions` does catch it, at 0.90 — and it also scores *"I will buy a pram this
+weekend"* and *"I am going to sell the pram next week"* at **0.90 each**, which are errands. `actions`
+enumerates actions; `pram` is an object, and an object in an action list manufactures false positives
+in a place where a false promise is the expensive kind of error.
+
+So the sentence keeps its label and stays a miss, and what it measures is the **shape** of what the
+second opinion buys. Jev rescues a promise whose action is named in the sentence — *keep the
+stockings on*, *keep the wound dry*, 0.96 and 0.97. It does not rescue one where the action is only
+implied by an object (the pram, 0.06) or worded as a condition rather than an action (*"whenever I sit
+down"*, 0.50). Recall 0.50 is the honest figure for a sample made of the hard half on purpose.
+
+**The floor has room and it is deliberately not spent.** At 0.8 the feet-up promise is dropped at
+0.50; the best everyday plan is 0.02, so a floor of 0.5 would keep 0.48 of margin and take recall to
+0.75. It stays at 0.8: four negatives is not a calibration set, the model resolves to about ±0.05 so
+that 0.50 sits on the boundary of its own noise, and Jev's README asks for calibration against your
+own data before its numbers are trusted as thresholds. The headroom is recorded so a later run with
+more sentences knows where to look first.
 
 Re-run `make smoke-jev` after touching `INSTRUCTIONS` or `CRITERIA` in `app/jev.py`, and read the gap
 off `scripts/jev-measured.json` rather than trusting the numbers here.

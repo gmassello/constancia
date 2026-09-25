@@ -56,9 +56,9 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 313 tests, the 3 that need a database skipped
+uv run pytest -q          # 314 tests, the 3 that need a database skipped
 make db && DATABASE_URL=postgresql://constancia:constancia@localhost:5432/constancia \
-  uv run pytest -q        # 313 passed, nothing skipped — run this before touching app/memory.py
+  uv run pytest -q        # 314 passed, nothing skipped — run this before touching app/memory.py
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
@@ -76,7 +76,7 @@ missing translation fails the build, and presentational components do not earn a
 
 ## Tests
 
-Seventeen test files, 313 collected with no environment variable set. Every one of them passes
+Seventeen test files, 314 collected with no environment variable set. Every one of them passes
 except the three Postgres integration tests, which skip themselves.
 
 | File | Covers |

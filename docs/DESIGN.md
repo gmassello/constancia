@@ -499,7 +499,7 @@ it measures 3.89:1 light. `--text-muted` measures 4.6 and 6.29.
    playing a scripted call. One orb (`--orb-mint`) blooms behind the headline.
 3. **Metrics band** — four figures on the section gradient, `--color-section` to
    `--color-section-glow` with `--section-ink` on top: 70% non-adherence, 3 verticals, 333 free
-   streaming hours, 313 tests. **Animated counters.** The band is dark in both themes on purpose —
+   streaming hours, 314 tests. **Animated counters.** The band is dark in both themes on purpose —
    it is the page's only high-contrast block, and `--section-ink` is the one alias declared
    identically in both themes for that reason.
 4. **How it works** — four steps, 4-up at desktop, each an eyebrow index plus a card title and body.

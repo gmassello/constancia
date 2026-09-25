@@ -36,10 +36,10 @@ def _action(actions: str) -> re.Pattern[str]:
     return re.compile(f"{GENERIC_ACTION}|{actions}")
 DEADLINE = re.compile(
     r"\b(?:today|tonight|tomorrow|this (?:week|weekend|evening|morning|afternoon)|next week)\b"
-    r"|\b(?:every|each) (?:day|morning|night|evening|other day)\b"
+    r"|\b(?:every|each) (?:single )?(?:day|week|morning|afternoon|evening|night|other day)\b"
     r"|\bon (?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b"
     r"|\b(?:daily|twice a day|\w+ times a (?:day|week))\b"
-    r"|\bbefore (?:bed|breakfast|dinner|my next)\b"
+    r"|\bbefore (?:bed|breakfast|lunch|dinner|my next)\b"
 )
 HEDGE = re.compile(
     r"\b(?:maybe|might|probably|hopefully|i guess|i suppose|i hope)\b"

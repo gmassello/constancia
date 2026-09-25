@@ -42,6 +42,16 @@ def test_a_deadline_raises_the_score() -> None:
     assert dated is not None and undated is not None and dated > undated
 
 
+def test_the_four_parts_of_the_day_are_all_deadlines() -> None:
+    scores = {
+        part: commitments.confidence(f"I will walk every {part}", REHAB)
+        for part in ("morning", "afternoon", "evening", "night")
+    }
+    undated = commitments.confidence("I will walk", REHAB)
+    assert undated is not None
+    assert set(scores.values()) == {undated + commitments.DEADLINE_BONUS}
+
+
 def test_hedging_lowers_the_score() -> None:
     plain = commitments.confidence("I will walk tomorrow", REHAB)
     hedged = commitments.confidence("Maybe I will walk tomorrow", REHAB)
