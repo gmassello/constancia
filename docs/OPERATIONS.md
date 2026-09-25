@@ -8,7 +8,7 @@ The service degrades on purpose. Pick the shallowest one that shows what you nee
 
 ```bash
 uv sync
-make test          # 312 tests, no network and no database
+make test          # 313 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session
@@ -116,24 +116,54 @@ a hobby plan is not ignored — the gateway answers **403 on every call**, which
 `None` that looks exactly like the vocabulary deciding. Turn it on only on a plan that has it, and
 `make smoke-jev` is how you find out.
 
-`JEV_FLOOR` is measured, not chosen. `make smoke-jev` posts the sentences the deterministic rules
-reject, one per line, and prints the probability for each next to the pack it was judged under.
+`JEV_FLOOR` is measured, not chosen, and the measurement is a command rather than a count done by
+hand. `make smoke-jev` posts the thirteen sentences the deterministic rules would face — five it takes
+by vocabulary and eight it rejects and hands to Jev — prints the probability for each next to the pack
+it was judged under, and writes
+[`../scripts/jev-measured.json`](../scripts/jev-measured.json) with every probability, the summary,
+and a hash of the question wording that produced them. Each sentence carries its expected answer as
+**data** in `scripts/smoke_jev.py`, so recall, precision and the margin come out of the run; before
+that they were a comment in prose and a person counting columns.
 
-Measured on 24 Sep 2026, thirteen sentences, of which eight reach Jev. The four everyday plans that
-are not health promises scored **0.01, 0.01, 0.02 and 0.03**. The four promises about the patient's own
-care scored **0.06, 0.15, 0.85 and 0.89**. So 0.8 keeps a 0.77 margin against the highest non-promise,
-and the two positives under it — *"I will take the pram to the corner every afternoon"* and *"I will put
-my feet up whenever I sit down"* — are genuine misses: Jev reads them as ordinary life rather than
-care. That is the trade this floor makes on purpose. A missed promise costs nothing, the fact is simply
-not stored as a `commitment`; a false one puts a promise in a patient's mouth and reads it back to them
-a week later.
+**Measured 25 Sep 2026, wording `117b8a3c18ac`: recall 0.50, precision 1.00, margin 0.78.** The four
+everyday plans scored 0.01, 0.01, 0.02 and 0.02; the four promises about the patient's own care scored
+0.06, 0.50, 0.96 and 0.97. So 0.8 sits 0.78 above the highest non-promise, and the two positives under
+it — *"I will take the pram to the corner every afternoon"* and *"I will put my feet up whenever I sit
+down"* — are the misses. That is the trade this floor makes on purpose. A missed promise costs
+nothing, the fact is simply not stored as a `commitment`; a false one puts a promise in a patient's
+mouth and reads it back to them a week later.
 
-**The wording is what the number depends on, and it moved once already.** The first question asked only
+**The wording is what the number depends on, and it has moved twice.** The first question asked only
 whether the patient was *promising to do something themselves*, which is true of any first-person plan:
 *"I will call my brother tonight"* scored 0.83 while a real promise scored 0.49, and no floor separates
-those. Naming health, care and recovery in the question is what opened the gap. Re-run `make smoke-jev`
-after touching `INSTRUCTIONS` or `CRITERIA` in `app/jev.py`, and read the gap off that output rather
-than trusting the number here.
+those. Naming health, care and recovery in the question is what opened the gap, and that wording ran
+until 25 Sep at recall 0.50, precision 1.00, margin 0.77 — everyday plans at 0.01–0.03 and promises at
+0.06, 0.15, 0.85, 0.89.
+
+The wording in place now says three things the old one did not: that an **ordinary** action counts when
+it is done for the recovery, that **following the professional's advice still counts** — the old text
+excluded "what someone else told them to do", which is what half of physiotherapy is — and it names
+what does not count by its own vocabulary (work, errands, seeing people, entertainment) instead of by
+the absence of health. It did not move recall, which stays at 0.50 with the floor where it is, but it
+moved everything around it: *"I will put my feet up whenever I sit down"* went from 0.15 to 0.50, the
+two it already caught went from 0.85 and 0.89 to 0.96 and 0.97, and the best everyday plan fell from
+0.03 to 0.02. The classifier separates better; the floor is what still excludes the near miss.
+
+Two things worth knowing before the next attempt. **The model is not deterministic**: the same
+sentence under the same wording scored 0.47, 0.50 and 0.56 across three runs, so a single run resolves
+about ±0.05 and a change smaller than that is noise. And **the gateway rate-limits**: a run of eight
+requests in a row can come back `429 rate_limit_exceeded`, which `app/jev.py` turns into the same
+`None` as any other failure — the vocabulary decides alone and nothing on the call breaks.
+
+**One of the misses may not be a miss.** *"I will take the pram to the corner every afternoon"* scored
+0.06, 0.05 and 0.10 under three different wordings, and nothing in the sentence itself says it is
+about her body; a reader who did not know it came from a postpartum follow-up would not call it a care
+promise either. It is labelled `PROMISE` in the sample on the strength of context the model is never
+given. Any future attempt should decide whether the label or the wording is what is wrong, rather than
+chasing a sentence.
+
+Re-run `make smoke-jev` after touching `INSTRUCTIONS` or `CRITERIA` in `app/jev.py`, and read the gap
+off `scripts/jev-measured.json` rather than trusting the numbers here.
 
 `STT_CONFIDENCE_FLOOR` is the one that needs calibrating on real calls. µ-law at 8 kHz scores lower
 than clean audio across the board, so a floor tuned on a laptop microphone makes the agent read

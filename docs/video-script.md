@@ -126,6 +126,13 @@ beats 3 and 4 run the recogniser unprimed. If
 Then `make smoke-analysis URL=<recording url>` on that call, and the panel rehearsal: `bash
 video/reset.sh`, `--check` all green, press **Real phone, no memory** and watch the live card fill.
 
+`--check` was run on 25 Sep against a fresh `make take` and **ten of its eleven invariants are
+green**: one patient, the five week-1 facts, nothing retired, one call on file, credentials loaded,
+`DEMO_PHONE` set, and both quotas alive. The eleventh is the ngrok tunnel, which only exists while
+you are recording — it is the one that stays red until the day. The fact list is five and not four
+because the commitments feature seeded a week-1 promise; `reset.sh` was still expecting the old four
+and would have told you *do not record* on a perfectly good state.
+
 **Then the sequence, and only then the take.**
 
 1. The three calls back to back — beat 3, beat 4, beat 5 — **with no reset in between**, confirming
@@ -367,7 +374,7 @@ then press it.
 
 The key-terms card reads the **newest** call (`rows[0]` in `PatientView.tsx`, ordered
 `started_at desc`) and `queries.keyterms_at` filters to the facts current *before* that call, so
-after beat 5 it still shows the four week-1 terms. Nothing to reset for it — as long as the red
+after beat 5 it still shows the five week-1 terms. Nothing to reset for it — as long as the red
 flag has not been pressed yet.
 
 The red-flag call takes about 25 s of wall clock and the narration gives it about 6 s — that is what

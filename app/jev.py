@@ -8,16 +8,24 @@ PROVIDER = "typesafe-ai"
 KEY = "commits"
 TIMEOUT_S = 2.0
 INSTRUCTIONS = (
-    "Is the patient promising to do something for their own health, care or recovery before the "
-    "next call? An everyday plan with nothing to do with their health is not one. Asking the "
-    "professional for something is not one, nor is what someone else told them to do, nor a habit "
-    "they already have."
+    "Is the patient promising to do something before the next call to look after their own body — "
+    "their treatment, their recovery, or what their condition asks of them day to day? An ordinary "
+    "action counts when it is done for their recovery: walking, resting, how they sit or lie, "
+    "keeping something on, dry or raised. Following the professional's advice counts too; what "
+    "matters is that the patient is the one committing. A plan with nothing to do with their "
+    "body — work, errands, seeing people, entertainment — is not one, nor is asking the "
+    "professional for "
+    "something, nor a habit they already have."
 )
 CRITERIA = {
-    "true": "the patient commits to a concrete action for their own health, care or recovery",
+    "true": (
+        "the patient commits to a concrete action for their own body — treatment, recovery, "
+        "movement, rest, position, or protecting a wound — even when the action is an ordinary one"
+    ),
     "false": (
-        "anything else: an everyday plan unrelated to their health, a request the patient makes, "
-        "a report of what they already did, or a habit they already have"
+        "anything else: a plan unrelated to their body such as work, errands, socialising or "
+        "entertainment, a request the patient makes of the professional, a report of what they "
+        "already did, or a habit they already have"
     ),
 }
 # ponytail: what crosses the boundary is one sentence a patient said about their own health, so the

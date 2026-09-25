@@ -181,7 +181,7 @@ const en = {
   demoPaused: (turn) => `${turn} turns shown · paused`,
 
   railRecall: "recall",
-  railRecallText: "4 facts on file",
+  railRecallText: "5 facts on file",
   railNewFact: "new fact",
   railRetired: "retired",
   railRetiredText: "7/10 superseded — the old fact stays, struck through",
@@ -195,7 +195,7 @@ const en = {
   statVerticalsLabel: "verticals on one engine — rehab, postpartum, chronic",
   statHoursValue: "333 h",
   statHoursLabel: "free streaming STT — $0.15/hour after that",
-  statTestsValue: "312",
+  statTestsValue: "313",
   statTestsLabel: "tests, with no network and no database",
 
   howKicker: "How it works",
@@ -320,7 +320,7 @@ const es = {
   demoPaused: (turn) => `${turn} turnos visibles · pausado`,
 
   railRecall: "memoria",
-  railRecallText: "4 datos en ficha",
+  railRecallText: "5 datos en ficha",
   railNewFact: "dato nuevo",
   railRetired: "retirado",
   railRetiredText: "el 7/10 queda reemplazado y tachado, no borrado",
@@ -334,7 +334,7 @@ const es = {
   statVerticalsLabel: "verticales sobre un solo motor — rehab, puerperio, crónicos",
   statHoursValue: "333 h",
   statHoursLabel: "de STT en streaming gratis — después, US$0,15 por hora",
-  statTestsValue: "312",
+  statTestsValue: "313",
   statTestsLabel: "tests, sin red y sin base de datos",
 
   howKicker: "Cómo funciona",

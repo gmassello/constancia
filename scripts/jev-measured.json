@@ -1,0 +1,140 @@
+{
+  "measured": "2026-09-25",
+  "model": "typesafe-ai/jev",
+  "floor": 0.8,
+  "wording": "117b8a3c18ac",
+  "summary": {
+    "asked": 8,
+    "recall": 0.5,
+    "precision": 1.0,
+    "margin": 0.78,
+    "worst_promise": 0.06,
+    "best_everyday": 0.02,
+    "missed": [
+      "I will take the pram to the corner every afternoon",
+      "I will put my feet up whenever I sit down"
+    ],
+    "wrong": [],
+    "vocabulary_kept": 5,
+    "vocabulary_wrong": []
+  },
+  "rows": [
+    {
+      "quote": "I will do the exercises every day this week",
+      "pack": "rehab",
+      "expected": true,
+      "vocab": 0.9,
+      "prob": null,
+      "status": "not asked",
+      "verdict": "kept"
+    },
+    {
+      "quote": "I'm going to go back to physio on Monday",
+      "pack": "rehab",
+      "expected": true,
+      "vocab": 0.9,
+      "prob": null,
+      "status": "not asked",
+      "verdict": "kept"
+    },
+    {
+      "quote": "I will feed him on both sides every night",
+      "pack": "postpartum",
+      "expected": true,
+      "vocab": 0.9,
+      "prob": null,
+      "status": "not asked",
+      "verdict": "kept"
+    },
+    {
+      "quote": "I am going to check my sugar before breakfast",
+      "pack": "chronic",
+      "expected": true,
+      "vocab": 0.9,
+      "prob": null,
+      "status": "not asked",
+      "verdict": "kept"
+    },
+    {
+      "quote": "I will log my blood pressure every morning",
+      "pack": "chronic",
+      "expected": true,
+      "vocab": 0.9,
+      "prob": null,
+      "status": "not asked",
+      "verdict": "kept"
+    },
+    {
+      "quote": "I will take the pram to the corner every afternoon",
+      "pack": "postpartum",
+      "expected": true,
+      "vocab": null,
+      "prob": 0.06,
+      "status": "200",
+      "verdict": "dropped"
+    },
+    {
+      "quote": "I will keep the compression stockings on all day",
+      "pack": "rehab",
+      "expected": true,
+      "vocab": null,
+      "prob": 0.96,
+      "status": "200",
+      "verdict": "rescued"
+    },
+    {
+      "quote": "I will put my feet up whenever I sit down",
+      "pack": "rehab",
+      "expected": true,
+      "vocab": null,
+      "prob": 0.5,
+      "status": "200",
+      "verdict": "dropped"
+    },
+    {
+      "quote": "I will keep the wound dry until Friday",
+      "pack": "postpartum",
+      "expected": true,
+      "vocab": null,
+      "prob": 0.97,
+      "status": "200",
+      "verdict": "rescued"
+    },
+    {
+      "quote": "I'll be at the conference next week",
+      "pack": "rehab",
+      "expected": false,
+      "vocab": null,
+      "prob": 0.02,
+      "status": "200",
+      "verdict": "dropped"
+    },
+    {
+      "quote": "I will watch the match on Sunday",
+      "pack": "rehab",
+      "expected": false,
+      "vocab": null,
+      "prob": 0.01,
+      "status": "200",
+      "verdict": "dropped"
+    },
+    {
+      "quote": "I will call my brother tonight",
+      "pack": "rehab",
+      "expected": false,
+      "vocab": null,
+      "prob": 0.01,
+      "status": "200",
+      "verdict": "dropped"
+    },
+    {
+      "quote": "I will paint the kitchen this weekend",
+      "pack": "rehab",
+      "expected": false,
+      "vocab": null,
+      "prob": 0.02,
+      "status": "200",
+      "verdict": "dropped"
+    }
+  ]
+}

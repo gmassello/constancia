@@ -99,6 +99,20 @@ async def test_the_floor_is_the_configured_one(monkeypatch: pytest.MonkeyPatch) 
     assert await jev.commits(QUOTE) == 0.62
 
 
+def test_the_question_and_its_rubric_reach_the_payload() -> None:
+    # The wording is the knob `scripts/smoke_jev.py` measures, and nothing else in the suite touches
+    # it: deleting `CRITERIA` used to leave every test green while the model was asked a boolean
+    # with no rubric at all. This does not measure aim — that needs the network — it only keeps the
+    # question from going out empty.
+    question = jev.payload("I will do the exercises")["questions"][jev.KEY]
+
+    assert question["instructions"] == jev.INSTRUCTIONS
+    assert question["criteria"] == jev.CRITERIA
+    assert set(jev.CRITERIA) == {"true", "false"}
+    assert all(len(value) > 40 for value in jev.CRITERIA.values())
+    assert len(jev.INSTRUCTIONS) > 100
+
+
 async def test_only_the_quote_crosses_the_boundary(monkeypatch: pytest.MonkeyPatch) -> None:
     keyed(monkeypatch)
     sent = answering(monkeypatch, lambda: probability(0.94))
