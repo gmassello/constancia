@@ -499,13 +499,14 @@ it measures 3.89:1 light. `--text-muted` measures 4.6 and 6.29.
    playing a scripted call. One orb (`--orb-mint`) blooms behind the headline.
 3. **Metrics band** — four figures on the section gradient, `--color-section` to
    `--color-section-glow` with `--section-ink` on top: 70% non-adherence, 3 verticals, 333 free
-   streaming hours, 314 tests. **Animated counters.** The band is dark in both themes on purpose —
+   streaming hours, 321 tests. **Animated counters.** The band is dark in both themes on purpose —
    it is the page's only high-contrast block, and `--section-ink` is the one alias declared
    identically in both themes for that reason.
 4. **How it works** — four steps, 4-up at desktop, each an eyebrow index plus a card title and body.
 5. **Memory** — four pillars, 2×2.
-6. **Stack** — five service cards, the AssemblyAI one at level 2 to mark it as the protagonist, with
-   the honest-limits paragraph in `body-sm`/`--text-muted` under a hairline.
+6. **Stack** — seven cards, the AssemblyAI one at level 2 to mark it as the protagonist, with
+   the honest-limits paragraph in `body-sm`/`--text-muted` under a hairline. Each card is one line:
+   the protagonist earns its place with the accent border, not with more copy than its neighbours.
 7. **The model** — three columns: who pays, what it costs, what it costs to run.
 8. **Closing** — `display-lg`, two CTAs, one orb (`--orb-sky`) bottom right; then the footer.
 
@@ -541,7 +542,9 @@ it measures 3.89:1 light. `--text-muted` measures 4.6 and 6.29.
    strike-through plus a `RETIRED` pill.
 6. **Words the agent listened for** — a three-step diagram and the key-term chips in `mono`.
 7. **Calls so far** — one row per call, with its summary, its state pills, and the
-   **What AssemblyAI heard** block: entity chips and sentiment counts.
+   **What AssemblyAI heard** block: entity chips, sentiment counts, and the key phrases under a
+   label of their own, because a chip that is a phrase rather than an entity does not read as one
+   without it. The block only exists on a call with a recording.
 
 **Design preview (`docs/design-preview.html`)** — not part of the product. Tokens, type scale,
 components and the protagonist effect on one page.

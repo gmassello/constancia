@@ -8,6 +8,7 @@ type Strings = {
   dataPostgres: string
   phoneReady: string
   phoneNoKeys: string
+  phoneNoNumber: string
   noPatients: string
   backendDown: string
   loadFailed: (status: number, detail: string | null) => string
@@ -120,6 +121,7 @@ type Strings = {
   railFactsLost: (count: number) => string
   understandingTitle: string
   understandingLede: string
+  understandingPhrases: string
 
   category: Record<string, string>
   mood: Record<string, string>
@@ -137,6 +139,7 @@ const en = {
   dataPostgres: "data: postgres",
   phoneReady: "phone: ready",
   phoneNoKeys: "phone: no keys",
+  phoneNoNumber: "phone: no demo number",
   noPatients: "No patients loaded.",
   backendDown: "Could not reach the service.",
   loadFailed: (status, detail) =>
@@ -253,7 +256,9 @@ const en = {
   railRecordingReady: "ready",
   railFactsLost: (count) => `${count} facts were not saved`,
   understandingTitle: "What AssemblyAI heard in the recording",
-  understandingLede: "Entity detection and sentiment over the call audio, after hangup.",
+  understandingLede:
+    "Entity detection, sentiment and key phrases over the call audio, after hangup.",
+  understandingPhrases: "Key phrases, primed into the next call",
 
   category: {
     symptom: "symptom",
@@ -320,6 +325,7 @@ const es = {
   dataPostgres: "datos: postgres",
   phoneReady: "teléfono: listo",
   phoneNoKeys: "teléfono: sin claves",
+  phoneNoNumber: "teléfono: sin número de demo",
   noPatients: "No hay pacientes cargados.",
   backendDown: "No se pudo contactar al servicio.",
   loadFailed: (status, detail) =>
@@ -436,7 +442,9 @@ const es = {
   railRecordingReady: "lista",
   railFactsLost: (count) => `${count} datos no se guardaron`,
   understandingTitle: "Lo que AssemblyAI escuchó en la grabación",
-  understandingLede: "Detección de entidades y sentimiento sobre el audio, después de colgar.",
+  understandingLede:
+    "Detección de entidades, sentimiento y frases clave sobre el audio, después de colgar.",
+  understandingPhrases: "Frases clave, que ceban la llamada siguiente",
 
   category: {
     symptom: "síntoma",

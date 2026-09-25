@@ -15,6 +15,7 @@ TIMEOUT_S = 180.0
 # The mp3 is about a quarter of the wav, small enough to relay through one request each way.
 UPLOAD_TIMEOUT_S = 120.0
 MAX_NEGATIVE = 5
+MAX_PHRASES = 10
 MATCH_FLOOR = 0.7
 WORD = re.compile(r"[a-z0-9']+")
 
@@ -26,7 +27,17 @@ def request_body(url: str, language: str) -> dict:
         "punctuate": True,
         "entity_detection": True,
         "sentiment_analysis": True,
+        "auto_highlights": True,
     }
+
+
+def phrases(payload: dict) -> list[dict]:
+    # ponytail: the results arrive in the order they were spoken, so the rank is what orders them
+    # and then it is dropped — the panel shows the phrase and how often it was said, and the next
+    # call takes the top of the list. Keep the rank the day something wants a floor, not a cap.
+    found = (payload.get("auto_highlights_result") or {}).get("results") or []
+    ranked = sorted(found, key=lambda item: item.get("rank") or 0.0, reverse=True)
+    return [{"text": item["text"], "count": item["count"]} for item in ranked[:MAX_PHRASES]]
 
 
 def summarize(payload: dict) -> dict:
@@ -38,6 +49,7 @@ def summarize(payload: dict) -> dict:
             for entity in payload.get("entities") or []
         ],
         "sentiment": dict(Counter(item["sentiment"] for item in sentiments)),
+        "phrases": phrases(payload),
         "negative": [
             {"text": item["text"], "confidence": item["confidence"]}
             for item in sentiments
@@ -101,13 +113,13 @@ async def hosted(client: httpx.AsyncClient, url: str, headers: dict) -> str:
     return uploaded.json()["upload_url"]
 
 
-async def transcribe(url: str) -> dict:
+async def transcribe(url: str, extra: dict | None = None) -> dict:
     settings = get_settings()
     headers = {"authorization": settings.assemblyai_api_key}
     async with httpx.AsyncClient(timeout=UPLOAD_TIMEOUT_S) as client:
         audio_url = await hosted(client, url, headers)
         started = await client.post(
-            API, headers=headers, json=request_body(audio_url, settings.language)
+            API, headers=headers, json=request_body(audio_url, settings.language) | (extra or {})
         )
         started.raise_for_status()
         transcript_id = started.json()["id"]

@@ -100,7 +100,9 @@ export type Copy = {
   stackAssembly: string
   stackGemini: string
   stackEleven: string
+  stackJev: string
   stackPostgres: string
+  stackRuntime: string
   stackLimits: string
 
   businessKicker: string
@@ -195,7 +197,7 @@ const en = {
   statVerticalsLabel: "verticals on one engine — rehab, postpartum, chronic",
   statHoursValue: "333 h",
   statHoursLabel: "free streaming STT — $0.15/hour after that",
-  statTestsValue: "314",
+  statTestsValue: "321",
   statTestsLabel: "tests, with no network and no database",
 
   howKicker: "How it works",
@@ -229,12 +231,14 @@ const en = {
     "Rehab, postpartum and chronic care are config: questions, red flags and phrasing. New vertical, same engine.",
 
   stackKicker: "The line",
-  stackTitle: "Five services, one turn, about a second.",
+  stackTitle: "Seven pieces, one turn, about a second.",
   stackTwilio: "Media Streams — the phone line, in and out",
-  stackAssembly: "Universal-Streaming v3 live, Speech Understanding after hangup",
+  stackAssembly: "Turns what the patient says into text while they speak",
   stackGemini: "Phrasing and extraction only — never the decision",
   stackEleven: "µ-law voice straight onto the call",
+  stackJev: "A typed second opinion on one sentence, through Vercel AI Gateway — off the call, never in the line",
   stackPostgres: "The fact store and its supersession chain",
+  stackRuntime: "One image serves the API, the panel and this page",
   stackLimits:
     "Honest limits: extraction runs after hangup, not during the call. About 1–1.5 s of silence per turn while the sentence is written before the voice starts — sentence-level streaming is the next step. One worker: calls live in process.",
 
@@ -245,7 +249,7 @@ const en = {
     "An independent physiotherapist carrying 30 to 40 patients in follow-up. The tools that do anything like this start at clinic size and clinic price, so nobody is selling to them.",
   businessPriceTitle: "What it costs",
   businessPriceBody:
-    "A monthly subscription per professional, tiered by patients in active follow-up: up to 20, up to 50, unlimited. Synthflow, the nearest comparable, starts at US$99 a month and aims at mid-size clinics — the entry tier here sits below it.",
+    "US$49 a month per professional, tiered by patients in active follow-up: up to 20, up to 50, unlimited. Synthflow, the nearest comparable, starts at US$99 a month and aims at mid-size clinics — half the entry price, aimed at the professional nobody is selling to.",
   businessCostTitle: "What it costs to run",
   businessCostBody:
     "Cents per call. The recogniser is billed by the hour and a weekly check-in is minutes of audio per patient, so the variable cost stays well under the subscription as a practice grows.",
@@ -334,7 +338,7 @@ const es = {
   statVerticalsLabel: "verticales sobre un solo motor — rehab, puerperio, crónicos",
   statHoursValue: "333 h",
   statHoursLabel: "de STT en streaming gratis — después, US$0,15 por hora",
-  statTestsValue: "314",
+  statTestsValue: "321",
   statTestsLabel: "tests, sin red y sin base de datos",
 
   howKicker: "Cómo funciona",
@@ -368,12 +372,14 @@ const es = {
     "Rehabilitación, puerperio y crónicos son configuración: preguntas, señales de alarma y redacción. Vertical nueva, mismo motor.",
 
   stackKicker: "La línea",
-  stackTitle: "Cinco servicios, un turno, alrededor de un segundo.",
+  stackTitle: "Siete piezas, un turno, alrededor de un segundo.",
   stackTwilio: "Media Streams — la línea telefónica, ida y vuelta",
-  stackAssembly: "Universal-Streaming v3 en vivo, Speech Understanding al cortar",
+  stackAssembly: "Convierte lo que dice el paciente en texto mientras habla",
   stackGemini: "Redacción y extracción, nada más — nunca la decisión",
   stackEleven: "Voz en µ-law directo sobre la llamada",
+  stackJev: "Una segunda opinión tipada sobre una sola frase, por Vercel AI Gateway — fuera de la llamada, nunca en la línea",
   stackPostgres: "El almacén de datos y su cadena de supersesión",
+  stackRuntime: "Una sola imagen sirve la API, el panel y esta página",
   stackLimits:
     "Límites honestos: la extracción corre después de cortar, no durante la llamada. Alrededor de 1 a 1,5 s de silencio por turno mientras se escribe la frase antes de que arranque la voz — el streaming por oraciones es el paso siguiente. Un solo worker: las llamadas viven en el proceso.",
 
@@ -384,7 +390,7 @@ const es = {
     "Un kinesiólogo independiente con 30 a 40 pacientes en seguimiento. Las herramientas que hacen algo parecido arrancan en tamaño y precio de clínica, así que nadie le vende a él.",
   businessPriceTitle: "Cuánto cuesta",
   businessPriceBody:
-    "Suscripción mensual por profesional, por tramos de pacientes en seguimiento activo: hasta 20, hasta 50, ilimitado. Synthflow, lo más comparable, arranca en US$99 por mes y apunta a clínicas medianas — acá el tramo de entrada queda por debajo.",
+    "US$49 por mes por profesional, por tramos de pacientes en seguimiento activo: hasta 20, hasta 50, ilimitado. Synthflow, lo más comparable, arranca en US$99 por mes y apunta a clínicas medianas — la mitad del precio de entrada, apuntado al profesional al que nadie le vende.",
   businessCostTitle: "Cuánto cuesta operarlo",
   businessCostBody:
     "Centavos por llamada. El reconocedor se factura por hora y un control semanal son minutos de audio por paciente, así que el costo variable queda muy por debajo de la suscripción a medida que el consultorio crece.",
@@ -450,12 +456,13 @@ const enPlain = {
     "Postpartum check-ins and chronic conditions use the same system with different questions. Nothing is rebuilt.",
 
   stackKicker: "What it runs on",
-  stackTitle: "Five pieces, about a second between question and answer.",
+  stackTitle: "Seven pieces, about a second between question and answer.",
   stackTwilio: "Places the call and carries the audio",
-  stackAssembly: "Turns the patient's speech into text while they talk",
   stackGemini: "Writes the sentences the agent says out loud",
   stackEleven: "Gives the agent its voice",
+  stackJev: "Asked once, off the call: was that a promise?",
   stackPostgres: "Keeps the patient's history",
+  stackRuntime: "The part we wrote: the phone agent, the panel and this page",
   stackLimits:
     "Being honest: the notes are written a few seconds after the call ends, not during it. There is about a second of pause before each reply, which sounds like someone thinking. And this is one machine — it is a demo, not a service.",
 
@@ -517,12 +524,13 @@ const esPlain: Record<PlainKey, string> = {
     "El seguimiento de puerperio y el de enfermedades crónicas usan el mismo sistema con otras preguntas. No se rehace nada.",
 
   stackKicker: "Con qué está hecho",
-  stackTitle: "Cinco piezas, alrededor de un segundo entre pregunta y respuesta.",
+  stackTitle: "Siete piezas, alrededor de un segundo entre pregunta y respuesta.",
   stackTwilio: "Hace la llamada y lleva el audio",
-  stackAssembly: "Convierte lo que dice el paciente en texto mientras habla",
   stackGemini: "Escribe las frases que el agente dice en voz alta",
   stackEleven: "Le pone la voz al agente",
+  stackJev: "Se le pregunta una vez, fuera de la llamada: ¿eso fue una promesa?",
   stackPostgres: "Guarda la historia del paciente",
+  stackRuntime: "La parte que escribimos nosotros: el agente, el panel y esta página",
   stackLimits:
     "Siendo honestos: las notas se escriben unos segundos después de que termina la llamada, no durante. Hay como un segundo de pausa antes de cada respuesta, que suena a alguien pensando. Y esto corre en una sola máquina: es una demo, no un servicio.",
 

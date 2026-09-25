@@ -107,8 +107,9 @@ nothing in the orchestrator, the extractor or the panel knows what rehab is.
 - **Who pays:** the professional, not the patient. A physiotherapist, a midwife, a chronic-care
   nurse — anyone running a caseload of people who should be doing something at home between
   appointments.
-- **How:** monthly subscription per professional, tiered by active patients. Market reference:
-  Synthflow starts at US$99/month; a lower entry price aimed at Latin America is competitive.
+- **How:** US$49/month per professional, tiered by active patients. Market reference: Synthflow
+  starts at US$99/month and aims at mid-size clinics — half the entry price, aimed at Latin America
+  and at the independent professional nobody is selling to.
 - **Unit economics:** each call costs cents on AssemblyAI's streaming path (333 free hours, then
   US$0.15/hour) and saves a 10–15 minute follow-up call the professional has no time to make.
 - **Market:** not "physiotherapists in Argentina" — any health professional doing longitudinal
@@ -128,12 +129,14 @@ before the first call — not a generic "I accept the terms".
 
 ## 10 · What is actually built
 
-- The full pipeline runs **with no keys and no database**: `make test` runs 314 tests with no
+- The full pipeline runs **with no keys and no database**: `make test` runs 321 tests with no
   environment variable set, and the panel's buttons run the real orchestrator against a scripted
   patient.
-- **AssemblyAI in two places:** Universal-Streaming v3 live over the phone call, and Speech
-  Understanding on the recording after hangup. Memory feeds `keyterms_prompt`, so the patient's own
-  vocabulary from last week primes the recogniser this week.
+- **AssemblyAI in two places, wired into a loop:** Universal-Streaming v3 live over the phone call,
+  and Speech Understanding on the recording after hangup — entity detection, sentiment and key
+  phrases. What the second product hears becomes what the first one is primed for: the patient's own
+  vocabulary from last week, plus the key phrases pulled out of last week's audio, are handed to the
+  recogniser as `keyterms_prompt` this week.
 - **Honest limits:** no authentication, English only, facts land seconds after the hangup rather
   than during the call, and the agent never diagnoses.
 

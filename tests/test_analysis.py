@@ -32,6 +32,7 @@ def test_the_request_asks_for_every_feature_the_panel_shows() -> None:
     assert body["audio_url"] == RECORDING
     assert body["language_code"] == "en"
     assert body["punctuate"] and body["entity_detection"] and body["sentiment_analysis"]
+    assert body["auto_highlights"]
 
 
 def test_summarize_keeps_entities_and_counts_sentiment() -> None:
@@ -43,12 +44,27 @@ def test_summarize_keeps_entities_and_counts_sentiment() -> None:
     assert [n["confidence"] for n in summary["negative"]] == [0.91, 0.64]
 
 
+def test_the_key_phrases_come_out_ranked_and_capped() -> None:
+    summary = analysis.summarize(PAYLOAD)
+
+    assert len(summary["phrases"]) == analysis.MAX_PHRASES
+    assert [p["text"] for p in summary["phrases"][:3]] == [
+        "home exercises",
+        "seven out of ten",
+        "right knee",
+    ]
+    assert summary["phrases"][0]["count"] == 4
+    dropped = {p["text"] for p in summary["phrases"]}
+    assert "the bathroom" not in dropped and "the routine" in dropped
+
+
 def test_summarize_survives_a_transcript_with_no_entities() -> None:
     summary = analysis.summarize({"id": "t", "entities": None})
 
     assert summary["entities"] == []
     assert summary["sentiment"] == {}
     assert summary["negative"] == []
+    assert summary["phrases"] == []
 
 
 async def test_a_twilio_recording_is_relayed_instead_of_handed_over(monkeypatch) -> None:

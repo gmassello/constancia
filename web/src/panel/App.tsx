@@ -39,7 +39,7 @@ export default function App() {
         {health && (
           <div className="label">
             {health.store === "seed" ? c.dataSeed : c.dataPostgres} ·{" "}
-            {health.live ? c.phoneReady : c.phoneNoKeys}
+            {!health.live ? c.phoneNoKeys : health.dialable ? c.phoneReady : c.phoneNoNumber}
           </div>
         )}
         <a className="btn btn-secondary aside-home" href="/">
@@ -84,7 +84,7 @@ export default function App() {
       </aside>
       <main>
         {selected ? (
-          <PatientView patient={selected} live={health?.live ?? false} copy={c} />
+          <PatientView patient={selected} live={health?.dialable ?? false} copy={c} />
         ) : unreachable ? (
           <p className="error">{c.backendDown}</p>
         ) : (

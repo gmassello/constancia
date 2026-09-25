@@ -165,6 +165,19 @@ async def test_memory_on_puts_the_previous_facts_in_the_prompt() -> None:
     assert [f["value"] for f in current if f["term"] == "right knee"] == [4]
 
 
+async def test_what_assemblyai_heard_last_time_primes_the_next_call() -> None:
+    call, channel, llm, store = build_week_2(memory=True)
+    seeded = (await store.calls(PATIENT))[0]
+    await store.save_analysis(str(seeded["id"]), {"phrases": [{"text": "the stairs", "count": 2}]})
+
+    await orchestrator.run_call(call, channel, llm, store, silence_s=0.01)
+
+    assert channel.keyterms[0] == "right knee"
+    assert channel.keyterms[-1] == "the stairs"
+    recall = next(e for e in call.trace if e["type"] == "recall")
+    assert "the stairs" in recall["keyterms"]
+
+
 async def test_the_greeting_is_told_to_quote_last_week_only_when_there_is_memory() -> None:
     from app.packs import GREET_RECALL
 

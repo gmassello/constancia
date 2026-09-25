@@ -7,7 +7,8 @@ const FLAG = "M5.5 21V4h12.5l-2.6 4.6L18 13.2H5.5"
 
 function Understanding({ analysis, copy: c }: { analysis: Analysis; copy: Copy }) {
   const moods = Object.entries(analysis.sentiment)
-  if (analysis.entities.length === 0 && moods.length === 0) return null
+  const phrases = analysis.phrases ?? []
+  if (analysis.entities.length === 0 && moods.length === 0 && phrases.length === 0) return null
   return (
     <div className="call-understanding">
       <h4>{c.understandingTitle}</h4>
@@ -29,6 +30,18 @@ function Understanding({ analysis, copy: c }: { analysis: Analysis; copy: Copy }
             </li>
           ))}
         </ul>
+      )}
+      {phrases.length > 0 && (
+        <>
+          <p className="call-understanding-lede">{c.understandingPhrases}</p>
+          <ul className="chips">
+            {phrases.map((phrase) => (
+              <li className="chip" key={phrase.text}>
+                {c.data(phrase.text)} · {phrase.count}
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   )

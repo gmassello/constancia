@@ -48,6 +48,7 @@ export type Analysis = {
   transcript_id: string | null
   entities: { text: string; type: string }[]
   sentiment: Record<string, number>
+  phrases: { text: string; count: number }[]
   negative: { text: string; confidence: number }[]
 }
 
@@ -81,7 +82,13 @@ export type Series = {
   points: Point[]
 }
 
-export type Health = { status: string; calls: number; store: string; live: boolean }
+export type Health = {
+  status: string
+  calls: number
+  store: string
+  live: boolean
+  dialable: boolean
+}
 
 export class ApiError extends Error {
   constructor(

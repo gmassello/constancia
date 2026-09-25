@@ -33,5 +33,142 @@
       "sentiment": "NEGATIVE",
       "confidence": 0.64
     }
-  ]
+  ],
+  "auto_highlights_result": {
+    "status": "success",
+    "results": [
+      {
+        "text": "the stairs",
+        "rank": 0.41,
+        "count": 2,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "home exercises",
+        "rank": 0.96,
+        "count": 4,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "right knee",
+        "rank": 0.88,
+        "count": 3,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "a bit of stiffness",
+        "rank": 0.55,
+        "count": 1,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "seven out of ten",
+        "rank": 0.91,
+        "count": 2,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "three times",
+        "rank": 0.62,
+        "count": 1,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "the routine",
+        "rank": 0.74,
+        "count": 2,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "my physio",
+        "rank": 0.58,
+        "count": 1,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "the swelling",
+        "rank": 0.66,
+        "count": 1,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "next week",
+        "rank": 0.33,
+        "count": 1,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "the bathroom",
+        "rank": 0.28,
+        "count": 1,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "text": "every day",
+        "rank": 0.47,
+        "count": 2,
+        "timestamps": [
+          {
+            "start": 0,
+            "end": 1
+          }
+        ]
+      }
+    ]
+  }
 }

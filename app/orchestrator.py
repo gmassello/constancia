@@ -3,7 +3,7 @@ import contextlib
 from app import critic, extract, guard
 from app.calls import Call
 from app.channel import CallEnded
-from app.memory import keyterms
+from app.memory import keyterms, with_phrases
 from app.packs import (
     ANSWER_RELAY,
     ASK_MARKER,
@@ -87,6 +87,8 @@ async def recall(call: Call, channel, llm, store, silence_s: float) -> None:
     call.facts = await store.current_facts(call.patient_id)
     call.memory_prompt = memory_block(call.facts)
     terms = keyterms(call.facts, call.pack)
+    if hasattr(store, "calls"):
+        terms = with_phrases(terms, await store.calls(call.patient_id))
     await channel.set_keyterms(terms)
     call.emit("recall", facts=len(call.facts), keyterms=terms)
 

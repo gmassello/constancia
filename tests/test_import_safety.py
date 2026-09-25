@@ -36,6 +36,45 @@ def test_the_app_starts_and_serves_the_seed_with_no_env(monkeypatch: pytest.Monk
             assert health["status"] == "ok"
             assert health["store"] == "seed"
             assert health["live"] is False
+            assert health["dialable"] is False
+    finally:
+        get_settings.cache_clear()
+
+
+CREDENTIALS = {
+    "GEMINI_API_KEY": "x",
+    "ASSEMBLYAI_API_KEY": "x",
+    "ELEVENLABS_API_KEY": "x",
+    "ELEVENLABS_VOICE_ID": "x",
+    "TWILIO_ACCOUNT_SID": "AC",
+    "TWILIO_AUTH_TOKEN": "tok",
+    "TWILIO_NUMBER": "+541199999999",
+    "PUBLIC_BASE_URL": "https://constancia.example.com",
+}
+
+
+@pytest.mark.parametrize(
+    ("phone", "dialable"), [("", False), ("+541198765432", True)], ids=["public", "local"]
+)
+def test_credentials_alone_do_not_make_the_panel_offer_a_real_call(
+    monkeypatch: pytest.MonkeyPatch, phone: str, dialable: bool
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from app.config import get_settings
+    from app.main import app
+
+    for key, value in CREDENTIALS.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.setenv("DEMO_PHONE", phone)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.chdir("/")
+    get_settings.cache_clear()
+    try:
+        with TestClient(app) as client:
+            health = client.get("/health").json()
+            assert health["live"] is True
+            assert health["dialable"] is dialable
     finally:
         get_settings.cache_clear()
 

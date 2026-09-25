@@ -7,8 +7,6 @@ services:
     envVars:
       - key: GEMINI_API_KEY
         sync: false
-      - key: GEMINI_MODEL
-        sync: false
       - key: ASSEMBLYAI_API_KEY
         sync: false
       - key: ELEVENLABS_API_KEY
@@ -20,6 +18,8 @@ services:
       - key: TWILIO_AUTH_TOKEN
         sync: false
       - key: TWILIO_NUMBER
+        sync: false
+      - key: AI_GATEWAY_API_KEY
         sync: false
       - key: PUBLIC_BASE_URL
         sync: false

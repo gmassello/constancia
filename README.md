@@ -40,8 +40,10 @@ Stage 3 of four plus the public landing (see [`docs/PLAN.md`](docs/PLAN.md) and 
 - **Three call modes.** `live` dials a real phone. `scripted` runs the whole pipeline against a scripted
   patient, with no phone and no keys. `replay` replays a recorded call at its original pace. The last two are
   what make the demo survive an outage.
-- **After hangup** the recording goes to AssemblyAI's pre-recorded API for entity detection and sentiment,
-  stored in `calls.analysis`.
+- **After hangup** the recording goes to AssemblyAI's pre-recorded API for entity detection, sentiment and
+  key phrases, stored in `calls.analysis`. The key phrases are the one part that is read back: they join the
+  patient's own vocabulary in the `keyterms_prompt` of the next call, so what AssemblyAI heard last week is
+  what it is primed for this week.
 
 The deploy, the video and the deliverables land in stage 4.
 
@@ -75,7 +77,7 @@ No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 314 tests, no network and no database
+make test          # 321 tests, no network and no database
 make lint          # ruff
 make web           # builds web/dist (needs node 24 and pnpm); tsc -b is the front-end check
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
@@ -128,12 +130,13 @@ make smoke PHONE=+54911...            # geographic permissions, no LLM or TTS cr
 make smoke-stt && make smoke-tts      # the two failure modes that cost the most time
 make smoke-call                       # the six phases against the real LLM, no phone
 make call                             # dials DEMO_PHONE; make call PHONE=+54911... overrides it
-make smoke-analysis URL=<recording url>   # entity detection and sentiment on a real recording
+make smoke-analysis URL=<recording url>   # entities, sentiment and key phrases on a real recording
+make smoke-keyphrases URL=<recording url> # the same recording with and without auto_highlights
 ```
 
 ## Honest limits
 
-- **No authentication anywhere.** Anything that can reach the URL can read every patient's history and place a call. Out of scope for the hackathon, and the landing's footer says so.
+- **No authentication anywhere.** Anything that can reach the URL can read every patient's history and place a call. Out of scope for the hackathon, and the landing's footer says so. The panel hides its two *Real phone* buttons unless the instance carries a `DEMO_PHONE` of its own, which is what keeps a deployed demo from dialling — but that is a UI gate, not a lock: `POST /calls` with `mode=live` and an explicit `phone` still dials wherever the credentials reach.
 - **One worker.** Calls live in an in-process dict. Two instances would not see each other's calls.
 - **Extraction runs after hangup**, never during the call: a synchronous write would put dead air on the line.
   The facts land seconds after the patient hangs up, not while they are still talking.
@@ -176,7 +179,7 @@ make smoke-analysis URL=<recording url>   # entity detection and sentiment on a 
 | `app/extract.py` | structured extraction with span grounding against patient turns |
 | `app/queries.py` | the single reducer module: the chain, the weekly series, the key terms of a past call |
 | `app/replay.py` | the two modes that need no phone: scripted and recorded |
-| `app/analysis.py` | post-call entity detection and sentiment on the recording |
+| `app/analysis.py` | post-call entity detection, sentiment and key phrases on the recording |
 | `web/` | both pages: React 19 + Vite multi-page, no UI, routing or charting library |
 | `web/src/tokens.css` | the Cadence tokens, light canonical and dark as the override, and the semantic aliases |
 | `web/src/*/copy.ts` | every interface string, English base and Spanish translation |

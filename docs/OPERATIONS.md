@@ -8,7 +8,7 @@ The service degrades on purpose. Pick the shallowest one that shows what you nee
 
 ```bash
 uv sync
-make test          # 314 tests, no network and no database
+make test          # 321 tests, no network and no database
 make web           # builds web/dist (needs node 24 and pnpm)
 make dev           # http://localhost:8001 — the landing; the panel is at /panel
 make take          # the same server without --reload, for a recording session
@@ -231,7 +231,21 @@ as a non-root user. One image, one service, one public URL — the API serves th
 free plan, `healthCheckPath: /health` — **and the database**: `constancia-db`, free plan, Postgres 17, the same
 major as `make db`. `DATABASE_URL` comes from it with `fromDatabase`, so there is no connection
 string to copy. Nine entries stay `sync: false` and are typed into the dashboard — the eight required
-variables plus `GEMINI_MODEL`, which is a pin rather than a credential; none of them is in the repo.
+variables plus `AI_GATEWAY_API_KEY`; none of them is in the repo.
+
+**Two decisions about that list, because a blank field is not the same as an absent one.** A variable
+declared `sync: false` and left empty arrives as an empty string, and an empty string beats the
+default in [`../app/config.py`](../app/config.py); what Render does with a field you skip is not
+documented either way. So the model pins — `GEMINI_MODEL`, `GEMINI_EMBEDDING_MODEL`,
+`ASSEMBLYAI_SPEECH_MODEL`, `ELEVENLABS_MODEL` — are **not declared at all**: they are defaulted in
+`config.py`, that is where they are decided, and a second copy in the Blueprint could only disagree
+with it. `AI_GATEWAY_API_KEY` is the opposite case and is declared even though it is optional: left
+out, the deployed service silently loses the second opinion behind the promise rules, so every
+sentence the action vocabulary rejects is dropped and the public URL behaves differently from a local
+run with a full `.env`. Blank is a safe value for it — `config.py` defaults it to `""` and
+[`../app/jev.py`](../app/jev.py) turns a missing key into the vocabulary deciding alone — so the
+choice of whether the deployment gets Jev is made by typing the key or not, in one place, rather than
+by forgetting it.
 
 The container binds `${PORT:-8000}`; Render sets `PORT`. Local development uses 8001.
 
@@ -259,11 +273,24 @@ unrelated application, and Render would have answered by appending a random suff
 which the endcard burns into the last frame of the video. Confirm in step 4 that the URL Render
 assigned is the expected one before rendering the card.
 
-**Leave `DEMO_PHONE` unset on Render.** The eight required variables make `/health` report
-`live: true`, so
-the deployed panel renders the two live buttons; with no demo phone they answer `400` instead of
-dialling. That is the intended outcome for a public URL — the alternative is a stranger ringing your
-phone. The scripted pair above them is the primary one and works with no phone at all.
+**Leave `DEMO_PHONE` unset on Render, and that is what hides the dial buttons.** `/health` reports
+two different things: `live`, which says the eight credentials validate, and **`dialable`**, which
+says this instance also has a demo number of its own. The panel offers the two *Real phone* buttons
+only when `dialable` is true, so a public deployment with no `DEMO_PHONE` does not render them at
+all. It used to render them and answer `400` on a click — a stranger could not ring your phone, but a
+judge got two dead buttons and the safety depended on remembering not to set a variable. Now the
+variable is the switch and the UI obeys it. The scripted pair above them is the primary one and works
+with no phone at all.
+
+The gate is `tests/test_import_safety.py`, parametrised on the two states: with the eight
+credentials and `DEMO_PHONE` empty, `dialable` is `false` while `live` is `true`; with a number, both
+are `true`. The sidebar says which of the three states it is in — `no keys`, `no demo number`,
+`ready`.
+
+**It is a UI gate, not a lock.** `POST /calls` with `mode=live` and an explicit `phone` still dials
+from a deployed instance that has credentials, because there is no authentication anywhere — which
+the README says in its own warning. What `dialable` removes is the accidental case: a button on a
+public page, and a stranger who presses it.
 
 Step 5 is the one that surprises people: `scripts/seed.py` needs **a full `.env`, not just
 `DATABASE_URL`** — `MemoryStore()` builds `Settings`, which requires all eight credentials, and

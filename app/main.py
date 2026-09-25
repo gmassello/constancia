@@ -70,11 +70,13 @@ class AnswerRequest(BaseModel):
 
 @app.get("/health")
 async def health() -> dict:
+    settings = settings_or_none()
     return {
         "status": "ok",
         "calls": len(CALLS),
         "store": store_kind(),
-        "live": settings_or_none() is not None,
+        "live": settings is not None,
+        "dialable": bool(settings and settings.demo_phone),
     }
 
 

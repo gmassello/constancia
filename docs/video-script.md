@@ -29,8 +29,10 @@ be noticed during a take.
 to the tunnel URL **before** `make take`. A stale tunnel URL makes every webhook 403 in
 `twilio_form()` (`app/security.py`), and the symptom is a phone that rings and then goes silent — it
 reads as a model bug and it is not one. With `.env` complete but `DEMO_PHONE` empty the live buttons
-still render, and the panel prints *The service answered 400: unknown patient: send patient_name and
-phone*: a dead button on camera, legible in the frame.
+**are not rendered at all** — `/health` reports `dialable: false` and the panel hides them, with the
+sidebar reading *phone: no demo number*. Two beats of this video are live calls pressed from those
+buttons, so a missing pair of buttons on camera means the same thing a dead one used to: check
+`DEMO_PHONE` before recording. `video/reset.sh --check` reads the flag off the running service.
 
 **Record against `make take`, not `make dev`.** `make dev` runs uvicorn with `--reload`: any save
 under the repo — an editor's autosave is enough — restarts it, the lifespan runs `load_seed()` again,
@@ -171,7 +173,7 @@ quota, exactly like a live call minus the phone. The only lever that makes them 
 starting the server with the key blanked:
 
 ```bash
-GEMINI_API_KEY= make take     # ScriptedLLM: free, repeatable, and the live buttons cannot dial
+GEMINI_API_KEY= make take     # ScriptedLLM: free, repeatable, and no live buttons at all
 ```
 
 That is the rehearsal server, not the take server.
@@ -353,14 +355,26 @@ If the agent phrases the opening differently — it will — that is the take. R
 
 1. **How she is doing** — pain 7 → 4, sessions 3 → 5, with the verdict arrows.
 2. **What the agent remembers** — the chain, with the retired entry still there and its quote.
-3. **Words the agent listened for** — the three-step drawing and the chips: her own vocabulary
-   from last week, handed to AssemblyAI as `keyterms_prompt`.
+3. **Words the agent listened for** — the three-step drawing and the chips: her own vocabulary,
+   handed to AssemblyAI as `keyterms_prompt`. The list has **two sources** since the key phrases
+   landed: the terms of the facts on file, and the phrases Speech Understanding pulled out of the
+   most recent analysed recording. In a take that means beat 5 may carry a phrase heard in beat 3
+   or 4, if the recording webhook landed before it dialled — a bonus if it shows, never a problem
+   if it does not.
 4. **Calls so far**, and inside beat 5's row, **What AssemblyAI heard in the recording**: the
    entity chips it pulled out of the audio — `right knee`, `four out of ten`, `five times this
-   week` — and the sentiment counts beside them, with the negative one tinted. This is the
-   sponsor's second product in the same demo: Universal-Streaming carried the call, and Speech
-   Understanding read the recording Twilio kept after it. It only exists after a **live** call,
+   week` — the sentiment counts beside them, with the negative one tinted, and under them the
+   **key phrases** with how often each was said. This is the sponsor's second product in the same
+   demo, and the two are wired into a loop rather than sitting side by side: Universal-Streaming
+   carried the call, Speech Understanding read the recording Twilio kept after it, and its key
+   phrases go back out as the next call's `keyterms_prompt`. It only exists after a **live** call,
    which is what beats 3, 4 and 5 are.
+
+   **The narration does not change for this.** Its two lines here are generic — *"After she hangs
+   up, the recording goes back to AssemblyAI"* and *"What she named, and how she sounded saying
+   it"* — and card 3's is *"And the words that primed the recogniser"*, which says nothing about
+   where they came from. A third chip row and a second source are both covered by what is already
+   in `video/narration.tsv`, so the 267.8 s track and `OUTRO_REPLACE` stand.
 5. **The red flag, last.** Press **call with a red flag** — this one stays **keyless** on purpose:
    a real call buys nothing here and saves a fourth phone call per take. The patient reports a
    fall, the guard stops the call, the remaining questions are never asked, and the row lands

@@ -96,8 +96,11 @@ same idea: they are written by the post-call analysis, not by a route, and `GET
 /calls/{call_id}/audio` plus a media fragment is all the panel needs to play a quote back.
 
 `analysis` is what `app/analysis.py` wrote after the recording webhook — `{transcript_id, entities,
-sentiment, negative}` — or `null` on any call with no Twilio recording, which is every scripted and
-replayed one. It is the only path the panel has to it: `analysis_ready` is emitted on the SSE stream
+sentiment, phrases, negative}` — or `null` on any call with no Twilio recording, which is every
+scripted and replayed one. `phrases` is the key-phrase list Speech Understanding returned, the ten
+highest-ranked as `{text, count}`; it is the one field of the blob that is read back by the *next*
+call, where `with_phrases` in `app/memory.py` adds it to the `keyterms_prompt` behind the terms that
+came from facts. It is the only path the panel has to it: `analysis_ready` is emitted on the SSE stream
 **after** `call_ended`, where both ends have already hung up, and the event carries counts rather
 than the payload: how many entities were found, and the sentiment tally per label. When the row is missing, the `UPDATE` matches nothing and `analysis.run` emits a
 `warning` with `phase: analysis`.
@@ -135,7 +138,7 @@ the service fetch an arbitrary URL.
 
 | Method | Path | Handler | Returns |
 |---|---|---|---|
-| `GET` | `/health` | `health` — `main.py:72` | `{status, calls, store, live}`. `store` is `seed` or `postgres`; `live` says whether credentials validate. |
+| `GET` | `/health` | `health` — `main.py:72` | `{status, calls, store, live, dialable}`. `store` is `seed` or `postgres`; `live` says whether credentials validate; `dialable` says whether this instance also carries a `DEMO_PHONE`, and it is what the panel gates the two *Real phone* buttons on, so a public deployment does not offer them. |
 | `POST` | `/reset` | `reset` — `main.py:139` | Reloads the seed and clears in-memory calls. **`409` when the store is Postgres** — it refuses to reset a real database. |
 
 `/reset` is what a second take of the demo needs.

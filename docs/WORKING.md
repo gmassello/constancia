@@ -23,7 +23,8 @@ virtualenv activated.
 | `make smoke-stt` | Opens the AssemblyAI streaming socket and closes it | AssemblyAI |
 | `make smoke-tts` | One ElevenLabs `ulaw_8000` request; asserts it is not MP3 | ElevenLabs |
 | `make smoke-call PHONE=` | A full call through the live channel, driven from the shell | all credentials |
-| `make smoke-analysis URL=` | Entity detection and sentiment against a real recording | AssemblyAI |
+| `make smoke-analysis URL=` | Entity detection, sentiment and key phrases against a real recording | AssemblyAI |
+| `make smoke-keyphrases URL=` | Transcribes the same recording twice, with and without `auto_highlights`, and prints every phrase with its rank and count, marking the ones the fact vocabulary did not already hold. Writes `scripts/keyphrases-measured.json`, which is what decides whether the phrases keep feeding the next call's `keyterms_prompt` | AssemblyAI |
 | `make smoke-jev` | Asks Jev the promise question about the eight sentences the vocabulary rejects, out of a labelled sample of thirteen, and prints the probability, the HTTP status and whether each one was rescued, then recall, precision and the margin. Writes `scripts/jev-measured.json`. The only way a 403, a 429 or a 503 becomes visible, because `app/jev.py` swallows them all | AI Gateway |
 | `make models` | Lists the Gemini models available to the key | Gemini |
 
@@ -56,9 +57,9 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 314 tests, the 3 that need a database skipped
+uv run pytest -q          # 321 tests, the 3 that need a database skipped
 make db && DATABASE_URL=postgresql://constancia:constancia@localhost:5432/constancia \
-  uv run pytest -q        # 314 passed, nothing skipped — run this before touching app/memory.py
+  uv run pytest -q        # 321 passed, nothing skipped — run this before touching app/memory.py
 uv run ruff check .
 cd web && pnpm build      # tsc -b && vite build
 grep -rn 'color-neutral-[0-9]\|color-accent-[0-9]' web/src \
@@ -76,7 +77,7 @@ missing translation fails the build, and presentational components do not earn a
 
 ## Tests
 
-Seventeen test files, 314 collected with no environment variable set. Every one of them passes
+Seventeen test files, 321 collected with no environment variable set. Every one of them passes
 except the three Postgres integration tests, which skip themselves.
 
 | File | Covers |
@@ -127,7 +128,7 @@ The hard rules are in [`../AGENTS.md`](../AGENTS.md). The ones that bite most of
   bilingual interface (the two `copy.ts` and `panel/content.ts`), where English is the annotated base
   and Spanish the translation.
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.
-  There are **64** in the code and they are the honest list of what was knowingly left simple:
+  There are **66** in the code and they are the honest list of what was knowingly left simple:
 
   ```bash
   grep -ro 'ponytail:' app/*.py web/src scripts tests schema.sql \

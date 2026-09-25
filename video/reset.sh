@@ -47,10 +47,12 @@ h = json.load(sys.stdin)
 print("STORE", h["store"])
 print("CALLS", h["calls"])
 print("LIVE", h["live"])
+print("DIALABLE", h["dialable"])
 ' > /tmp/constancia-health.$$
 
 calls_registered=$(awk '/^CALLS/{print $2}' /tmp/constancia-health.$$)
 live=$(awk '/^LIVE/{print $2}' /tmp/constancia-health.$$)
+dialable=$(awk '/^DIALABLE/{print $2}' /tmp/constancia-health.$$)
 rm -f /tmp/constancia-health.$$
 
 green "service answers, store is $store"
@@ -115,10 +117,10 @@ else
   red "no credentials: beats 3, 4 and 5 are live (docs/video-script.md)"
 fi
 
-if grep -q '^DEMO_PHONE=+' .env 2>/dev/null; then
-  green "DEMO_PHONE is set (not printed)"
+if [ "$dialable" = "True" ]; then
+  green "the service has a demo number: the panel offers the live buttons (number not printed)"
 else
-  red "DEMO_PHONE is empty in .env — the live buttons render and answer 400"
+  red "no demo number on the running service — the panel hides the live buttons, and beats 3, 4 and 5 need them"
 fi
 
 envval() { sed -n "s/^$1=//p" .env 2>/dev/null | head -1; }

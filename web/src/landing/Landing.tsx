@@ -430,7 +430,9 @@ export default function Landing() {
             <StackCard name="AssemblyAI" body={c.stackAssembly} focus />
             <StackCard name="Gemini Flash" body={c.stackGemini} />
             <StackCard name="ElevenLabs" body={c.stackEleven} />
+            <StackCard name="Jev" body={c.stackJev} />
             <StackCard name="Postgres · pgvector" body={c.stackPostgres} />
+            <StackCard name="FastAPI · React" body={c.stackRuntime} />
           </div>
           <div className="hr" style={{ margin: "34px 0 20px" }} />
           <p
