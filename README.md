@@ -12,8 +12,7 @@
   <a href="https://constancia-voice.onrender.com"><b>Live demo</b></a> ·
   <a href="https://constancia-voice.onrender.com/panel"><b>The panel</b></a> ·
   <a href="docs/SUBMISSION.md"><b>Submission</b></a> ·
-  <a href="docs/README.md"><b>Docs</b></a> ·
-  <a href="docs/PENDINGS.md"><b>What is still open</b></a>
+  <a href="docs/README.md"><b>Docs</b></a>
 </p>
 
 <p align="center">
@@ -30,7 +29,8 @@ Built for the [lablab.ai x AssemblyAI Voice Agent Hackathon](docs/HACKATHON.md) 
 phone call, not a browser mic. The whole thing runs with no keys and no network:
 
 ```bash
-uv sync && make demo MEMORY=on    # week 2 over the seed: recall, key terms, and a fact retiring an older one
+uv sync
+make demo MEMORY=on   # week 2 over the seed: recall, key terms, a retired fact
 ```
 
 <table>
