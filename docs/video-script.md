@@ -410,24 +410,25 @@ The band is three columns — *Who pays*, *What it costs*, *What it costs to run
 because this beat filmed it before it did: the narration said *sold per professional* over a page
 that had nothing of the sort on it. Scroll to it from the nav (**Model**), do not hunt for it.
 
-The hostname is `constancia-voice.onrender.com`, which is what `render.yaml` claims — plain
-`constancia.onrender.com` belongs to an unrelated app, so Render would have appended a random suffix
-and the card would have pointed at somebody else's form. Re-render the card if the deploy ever lands
-on a different hostname; it is spliced in after the take, so it never delays recording.
+**The card is rendered and it names no URL.** `video/endcard.sh` defaults to an empty `PUBLIC_URL`
+and drops the line rather than printing a placeholder, so `video/out/endcard.png` currently shows the
+wordmark, the tagline and `github.com/gmassello/constancia · MIT` — an address that works today. A
+burned-in hostname that answers nothing is worse than no hostname, and the default is what makes
+forgetting safe rather than expensive.
 
-**The service does not exist yet**, so the card currently names a URL that 404s. Verify before
-uploading, because a burned-in address that answers nothing is worse than no address:
+Once the deploy answers, re-render with the hostname and splice the new still; it goes in after the
+take, so it never delays recording. The hostname is `constancia-voice.onrender.com`, which is what
+`render.yaml` claims — plain `constancia.onrender.com` belongs to an unrelated app, so Render would
+have appended a random suffix and the card would have pointed at somebody else's form.
 
 ```bash
 curl -s -o /dev/null -D- https://constancia-voice.onrender.com/health | grep -i 'HTTP/\|x-render-routing'
+bash video/endcard.sh                                            # repo only, the current card
+PUBLIC_URL=constancia-voice.onrender.com bash video/endcard.sh   # once it answers; no scheme, a bare domain
 ```
 
-`x-render-routing: no-server` means Render has no service on that hostname. Either the deploy lands
-before the upload, or the card points at the GitHub repo instead.
-
-```bash
-PUBLIC_URL=constancia-voice.onrender.com bash video/endcard.sh   # no scheme: a bare domain on the card
-```
+`x-render-routing: no-server` means Render has no service on that hostname. **Re-render after every
+`build-audio.sh` run**, which wipes `video/out/`.
 
 The endcard covers the last spoken line, so "constancia. Thanks for watching" is heard *and* burned
 over the card instead of over a screenshot of the landing. `OUTRO_REPLACE` is what buys that, and it

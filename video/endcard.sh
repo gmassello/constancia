@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # endcard.sh — the last frame of the video: name, URL, repo, licence.
 #
-#   PUBLIC_URL=constancia-voice.onrender.com bash video/endcard.sh
+#   bash video/endcard.sh                                      # repo only
+#   PUBLIC_URL=constancia-voice.onrender.com bash video/endcard.sh   # once it answers
 #
-# No scheme: the card shows a bare domain. The default is the hostname
-# render.yaml claims; `constancia` itself belongs to an unrelated app.
+# No scheme: the card shows a bare domain. The default is EMPTY on purpose, and an
+# empty PUBLIC_URL drops the line instead of printing a placeholder: the last frame of
+# the video is the worst place to publish an address that 404s, and the repo line below
+# it is already a working one. Pass the hostname only after `curl .../health` answers.
 #
 # Renders video/endcard.html at 1280x800 with headless Chrome, so the card uses
 # the project's own tokens instead of a second palette written in ffmpeg.
@@ -12,7 +15,7 @@
 set -euo pipefail
 
 VIDEO_DIR="${VIDEO_DIR:-$PWD/video}"
-PUBLIC_URL="${PUBLIC_URL:-constancia-voice.onrender.com}"
+PUBLIC_URL="${PUBLIC_URL:-}"
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 OUT="$VIDEO_DIR/out/endcard.png"
 
@@ -21,7 +24,11 @@ OUT="$VIDEO_DIR/out/endcard.png"
 mkdir -p "$VIDEO_DIR/out"
 # the copy stays beside the original: the page links tokens.css by relative path.
 page="$VIDEO_DIR/.endcard.rendered.html"
-sed "s|PUBLIC_URL|$PUBLIC_URL|" "$VIDEO_DIR/endcard.html" > "$page"
+if [ -n "$PUBLIC_URL" ]; then
+  sed "s|PUBLIC_URL|$PUBLIC_URL|" "$VIDEO_DIR/endcard.html" > "$page"
+else
+  sed "/PUBLIC_URL/d" "$VIDEO_DIR/endcard.html" > "$page"
+fi
 
 # --virtual-time-budget: without it the shot is taken before the Google Fonts request
 # lands, and the card renders the display face in the system fallback. The title is the

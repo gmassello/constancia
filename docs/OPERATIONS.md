@@ -249,6 +249,25 @@ by forgetting it.
 
 The container binds `${PORT:-8000}`; Render sets `PORT`. Local development uses 8001.
 
+**The image was built and run before any of this was applied**, which is the cheap way to find a
+broken `COPY` or a lockfile that does not resolve — a red build on Render costs a dashboard round
+trip, and this costs one command:
+
+```bash
+docker build -t constancia:local .
+docker run --rm -p 8010:8000 constancia:local          # no environment at all
+curl -s localhost:8010/health                          # {"store":"seed","live":false,"dialable":false}
+curl -s localhost:8010/ | grep -o '<title>[^<]*</title>'
+```
+
+Measured 25 Sep: nineteen steps green, **501 MB**, and with no environment set the container answers
+`/health` on the seed store and serves both pages' own titles — so `web/dist` lands where `WEB_DIST`
+looks for it and the non-root user can read it. One caveat worth writing down: on an arm64 laptop,
+`docker build --platform linux/amd64` — Render's architecture — **fails under emulation**, and not
+because of anything in the repo. pnpm's Rust binary panics inside qemu (*"unexpected error when
+polling the I/O driver"*) at `pnpm install`. Build natively to check the Dockerfile; the architecture
+itself is only exercised on Render, where `uv.lock` pins the same versions for every platform.
+
 **The schema will apply itself at boot.** When the store is Postgres, the lifespan runs `schema.sql`
 before serving (`app/main.py`) — it is idempotent end to end, so every boot after the first is a
 no-op, and `tests/test_db.py` asserts exactly that. A fresh Render database will therefore come up
@@ -270,8 +289,10 @@ curl https://constancia-voice.onrender.com/health    # 6. from another network: 
 
 The service is named `constancia-voice`, not `constancia`: the plain subdomain is held by an
 unrelated application, and Render would have answered by appending a random suffix to the hostname —
-which the endcard burns into the last frame of the video. Confirm in step 4 that the URL Render
-assigned is the expected one before rendering the card.
+which the endcard would burn into the last frame of the video. Confirm in step 4 that the URL Render
+assigned is the expected one, then re-render the card with it: `PUBLIC_URL=<hostname> bash
+video/endcard.sh`. Until then the card names no URL at all — the script defaults to empty and drops
+the line, so the address on the last frame is the GitHub repo, which works.
 
 **Leave `DEMO_PHONE` unset on Render, and that is what hides the dial buttons.** `/health` reports
 two different things: `live`, which says the eight credentials validate, and **`dialable`**, which
