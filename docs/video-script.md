@@ -104,6 +104,10 @@ the window at 1280×800, the debugger banner gone, the hydration pause before th
 it and throw it away, then sweep the file for a notification or a second tab. **This is where takes
 are lost, and here they cost nothing.**
 
+**Done, 26 Sep.** It is what found the two traps that would have cost a take: the landing opened in the
+technical register rather than the plain one the narration reads, and the metrics band's animated
+counters film a number that was never true if the scroll does not stop on them.
+
 **Rehearsal 2 — the phone. You answer it; Gemini is not involved.**
 
 ```bash
@@ -112,6 +116,10 @@ make smoke PHONE=+54911...    # one <Say>, nothing else
 
 Proves the geographic permissions, the trial-number verification, how the line sounds, and that you
 pick up in time. Cheapest thing in the session and the one worth repeating.
+
+**Subsumed on 26 Sep by rehearsal 3**, which is the stronger proof: a full live call went out and was
+answered, so the permissions, the verification, the line and the pickup are all proved by it. The
+`<Say>` stays the cheapest thing to repeat on the day if the number changes.
 
 **Rehearsal 3 — one full call, once.**
 
@@ -172,6 +180,17 @@ them. So the extraction, the supersession and the key terms behave identically e
 cues, marks the conditional turns, and
 speaks each line in English. The tables in the beats below are the same lines for reading; the page is
 the one to have open during a take.
+
+**Ana's voice, and the acoustics, are settled.** Anita is not available, so the patient is synthesised
+by the page. Choosing the voice is not part of the session: the preference order is `Samantha`,
+`Evan (Enhanced)`, `Karen`, `Moira`, the stored choice is checked against the machine before it wins,
+and the chain ends by refusing anything called `Ava` — the narration's own voice. It opens on
+`Samantha`, `en_US`. The acoustic half was calibrated on the rehearsal-3 call of 26 Sep: laptop
+speaker against the phone's microphone, **the phone not on speaker**, and all four patient turns came
+back intelligible, including `7 out of 10` and `3 times` verbatim. One word did not: the recogniser
+heard `Anna` for `Ana`. That is a known limit, not a blocker — the name is never a fact and never a
+number on screen — and it is the same mis-hearing that decided the key-phrase measurement
+([`PENDINGS.md`](PENDINGS.md) §4). So the `say -v Samantha -o line.aiff` fallback stays unbuilt.
 
 **Keyless does not mean deterministic on the day.** `build_llm` (`app/replay.py`) returns the real
 model the moment `GEMINI_API_KEY` is readable, and the live path needs a filled `.env` — so during
