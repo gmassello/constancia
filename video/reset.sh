@@ -163,10 +163,10 @@ else
   code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
     -X POST "https://api.elevenlabs.io/v1/text-to-speech/$el_voice/stream?output_format=ulaw_8000" \
     -H "xi-api-key: $el_key" -H 'content-type: application/json' \
-    -d '{"text":"ok","model_id":"'"$el_model"'"}')
+    -d '{"text":"Hello Ana, I am the follow-up assistant calling from your physiotherapist office today.","model_id":"'"$el_model"'"}')
   case "$code" in
-    200) green "ElevenLabs answers 200 with $el_model (the agent has a voice)" ;;
-    401) red "ElevenLabs answered 401 — the agent stays SILENT while the phone connects and the trace fills with warning/tts. Seen once on 26 Sep and gone on retry, so run this again before deciding the key is dead" ;;
+    200) green "ElevenLabs answers 200 with $el_model on a greeting-length line (the agent has a voice)" ;;
+    401) red "ElevenLabs answered 401. It returns 401 for an exhausted quota, not 429, so read the body before blaming the key: curl the same endpoint and look for code quota_exceeded. The agent stays SILENT while the phone connects and the trace fills with warning/tts" ;;
     *)   red "ElevenLabs answered $code — on camera this is a call that connects and says nothing" ;;
   esac
 fi

@@ -518,6 +518,14 @@ proved; the durations move with the track, so the figures to trust are the ones 
 0.75x–1.30x of `narration − OUTRO_REPLACE`, which is **265.4 s**. Anywhere between **3:19 and 5:45**
 of raw screen time is fine; `fit-to-audio.py` lands it far closer than that.
 
+**The guard applies to whatever you hand `build-video.sh`, not to `raw.mov`.** Run
+`fit-to-audio.py --beats` first and its output is already the length of the narration, so the ratio
+is about 1.00 and the window stops mattering — which is what makes a long take survivable. The 26 Sep
+take ran **11:17** and would have been refused fed in directly. `fit-to-audio.py` takes `--start` and
+`--end` to drop the head and tail, fits each beat to its own row of `timing.txt`, and `--dry-run`
+prints the resulting speed per beat before anything renders. Read that table before accepting a fit:
+a beat at 4x is a phone call on fast-forward, and the fix is a tighter take, not a smaller window.
+
 ## What can come out differently
 
 The agent is not deterministic on the live path. Things that change between takes, and what to do:
