@@ -6,23 +6,20 @@ or step that closes it**. Anything not on this page is done and carries its evid
 
 Deadline: **30 Sep 2026, 12:00 ART** ([`HACKATHON.md`](HACKATHON.md)). Last reviewed: **2026-09-26**, four days out.
 
-Four parts: what blocks the submission, the Cadence build programme, the decisions that programme
+Four parts: what the submission needed, the Cadence build programme, the decisions that programme
 needs, and what the six new features left behind alongside what is deliberately not being done.
 
 ---
 
 ## 1. The submission
 
-**Three of the four mandatory deliverables are done.** The video was shot, assembled and opened on 26 Sep — `video/out/demo-coldopen.mp4`, 284.421 s against the 300 s cap, with its evidence in [`SUBMISSION.md`](SUBMISSION.md). What is left is the deck, and it is not a build problem: the slides exist and the artifact is private. **The deploy is live**, verified from
-another network on 25 Sep: `/health` answers
-`{"status":"ok","calls":0,"store":"postgres","live":true,"dialable":false}`, `/patients` serves the
-seeded Ana, and the landing serves its own title. `dialable` is `false` there on purpose — the public
-panel renders no button that dials a real phone. The endcard now names that address and
-`homepageUrl` points at it. Evidence in [`SUBMISSION.md`](SUBMISSION.md).
-
-| | What is open | Who | How it closes |
-|---|---|---|---|
-| 1 | **Submit on lablab.** The deck no longer blocks it: it is published from this repo at <https://gmassello.github.io/constancia/deck.html>, so nothing has to be shared out of the tool it was designed in. GitHub Pages is enabled on `main` from `/docs`, `docs/deck/` holds the eleven slide sources and the index, and `scripts/build_deck.py` assembles them — speaker notes dropped, since an `<aside>` is what to say, not what to publish. **The page is only live once `main` is pushed.** | you | Push, confirm the URL answers, then upload the four deliverables to lablab: the repo, <https://youtu.be/iVDlC5y0Z38>, that deck URL and <https://constancia-voice.onrender.com> |
+**Closed.** All four mandatory deliverables are submitted, and the submission page is public at
+<https://lablab.ai/ai-hackathons/assemblyai-voice-agent-hackathon/constancia/constancia>: the
+repository, the deployed app, the video — the page's hero, opening on the cold open at 4:44 — and the
+deck, which went up as a PDF because the form takes a file rather than a link. `docs/deck.pdf` is
+built by [`../scripts/build_deck.py`](../scripts/build_deck.py) `--pdf` from the same eleven slide
+sources as the page, in light rather than dark. Evidence, including the hash the two copies share,
+is in [`SUBMISSION.md`](SUBMISSION.md).
 
 **Checkpoints.** C1 and **C2** are closed. C2 was closed by the session itself and the server still
 serves the proof: the three calls start at **14:47:34, 14:50:47 and 14:54:49 UTC** on 26 Sep with
@@ -34,7 +31,7 @@ live **and cannot be**: extraction runs on the finished transcript, so the fact 
 is written at 11:57:29, after the questions are over. So [`PLAN.md`](PLAN.md) now asks for the chain on
 the first frames **after** hangup rather than during, which is what the design produces and what beat
 6 shows 61 s later. Correcting a checkpoint that could never be met beats leaving it open; the
-frame-by-frame is in [`SUBMISSION.md`](SUBMISSION.md). **C4** is the submission itself. Definitions in [`PLAN.md`](PLAN.md).
+frame-by-frame is in [`SUBMISSION.md`](SUBMISSION.md). **C4**, the submission itself, is closed by the row above. Definitions in [`PLAN.md`](PLAN.md).
 
 **The 3:19–5:45 window no longer constrains anything.** It is a guard inside `build-video.sh` on the
 ratio between the footage it is handed and the narration, and `fit-to-audio.py --beats` runs first,
