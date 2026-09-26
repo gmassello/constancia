@@ -7,7 +7,8 @@ every style inline, and docs/deck/deck.json gives the order and the typefaces.
 This turns them into one self-contained page that GitHub Pages serves, so the
 deck has a public URL that does not depend on the tool it was designed in.
 
-Speaker notes are dropped: an <aside> is what to say, not what to publish.
+Speaker notes are stripped, not hidden: an <aside> is what to say, not what to
+publish, and CSS that only hides it still ships it to anyone reading the source.
 """
 
 import json
@@ -17,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "docs" / "deck"
 DEST = ROOT / "docs" / "deck.html"
+NOTES = re.compile(r"\s*<aside>.*?</aside>", re.DOTALL)
 
 PAGE = """<!doctype html>
 <html lang="en">
@@ -50,7 +52,6 @@ PAGE = """<!doctype html>
   section h1, section h2, section h3, section p, section ul, section ol {{ margin: 0; }}
   section table {{ border-collapse: collapse; width: 100%; }}
   section th, section td {{ padding: 20px 24px; text-align: left; vertical-align: top; }}
-  section aside {{ display: none; }}
 </style>
 </head>
 <body>
@@ -77,6 +78,7 @@ def main():
         if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", slide_id):
             raise SystemExit(f"refusing a slide id that is not a plain name: {slide_id!r}")
         section = (SRC / f"{slide_id}.html").read_text(encoding="utf-8").strip()
+        section = NOTES.sub("", section).rstrip()
         slides.append(f'<div class="slide">\n{section}\n</div>\n')
 
     DEST.write_text(
