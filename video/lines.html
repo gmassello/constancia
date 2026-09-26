@@ -6,6 +6,10 @@
     <title>constancia — Ana's lines</title>
     <link rel="stylesheet" href="../web/src/tokens.css" />
     <style>
+      /* ponytail: .tag sets display, which beats the user agent's [hidden] rule, so the
+         "no English voice" badge stayed lit with the voices loaded. Drop this the day
+         tokens.css carries the rule itself. */
+      [hidden] { display: none !important; }
       .warn {
         position: sticky;
         top: 0;

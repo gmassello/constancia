@@ -143,12 +143,12 @@ beats 3 and 4 run the recogniser unprimed. If
 Then `make smoke-analysis URL=<recording url>` on that call, and the panel rehearsal: `bash
 video/reset.sh`, `--check` all green, press **Real phone, no memory** and watch the live card fill.
 
-`--check` was run on 25 Sep against a fresh `make take` and **ten of its eleven invariants are
-green**: one patient, the five week-1 facts, nothing retired, one call on file, credentials loaded,
-`DEMO_PHONE` set, and both quotas alive. The eleventh is the ngrok tunnel, which only exists while
-you are recording — it is the one that stays red until the day. The fact list is five and not four
-because the commitments feature seeded a week-1 promise; `reset.sh` was still expecting the old four
-and would have told you *do not record* on a perfectly good state.
+`--check` is green on **all eleven** invariants as of 26 Sep: one patient, the five week-1 facts,
+nothing retired, one call on file, credentials loaded, `DEMO_PHONE` set, both quotas alive, and — for
+the first time — the ngrok tunnel matching `PUBLIC_BASE_URL`. That eleventh one only exists while you
+are recording, so it stays red on every other day and is not a defect when it is. The fact list is
+five and not four because the commitments feature seeded a week-1 promise; `reset.sh` was still
+expecting the old four and would have told you *do not record* on a perfectly good state.
 
 **Then the sequence, and only then the take.**
 
