@@ -20,7 +20,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0f6b60.svg?style=flat-square" alt="MIT"></a>
   <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-3.12-0f6b60.svg?style=flat-square" alt="Python 3.12"></a>
-  <img src="https://img.shields.io/badge/319%20tests-green,%20no%20keys-0f6b60?style=flat-square" alt="319 tests green with no keys">
+  <a href="https://github.com/gmassello/constancia/actions/workflows/ci.yml"><img src="https://github.com/gmassello/constancia/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI: the suite, the linter and the published numbers, with no keys set"></a>
   <img src="https://img.shields.io/badge/AssemblyAI-Universal--Streaming%20v3%20%2B%20Speech%20Understanding-c2703d?style=flat-square" alt="AssemblyAI Universal-Streaming v3 and Speech Understanding">
   <img src="https://img.shields.io/badge/line-Twilio%20Media%20Streams-c2703d?style=flat-square" alt="Twilio Media Streams">
 </p>

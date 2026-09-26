@@ -1,4 +1,4 @@
-.PHONY: dev take test lint demo call smoke smoke-stt smoke-tts smoke-call smoke-analysis smoke-keyphrases smoke-jev models db schema seed web web-dev fixtures
+.PHONY: dev take test lint check-numbers demo call smoke smoke-stt smoke-tts smoke-call smoke-analysis smoke-keyphrases smoke-jev models db schema seed web web-dev fixtures
 
 dev:
 	uv run uvicorn app.main:app --reload --port 8001
@@ -11,6 +11,9 @@ test:
 
 lint:
 	uv run ruff check .
+
+check-numbers:
+	uv run python scripts/check_numbers.py
 
 demo:
 	MEMORY=$(MEMORY) uv run python scripts/demo.py

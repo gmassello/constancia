@@ -1,0 +1,40 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: tests, lint, published numbers, web build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - run: uv sync --frozen
+
+      # There is deliberately no `env:` block in this job. The README badge claims the
+      # suite is green with no keys, and the only way that claim is checkable from
+      # outside is for the run to hold no secret it could have leaned on.
+      - run: make test
+
+      - run: make lint
+
+      - run: make check-numbers
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - run: make web

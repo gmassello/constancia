@@ -2,7 +2,7 @@
 
 ## Commands
 
-Nineteen targets in the [`../Makefile`](../Makefile). Everything runs through `uv`; nothing needs a
+Twenty targets in the [`../Makefile`](../Makefile). Everything runs through `uv`; nothing needs a
 virtualenv activated.
 
 | Target | What it does | Needs |
@@ -11,6 +11,7 @@ virtualenv activated.
 | `make take` | uvicorn without `--reload`, for a recording that a file save must not restart | — |
 | `make test` | `pytest -q` — the offline suite | — |
 | `make lint` | `ruff check .` | — |
+| `make check-numbers` | `scripts/check_numbers.py` — every published copy of the test count and of the honest limits against the command that produces it | — |
 | `make demo` | A full call against a scripted patient, trace printed. `MEMORY=on` runs week two over the seed. | — |
 | `make fixtures` | Re-records `seed/replay/*.json` from scripted mode | — |
 | `make web` | `pnpm install --frozen-lockfile && pnpm build` | node 24, pnpm |
@@ -57,7 +58,7 @@ what they serve.
 Before calling anything done, all four of these:
 
 ```bash
-uv run pytest -q          # 319 tests, the 3 that need a database skipped
+uv run pytest -q          # 319 tests, the 4 that need a database skipped
 make db && DATABASE_URL=postgresql://constancia:constancia@localhost:5432/constancia \
   uv run pytest -q        # 319 passed, nothing skipped — run this before touching app/memory.py
 uv run ruff check .

@@ -295,7 +295,7 @@ never sleeps, and the URL bar is not in frame either way.
 **Stop on the metrics band until the counters land.** They animate up from a low value when the
 band enters the viewport, so a scroll that passes through it films numbers that are simply wrong —
 measured on 26 Sep, the first frame read `45%`, `2`, `214 h`, `207` on the way to `70%`, `3`,
-`333 h`, `322`. Two seconds of stillness is the difference between publishing the test count and
+`333 h`, `319`. Two seconds of stillness is the difference between publishing the test count and
 publishing a frame of the animation.
 
 ---
