@@ -248,8 +248,13 @@
       function loadVoices() {
         const names = englishVoices().map((v) => v.name);
         document.getElementById("warnVoice").hidden = names.length > 0;
+        // ponytail: the stored name is checked against the machine before it wins. Without that
+        // check a voice that is no longer installed still short-circuits the chain, no option is
+        // marked selected, and the browser silently falls back to the first of the list — which is
+        // how Ava, the narration's own voice, could end up reading the patient.
+        const stored = store.get("ana.voice", "");
         const saved =
-          store.get("ana.voice", "") ||
+          (names.includes(stored) ? stored : "") ||
           PREFERRED.find((name) => names.includes(name)) ||
           names.find((name) => !name.startsWith("Ava")) ||
           "";

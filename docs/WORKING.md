@@ -128,7 +128,7 @@ The hard rules are in [`../AGENTS.md`](../AGENTS.md). The ones that bite most of
   bilingual interface (the two `copy.ts` and `panel/content.ts`), where English is the annotated base
   and Spanish the translation.
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.
-  There are **66** in the code and they are the honest list of what was knowingly left simple:
+  There are **67** in the code and they are the honest list of what was knowingly left simple:
 
   ```bash
   grep -ro 'ponytail:' app/*.py web/src scripts tests schema.sql \
