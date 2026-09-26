@@ -35,6 +35,12 @@ uv sync
 make demo MEMORY=on   # week 2 over the seed: recall, key terms, a retired fact
 ```
 
+<p align="center">
+  <img src="docs/assets/ringing.gif" alt="A real incoming call on a phone, the caller shown as constancia" width="200">
+  <br>
+  <sub>The agent calling a patient. Recorded off the phone, not a mockup.</sub>
+</p>
+
 <table>
 <tr>
 <td width="33%"><b>Call</b><br>Twilio Media Streams carries the line; AssemblyAI Universal-Streaming v3 hears it in real time over &micro;-law at 8&nbsp;kHz, end-of-turn driven. The patient interrupts and the agent stops.</td>
