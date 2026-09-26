@@ -42,7 +42,8 @@ recording.
 
 Window mode (`Cmd+Shift+5` → *Record Selected Window*), 1280x800, mic off, phone off camera, the
 browser in **English** and the **light** theme — both are the defaults, and English is what the
-judges read. Between takes: `bash video/reset.sh`, then delete the old `video/raw.mov`.
+judges read. The **plain** register beat 1 is filmed in is the default too, since 26 Sep — it used
+to open in `technical`, which meant remembering the toggle before every take. Between takes: `bash video/reset.sh`, then delete the old `video/raw.mov`.
 
 **Disconnect any browser automation before the take.** A Chrome extension driving the browser puts
 an infobar at the top of the window, and window mode records the window, banner included.
@@ -238,6 +239,12 @@ never sleeps, and the URL bar is not in frame either way.
 **Screen:** keep scrolling the landing: the one-sentence description, then the three-pack band
 (rehab / postpartum / chronic).
 **You:** nothing.
+
+**Stop on the metrics band until the counters land.** They animate up from a low value when the
+band enters the viewport, so a scroll that passes through it films numbers that are simply wrong —
+measured on 26 Sep, the first frame read `45%`, `2`, `214 h`, `207` on the way to `70%`, `3`,
+`333 h`, `322`. Two seconds of stillness is the difference between publishing the test count and
+publishing a frame of the animation.
 
 ---
 

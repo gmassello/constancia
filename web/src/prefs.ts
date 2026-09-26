@@ -36,7 +36,7 @@ export function initialLang(): Lang {
 }
 
 export function initialRegister(): Register {
-  return read(REGISTER_KEY) === "plain" ? "plain" : "technical"
+  return read(REGISTER_KEY) === "technical" ? "technical" : "plain"
 }
 
 export function prefersReducedMotion(): boolean {

@@ -194,7 +194,7 @@ prop.
 ## Visitor preferences
 
 Three, in `localStorage` under `constancia.*`: theme (`light` by default), language (`en`) and
-register (`technical`, landing only). Both reads and writes are wrapped in `try/catch` — under
+register (`plain`, landing only). Both reads and writes are wrapped in `try/catch` — under
 partitioned storage `localStorage` can throw on the read too — and the pages render on the defaults
 if it fails.
 
