@@ -18,7 +18,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0f6b60.svg?style=flat-square" alt="MIT"></a>
   <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-3.12-0f6b60.svg?style=flat-square" alt="Python 3.12"></a>
-  <img src="https://img.shields.io/badge/322%20tests-green,%20no%20keys-0f6b60?style=flat-square" alt="322 tests green with no keys">
+  <img src="https://img.shields.io/badge/319%20tests-green,%20no%20keys-0f6b60?style=flat-square" alt="319 tests green with no keys">
   <img src="https://img.shields.io/badge/AssemblyAI-Universal--Streaming%20v3%20%2B%20Speech%20Understanding-c2703d?style=flat-square" alt="AssemblyAI Universal-Streaming v3 and Speech Understanding">
   <img src="https://img.shields.io/badge/line-Twilio%20Media%20Streams-c2703d?style=flat-square" alt="Twilio Media Streams">
 </p>
@@ -41,10 +41,10 @@ make demo MEMORY=on   # week 2 over the seed: recall, key terms, a retired fact
 </tr>
 </table>
 
-**The two AssemblyAI products close a loop.** Speech Understanding runs on the recording after hangup
-for entities, sentiment and key phrases — and those phrases become the `keyterms_prompt`
-Universal-Streaming is primed with on the next call. What was heard last week is what the recogniser
-expects this week.
+**Two AssemblyAI products, three capabilities.** Universal-Streaming v3 carries the live call;
+Speech Understanding reads the recording afterwards for entities, sentiment and key phrases, and the
+panel shows all three. Feeding those phrases back as the next call's `keyterms_prompt` was built,
+**measured on a real recording, and taken back out** — see *Honest limits*.
 
 ### Three minutes
 
@@ -112,9 +112,8 @@ Stage 3 of four plus the public landing (see [`docs/PLAN.md`](docs/PLAN.md) and 
   patient, with no phone and no keys. `replay` replays a recorded call at its original pace. The last two are
   what make the demo survive an outage.
 - **After hangup** the recording goes to AssemblyAI's pre-recorded API for entity detection, sentiment and
-  key phrases, stored in `calls.analysis`. The key phrases are the one part that is read back: they join the
-  patient's own vocabulary in the `keyterms_prompt` of the next call, so what AssemblyAI heard last week is
-  what it is primed for this week.
+  key phrases, stored in `calls.analysis` and shown in the panel. Feeding the phrases back into the next
+  call's `keyterms_prompt` was built and then reverted on a measurement — the reason is in *Honest limits*.
 
 The deploy, the video and the deliverables land in stage 4.
 
@@ -148,7 +147,7 @@ No keys needed for the offline path:
 
 ```bash
 uv sync
-make test          # 322 tests, no network and no database
+make test          # 319 tests, no network and no database
 uv run pytest tests/test_guard.py::test_red_flags_fire   # one test, the 90% case
 uv run pytest -k supersede                               # or by name, across files
 make lint          # ruff
@@ -211,6 +210,12 @@ make smoke-keyphrases URL=<recording url> # the same recording with and without 
 ## Honest limits
 
 - **No authentication anywhere.** Anything that can reach the URL can read every patient's history and place a call. Out of scope for the hackathon, and the landing's footer says so. The panel hides its two *Real phone* buttons unless the instance carries a `DEMO_PHONE` of its own, which is what keeps a deployed demo from dialling — but that is a UI gate, not a lock: `POST /calls` with `mode=live` and an explicit `phone` still dials wherever the credentials reach.
+- **Key phrases are shown, not fed back.** `auto_highlights` runs on the recording and the panel shows
+  what it found, but those phrases do **not** prime the next call. That half was built and measured against
+  a real recording on 26 Sep (`scripts/keyphrases-measured.json`): the phrases come off the whole recording,
+  so they carry the agent's own questions and common words the API itself warns cause overcorrections — and
+  they carried the patient's name as the recogniser mis-heard it, which priming would reinforce every week.
+  It stays out until the phrases are filtered against the detected entities and the pack's vocabulary.
 - **One worker.** Calls live in an in-process dict. Two instances would not see each other's calls.
 - **Extraction runs after hangup**, never during the call: a synchronous write would put dead air on the line.
   The facts land seconds after the patient hangs up, not while they are still talking.

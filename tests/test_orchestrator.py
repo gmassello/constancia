@@ -165,7 +165,12 @@ async def test_memory_on_puts_the_previous_facts_in_the_prompt() -> None:
     assert [f["value"] for f in current if f["term"] == "right knee"] == [4]
 
 
-async def test_what_assemblyai_heard_last_time_primes_the_next_call() -> None:
+async def test_what_assemblyai_heard_is_shown_but_never_primes_the_next_call() -> None:
+    # ponytail: the loop was built, measured on a real recording and taken back out. The phrases
+    # come off the whole recording, so they carry the agent's own lines, common words the API warns
+    # cause overcorrections, and — the reason it went — the patient's name as the recogniser
+    # mis-heard it, which priming would then reinforce every week. scripts/keyphrases-measured.json
+    # holds the run. Reconnect it the day the phrases are filtered against entities and the pack.
     call, channel, llm, store = build_week_2(memory=True)
     seeded = (await store.calls(PATIENT))[0]
     await store.save_analysis(str(seeded["id"]), {"phrases": [{"text": "the stairs", "count": 2}]})
@@ -173,9 +178,9 @@ async def test_what_assemblyai_heard_last_time_primes_the_next_call() -> None:
     await orchestrator.run_call(call, channel, llm, store, silence_s=0.01)
 
     assert channel.keyterms[0] == "right knee"
-    assert channel.keyterms[-1] == "the stairs"
+    assert "the stairs" not in channel.keyterms
     recall = next(e for e in call.trace if e["type"] == "recall")
-    assert "the stairs" in recall["keyterms"]
+    assert "the stairs" not in recall["keyterms"]
 
 
 async def test_the_greeting_is_told_to_quote_last_week_only_when_there_is_memory() -> None:

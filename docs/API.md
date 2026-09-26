@@ -98,9 +98,9 @@ same idea: they are written by the post-call analysis, not by a route, and `GET
 `analysis` is what `app/analysis.py` wrote after the recording webhook — `{transcript_id, entities,
 sentiment, phrases, negative}` — or `null` on any call with no Twilio recording, which is every
 scripted and replayed one. `phrases` is the key-phrase list Speech Understanding returned, the ten
-highest-ranked as `{text, count}`; it is the one field of the blob that is read back by the *next*
-call, where `with_phrases` in `app/memory.py` adds it to the `keyterms_prompt` behind the terms that
-came from facts. It is the only path the panel has to it: `analysis_ready` is emitted on the SSE stream
+highest-ranked as `{text, count}`; the panel shows them and nothing else reads them. Feeding them
+into the next call's `keyterms_prompt` was built and reverted on a measurement — the reason is in
+`PENDINGS.md` §4. It is the only path the panel has to it: `analysis_ready` is emitted on the SSE stream
 **after** `call_ended`, where both ends have already hung up, and the event carries counts rather
 than the payload: how many entities were found, and the sentiment tally per label. When the row is missing, the `UPDATE` matches nothing and `analysis.run` emits a
 `warning` with `phase: analysis`.

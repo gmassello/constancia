@@ -121,9 +121,12 @@ curl localhost:8001/calls/<id>/trace
 ```
 
 Answer the phone and play the week-1 lines from [`video/lines.html`](../video/lines.html), one per
-question. The trace has to show the greeting, the four questions in order, both speakers in the
-transcript, and the facts with their
-quotes. **That closes C1.** It is also where the rhythm is learned, and the rhythm is now yours rather
+question. The trace has to show the greeting, the four questions in order and both speakers in the
+transcript. ~~And the facts with their quotes.~~ **Not in this rehearsal**: `MEMORY=off` turns off
+recall *and* store, so the call ends with zero facts written, and the trace carries `answers`,
+`summary` and `transcript` but no facts either way. Measured on 26 Sep: eleven turns, four questions
+in order, nothing stored. The quotes are checked on a call **with** memory, in the panel — which is
+beat 5. **The other three close C1.** It is also where the rhythm is learned, and the rhythm is now yours rather
 than an actor's: **wait for the agent to stop talking before pressing space.** Press early and the
 recogniser hears the two voices at once. And it is where a mis-transcribed number shows up, because
 beats 3 and 4 run the recogniser unprimed. If

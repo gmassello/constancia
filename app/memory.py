@@ -37,25 +37,6 @@ def keyterms(facts: list[dict], pack: VerticalPack) -> list[str]:
     return terms[:MAX_KEYTERMS]
 
 
-def with_phrases(terms: list[str], calls: list[dict]) -> list[str]:
-    # ponytail: the newest call that carries an analysis wins outright, rather than the union of
-    # every call on file. The list is a prompt, not an archive: last week is what the patient is
-    # about to talk about, and a phrase from two months ago costs a slot that a current one wants.
-    merged = list(terms)
-    seen = {term.casefold() for term in merged}
-    heard: list[dict] = []
-    for call in calls:
-        heard = ((call.get("analysis") or {}).get("phrases")) or []
-        if heard:
-            break
-    for phrase in heard:
-        text = (phrase.get("text") or "").strip()
-        if text and text.casefold() not in seen:
-            merged.append(text)
-            seen.add(text.casefold())
-    return merged[:MAX_KEYTERMS]
-
-
 def normalize(vector: list[float]) -> list[float]:
     norm = math.sqrt(sum(value * value for value in vector))
     return [value / norm for value in vector] if norm else vector

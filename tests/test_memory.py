@@ -1,5 +1,5 @@
 from app.extract import Fact
-from app.memory import MAX_KEYTERMS, FakeStore, keyterms, load_seed, normalize, with_phrases
+from app.memory import FakeStore, keyterms, load_seed, normalize
 from app.packs import get_pack
 
 PATIENT = "8c9d0e1f-2a3b-4c5d-6e7f-8091a2b3c4d5"
@@ -93,30 +93,6 @@ def test_keyterms_deduplicates_and_skips_blanks() -> None:
     ]
 
     assert keyterms(facts, get_pack("rehab")) == ["right knee"]
-
-
-def test_the_key_phrases_of_the_newest_analysed_call_join_the_vocabulary() -> None:
-    calls = [
-        {"id": "newest", "analysis": None},
-        {"id": "middle", "analysis": {"phrases": [{"text": "the stairs"}, {"text": "Right Knee"}]}},
-        {"id": "oldest", "analysis": {"phrases": [{"text": "the pool"}]}},
-    ]
-
-    merged = with_phrases(["right knee", "home exercises"], calls)
-
-    assert merged == ["right knee", "home exercises", "the stairs"]
-
-
-def test_with_no_analysis_on_file_the_vocabulary_is_unchanged() -> None:
-    assert with_phrases(["right knee"], [{"id": "c", "analysis": None}]) == ["right knee"]
-    assert with_phrases(["right knee"], []) == ["right knee"]
-
-
-def test_the_merged_vocabulary_respects_the_cap() -> None:
-    terms = [f"term {n}" for n in range(MAX_KEYTERMS)]
-    calls = [{"id": "c", "analysis": {"phrases": [{"text": "one more"}]}}]
-
-    assert with_phrases(terms, calls) == terms
 
 
 async def test_an_empty_store_has_no_facts_and_no_keyterms() -> None:

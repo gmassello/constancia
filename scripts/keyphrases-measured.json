@@ -1,0 +1,114 @@
+{
+  "measured": "2026-09-26",
+  "pack": "rehab",
+  "cap": 10,
+  "summary": {
+    "returned": 15,
+    "kept": 10,
+    "new_against_vocabulary": 14,
+    "new_and_kept": [
+      "Next week",
+      "sudden sharp pain",
+      "Anna",
+      "today",
+      "work",
+      "stairs",
+      "exercises",
+      "follow-up assistant",
+      "any new discomfort"
+    ],
+    "vocabulary": 5,
+    "entities_unchanged": true,
+    "sentiment_unchanged": true,
+    "control_returned_phrases": 0
+  },
+  "phrases": [
+    {
+      "text": "Next week",
+      "rank": 0.1034,
+      "count": 2
+    },
+    {
+      "text": "sudden sharp pain",
+      "rank": 0.0988,
+      "count": 1
+    },
+    {
+      "text": "Anna",
+      "rank": 0.0912,
+      "count": 4
+    },
+    {
+      "text": "today",
+      "rank": 0.0734,
+      "count": 3
+    },
+    {
+      "text": "work",
+      "rank": 0.0532,
+      "count": 1
+    },
+    {
+      "text": "stairs",
+      "rank": 0.0521,
+      "count": 1
+    },
+    {
+      "text": "right knee",
+      "rank": 0.0494,
+      "count": 1
+    },
+    {
+      "text": "exercises",
+      "rank": 0.0475,
+      "count": 4
+    },
+    {
+      "text": "follow-up assistant",
+      "rank": 0.0455,
+      "count": 1
+    },
+    {
+      "text": "any new discomfort",
+      "rank": 0.0428,
+      "count": 1
+    },
+    {
+      "text": "care",
+      "rank": 0.0396,
+      "count": 1
+    },
+    {
+      "text": "How many times",
+      "rank": 0.0385,
+      "count": 1
+    },
+    {
+      "text": "summary",
+      "rank": 0.0297,
+      "count": 1
+    },
+    {
+      "text": "physiotherapist's office",
+      "rank": 0.0292,
+      "count": 1
+    },
+    {
+      "text": "any falls",
+      "rank": 0.0282,
+      "count": 1
+    }
+  ],
+  "kept": [
+    "Next week",
+    "sudden sharp pain",
+    "Anna",
+    "today",
+    "work",
+    "stairs",
+    "right knee",
+    "exercises",
+    "follow-up assistant",
+    "any new discomfort"
+  ]
+}

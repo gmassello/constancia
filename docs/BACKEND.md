@@ -9,10 +9,10 @@ each one is for.
 | Module | Lines | What it is |
 |---|---:|---|
 | [`app/main.py`](../app/main.py) | 402 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty-four routes and mounts `web/dist` if it exists. `/health` reports both `live` (the credentials validate) and `dialable` (this instance has a demo number of its own), which is what decides whether the panel offers a real call at all. |
-| [`app/memory.py`](../app/memory.py) | 484 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader, the `keyterms` computation and the merge that adds the key phrases AssemblyAI heard on the last analysed call. |
+| [`app/memory.py`](../app/memory.py) | 465 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader, the `keyterms` computation and the merge that adds the key phrases AssemblyAI heard on the last analysed call. |
 | [`app/channel.py`](../app/channel.py) | 306 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
 | [`app/packs.py`](../app/packs.py) | 312 | The three verticals as content: system prompt, questions, red-flag patterns, the action vocabulary a promise has to name, measures, and the rendering of the memory block. |
-| [`app/orchestrator.py`](../app/orchestrator.py) | 284 | The phase machine. Decides what is said, what is stored and when a call escalates. |
+| [`app/orchestrator.py`](../app/orchestrator.py) | 282 | The phase machine. Decides what is said, what is stored and when a call escalates. |
 | [`app/llm.py`](../app/llm.py) | 142 | `retrying`, the shared backoff every Gemini call site goes through; `GeminiLLM`; and `ScriptedLLM`, its deterministic double. |
 | [`app/replay.py`](../app/replay.py) | 113 | The two modes that need no phone: `run_scripted`, `run_recorded`, and `export`. |
 | [`app/extract.py`](../app/extract.py) | 174 | Structured extraction and the grounding check. |
@@ -226,7 +226,7 @@ Two consequences visible throughout the code, and both are deliberate:
 ## Conventions
 
 - **No comments**, except `ponytail:` markers naming a deliberate ceiling and its upgrade path.
-  There are **45** on this side — 44 in `app/` plus one in `schema.sql` — and they are the honest
+  There are **44** on this side — 44 in `app/` plus one in `schema.sql` — and they are the honest
   list of what was knowingly left simple. The densest are the ten in `app/orchestrator.py`, which
   are where the phase machine explains itself, then eight in `app/memory.py`, six in `app/main.py`,
   five in `app/analysis.py` and three each in `app/channel.py` and `app/llm.py`. The gate counts
