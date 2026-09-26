@@ -388,8 +388,7 @@ async def test_a_hangup_mid_question_sends_nothing_to_the_closed_twilio_socket(s
 
     assert call.escalated is not None
     assert call.escalated["rule"] == "fall"
-    assert "phase_failed" not in kinds
-    assert "warning" not in kinds
+    assert [e for e in call.trace if e["type"] in ("phase_failed", "warning")] == []
     assert "summary" in kinds
 
 

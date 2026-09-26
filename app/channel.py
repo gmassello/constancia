@@ -113,7 +113,11 @@ class LiveChannel:
     async def _send(self, message: dict) -> None:
         if self.stopped:
             return
-        await self.ws.send_text(json.dumps(message))
+        try:
+            await self.ws.send_text(json.dumps(message))
+        except (ConnectionError, RuntimeError):
+            self.stopped = True
+            self._hang_up()
 
     async def _twilio_reader(self) -> None:
         buffer = bytearray()

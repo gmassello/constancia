@@ -10,7 +10,7 @@ each one is for.
 |---|---:|---|
 | [`app/main.py`](../app/main.py) | 402 | The entry point. Builds the app, picks the store in the lifespan, declares the twenty-four routes and mounts `web/dist` if it exists. `/health` reports both `live` (the credentials validate) and `dialable` (this instance has a demo number of its own), which is what decides whether the panel offers a real call at all. |
 | [`app/memory.py`](../app/memory.py) | 465 | The two interchangeable stores, `MemoryStore` (Postgres + pgvector) and `FakeStore` (in process), the seed loader, the `keyterms` computation and the merge that adds the key phrases AssemblyAI heard on the last analysed call. |
-| [`app/channel.py`](../app/channel.py) | 306 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
+| [`app/channel.py`](../app/channel.py) | 310 | The voice channel: `LiveChannel` (Twilio WS ↔ STT ↔ TTS, with barge-in and marks) and `ScriptedPatient`. |
 | [`app/packs.py`](../app/packs.py) | 312 | The three verticals as content: system prompt, questions, red-flag patterns, the action vocabulary a promise has to name, measures, and the rendering of the memory block. |
 | [`app/orchestrator.py`](../app/orchestrator.py) | 282 | The phase machine. Decides what is said, what is stored and when a call escalates. |
 | [`app/llm.py`](../app/llm.py) | 142 | `retrying`, the shared backoff every Gemini call site goes through; `GeminiLLM`; and `ScriptedLLM`, its deterministic double. |
