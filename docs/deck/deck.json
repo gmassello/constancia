@@ -1,0 +1,17 @@
+{
+  "v": 4,
+  "createdOnFiles": { "v": 1, "at": "2026-09-19T22:00:00Z" },
+  "title": "constancia — hackathon deck",
+  "order": ["cover", "problem", "product", "week-one-two", "how", "checkable", "verticals", "business", "privacy", "built", "criteria"],
+  "sections": {
+    "why": { "description": "The problem constancia exists for, and the product in one sentence", "start": "cover" },
+    "how": { "description": "How the call works and why the memory claim is checkable", "start": "how" },
+    "business": { "description": "Who pays, what it costs, and how the data is treated", "start": "business" },
+    "close": { "description": "What is actually built and where each judging criterion is visible", "start": "built" }
+  },
+  "faces": {
+    "inter": { "family": "Inter", "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" },
+    "jetbrains-mono": { "family": "JetBrains Mono", "href": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" }
+  },
+  "designSystems": []
+}

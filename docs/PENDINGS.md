@@ -22,7 +22,7 @@ panel renders no button that dials a real phone. The endcard now names that addr
 
 | | What is open | Who | How it closes |
 |---|---|---|---|
-| 1 | **Share the deck and submit on lablab.** The eleven slides are built and current — the *Application of Technology* slide was corrected on 26 Sep to say the key-phrase loop was measured and reverted, and it carries 319 tests and five honest limits. The artifact is **private**, and its URL is deliberately not in the repo: a private link is a dead link for a judge | you | Share it from the artifact's own Share menu, upload it to lablab, and only then does its public URL go in [`SUBMISSION.md`](SUBMISSION.md). [`deck.md`](deck.md) is the source of the content either way |
+| 1 | **Submit on lablab.** The deck no longer blocks it: it is published from this repo at <https://gmassello.github.io/constancia/deck.html>, so nothing has to be shared out of the tool it was designed in. GitHub Pages is enabled on `main` from `/docs`, `docs/deck/` holds the eleven slide sources and the index, and `scripts/build_deck.py` assembles them — speaker notes dropped, since an `<aside>` is what to say, not what to publish. **The page is only live once `main` is pushed.** | you | Push, confirm the URL answers, then upload the four deliverables to lablab: the repo, <https://youtu.be/iVDlC5y0Z38>, that deck URL and <https://constancia-voice.onrender.com> |
 
 **Checkpoints.** C1 and **C2** are closed. C2 was closed by the session itself and the server still
 serves the proof: the three calls start at **14:47:34, 14:50:47 and 14:54:49 UTC** on 26 Sep with
