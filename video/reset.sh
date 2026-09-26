@@ -153,6 +153,24 @@ else
   fi
 fi
 
+el_key=$(envval ELEVENLABS_API_KEY)
+el_voice=$(envval ELEVENLABS_VOICE_ID)
+el_model=$(envval ELEVENLABS_MODEL)
+: "${el_model:=eleven_flash_v2_5}"
+if [ -z "$el_key" ]; then
+  red "ELEVENLABS_API_KEY is empty in .env — the agent has no voice and the call is silent"
+else
+  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 \
+    -X POST "https://api.elevenlabs.io/v1/text-to-speech/$el_voice/stream?output_format=ulaw_8000" \
+    -H "xi-api-key: $el_key" -H 'content-type: application/json' \
+    -d '{"text":"ok","model_id":"'"$el_model"'"}')
+  case "$code" in
+    200) green "ElevenLabs answers 200 with $el_model (the agent has a voice)" ;;
+    401) red "ElevenLabs answered 401 — the agent stays SILENT while the phone connects and the trace fills with warning/tts. Seen once on 26 Sep and gone on retry, so run this again before deciding the key is dead" ;;
+    *)   red "ElevenLabs answered $code — on camera this is a call that connects and says nothing" ;;
+  esac
+fi
+
 configured=$(envval PUBLIC_BASE_URL)
 running=$(curl -sf --max-time 3 http://localhost:4040/api/tunnels 2>/dev/null | python3 -c '
 import json, sys

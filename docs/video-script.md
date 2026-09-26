@@ -143,9 +143,13 @@ beats 3 and 4 run the recogniser unprimed. If
 Then `make smoke-analysis URL=<recording url>` on that call, and the panel rehearsal: `bash
 video/reset.sh`, `--check` all green, press **Real phone, no memory** and watch the live card fill.
 
-`--check` is green on **all eleven** invariants as of 26 Sep: one patient, the five week-1 facts,
-nothing retired, one call on file, credentials loaded, `DEMO_PHONE` set, both quotas alive, and — for
-the first time — the ngrok tunnel matching `PUBLIC_BASE_URL`. That eleventh one only exists while you
+`--check` is green on **all twelve** invariants as of 26 Sep: one patient, the five week-1 facts,
+nothing retired, one call on file, credentials loaded, `DEMO_PHONE` set, both quotas alive, ElevenLabs answering 200, and — for
+the first time — the ngrok tunnel matching `PUBLIC_BASE_URL`. **The ElevenLabs row was added on
+26 Sep, after a take died to it**: the key 401'd mid-call, the agent stayed silent while the phone
+connected, and the trace filled with `warning · tts`. Nothing on screen says the voice is gone, so
+it is exactly the class of failure this script exists to cense. It answered 200 again minutes
+later, so a 401 here is worth one retry before concluding the key is dead. That eleventh one only exists while you
 are recording, so it stays red on every other day and is not a defect when it is. The fact list is
 five and not four because the commitments feature seeded a week-1 promise; `reset.sh` was still
 expecting the old four and would have told you *do not record* on a perfectly good state.
