@@ -28,10 +28,12 @@ panel renders no button that dials a real phone. The endcard now names that addr
 serves the proof: the three calls start at **14:47:34, 14:50:47 and 14:54:49 UTC** on 26 Sep with
 nothing reset between them, and at **14:57:29** the retired 7/10 fact carries `superseded_by=fact-6`
 with its `valid_until` set — a chain that crossed real calls rather than a fixture. **C3** (the panel
-live *during* a call) is the one checkpoint still genuinely open, and the gap is narrow: the panel is
-filmed, in beat 6, showing the greeting quoting the patient's own words and `RECALL · 5 facts on
-file`. What is not established is whether it was on screen while a call was running or after the
-three had ended. **C4** is the submission itself. Definitions in [`PLAN.md`](PLAN.md).
+live *during* a call) is answered but not ticked. Beat 5 films the panel from inside the call — the
+card reads `live` throughout — with the transcript streaming, the rail highlighting `RECALL — 5 facts
+on file`, and the chart rendered. The fourth element it asks for, the chain, is never on screen while
+live **and cannot be**: extraction runs on the finished transcript, so the fact that retires the 7/10
+is written at 11:57:29, after the questions are over. The checkpoint asks for a state the design does
+not produce during a call; see [`SUBMISSION.md`](SUBMISSION.md) for the frame-by-frame. **C4** is the submission itself. Definitions in [`PLAN.md`](PLAN.md).
 
 **The 3:19–5:45 window no longer constrains anything.** It is a guard inside `build-video.sh` on the
 ratio between the footage it is handed and the narration, and `fit-to-audio.py --beats` runs first,
