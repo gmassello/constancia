@@ -10,8 +10,8 @@ says who closes it and how. This page does not repeat it.
 |---|---|---|
 | Public repo, MIT license | **done** | <https://github.com/gmassello/constancia> — public, MIT, [`LICENSE`](../LICENSE) at the root |
 | Deployed app, public URL | **done** | <https://constancia-voice.onrender.com> — the landing at `/`, the panel at `/panel`, `/health` answering `{"status":"ok","calls":0,"store":"postgres","live":true,"dialable":false}` from another network on 25 Sep, and `/patients` serving the seeded Ana |
-| Demo video under 5 min | in progress | Shot list and the day's order in [`video-script.md`](video-script.md), narration in [`../video/narration.tsv`](../video/narration.tsv). The narration track is built (267.8 s); what is left is the take and the assembly: [`PENDINGS.md`](PENDINGS.md) rows 1–2 |
-| Deck | in progress | [`deck.md`](deck.md) is the source and the slides are built; sharing the artifact and uploading it is [`PENDINGS.md`](PENDINGS.md) row 3 |
+| Demo video under 5 min | **done** | `video/out/demo-coldopen.mp4` — **284.421 s (4:44.4)**, 1920x1080 @ 30, captions burned in, plus the sidecar `demo-coldopen.en.srt` whose 53 cues are shifted +14.0 s. Shot on 26 Sep as seven per-beat takes, concatenated to `raw.mov` (586.58 s), fitted to the narration with `fit-to-audio.py --beats` (267.833 s against the track's 267.781 s, 52 ms apart) and assembled with `build-video.sh`. The first fourteen seconds are a voiceless cold open built by [`../video/coldopen.sh`](../video/coldopen.sh) from [`../video/hook.json`](../video/hook.json): the phone ringing, a fact the product retired, the call it escalated, black, the name. Measured rather than judged — hook audio at **I -17.9 LUFS, true peak -2.3 dBFS**, half a LU over the body's -18.4; the generated ringback at -18 dB in its own band and silent by the cut; the black at -91 dB. `demo.mp4` is not re-encoded: the join goes through MPEG-TS so each half keeps its own encoder parameters. Rebuild it all with `VIDEO_DIR=$PWD/video bash video/coldopen.sh`, which prints the total against the 300 s cap |
+| Deck | in progress | [`deck.md`](deck.md) is the source and the slides are built; sharing the artifact and uploading it is [`PENDINGS.md`](PENDINGS.md) row 1, the one row left |
 
 ## Judging criteria
 
@@ -34,9 +34,9 @@ the half that needs a phone — the live call is C2, in the recording session.
 - [x] `scripts/test_outbound.py` places a real call — subsumed by C1: a full live call went out, which is the geographic permission proved end to end rather than with a `<Say>`
 - [x] C1 — a real call greets, asks the four questions in order, honours barge-in, says goodbye, and the trace shows both sides
 - [x] Deployed backend with public `/health` and panel, tested from another network — <https://constancia-voice.onrender.com>/health, answered from outside Render on 25 Sep
-- [ ] Demo video under 5 minutes, captions burned in — [`PENDINGS.md`](PENDINGS.md) rows 1–2
-- [ ] Deck shared and uploaded to lablab — [`PENDINGS.md`](PENDINGS.md) row 3
-- [ ] C2 — week-1 → week-2 live: three calls back to back with no reset. Replay is already green (`seed/replay/week2-on.json` and the panel's buttons); live is [`PENDINGS.md`](PENDINGS.md) row 1
-- [ ] C3 — the panel during a live call: transcript, rail with the highlight, the chain, the chart. Same session, [`PENDINGS.md`](PENDINGS.md) row 1
+- [x] Demo video under 5 minutes, captions burned in — `video/out/demo-coldopen.mp4`, 284.421 s against a 300 s cap, subtitles burned in and a shifted sidecar beside it
+- [ ] Deck shared and uploaded to lablab — [`PENDINGS.md`](PENDINGS.md) row 1
+- [x] C2 — week-1 → week-2 live: three calls back to back with no reset. Done on 26 Sep and filmed as beats 3–5: the calls start at **14:47:34, 14:50:47 and 14:54:49 UTC** on one server with nothing reset between them, and at **14:57:29** the API records `superseded_by=fact-6` against the 7/10 fact with its `valid_until` set — the chain crossing calls, not a fixture. `GET /patients/{id}/calls` and `/facts` still serve it
+- [ ] C3 — the panel during a live call: transcript, rail with the highlight, the chain, the chart. The panel **is** filmed, in beat 6, showing the greeting quoting *«seven out of ten when climbing stairs»* and `RECALL · 5 facts on file`. What is not established is that it was on screen **while a call was running** rather than after the three had ended, and that is the whole of this row. Decide it by watching beat 6, not by reading this line
 - [x] `video/reset.sh` green on all eleven invariants — the seed state, the credentials, `DEMO_PHONE`, both quotas and the tunnel, run on 26 Sep with `.env` filled and ngrok up, which is the first time the eleventh could be anything but red
 - [ ] Every row above has evidence

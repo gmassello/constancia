@@ -225,26 +225,52 @@ Track lengths are what `video/out/timing.txt` measured; the recording can be lon
 
 ---
 
-### 0 · the phone ringing — an insert, not a beat
+### 0 · the phone ringing — the first shot of the cold open
 
-**Shot:** your own phone, filmed with a second camera, ringing and being answered. Three to five
-seconds, no more.
+**Shot:** the phone's own screen, mirrored with Vysor and captured with
+`screencapture -o -l <CGWindowID>`, ringing and not being answered. Three and a half seconds, with a
+7% push-in. Shot on 26 Sep: the window is Vysor's, the call is real, and the frame is cropped to
+`730x1573+0+75` so that neither Vysor's title bar — which carries the phone's name — nor its purple
+control strip is in it.
+
+**It is a still, not the recording, and that is deliberate.** An iOS lock screen does not move while
+it rings, so the video carried no information the frame does not. Two things are gained. `zoompan`
+emits its frames per *input* frame, so a `push` over a clip renders the clip's **first frame for the
+whole shot** — the push and the footage cannot both be had. And a PNG is not caught by
+`.gitignore`'s `video/*.mov`, so `video/shots/hook-ringing.png` is committed and the cold open
+rebuilds from a clean clone.
 
 This is the one thing in the video that a screencast cannot fake, and it is the differentiator:
-none of the four real competitors uses telephony at all (`INTENT.md:105`). Three conditions, and
-none of them is optional:
+none of the four real competitors uses telephony at all (`INTENT.md:105`). It is not a photograph,
+but it is not a render either — it is the real incoming call, which is what let the cold open be
+reopened after being dropped for wanting a licensed photograph nobody had.
 
-- **Mute.** It carries no audio of its own; the narration runs over it. The phone is not on speaker
-  during the take either — the acoustic rule above holds, or the agent's voice re-enters the call.
+Three conditions, and none of them is optional:
+
+- **No captured audio.** The shot carries none of its own. The tone under it is generated — 440 and
+  480 Hz, the North American ringback, a specification rather than a work — so no third-party
+  ringtone enters the video. Mirroring instead of filming also retires the acoustic risk that made
+  the earlier version insist on mute: there is no open microphone and no speaker, so the agent's
+  voice cannot re-enter the call.
 - **The number does not appear.** The incoming-call screen shows it, and a real number is personal
-  data this repo does not publish. Frame it out, or cover it.
-- **It rides on top of the finished track.** The narration is measured at 267.8 s against a 300 s
-  cap, so a five-second insert lands near 273 s and nothing is re-synthesised. Whether
-  `fit-to-audio.py --beats` tolerates footage that maps to no beat is **unverified**: until it is,
-  the insert belongs in the final assembly, after the fit, not before it.
+  data this repo does not publish. Solved at source: save `TWILIO_NUMBER` on the phone as a contact
+  named `constancia`, and the screen shows the name. **Verified in the shot that shipped** — it reads
+  `Constancia` over `slide to answer`, with no digit anywhere in frame. Framing it out or covering it
+  with a `drawbox` is the fallback nobody needed.
+- **It rides on top of the finished track.** Nothing is re-synthesised and nothing is re-encoded:
+  `video/coldopen.sh` concatenates the hook in front of the finished `demo.mp4` through MPEG-TS, so
+  both halves keep their own encoder parameters and the 270 s of demo are copied, not re-compressed.
+  The result is measured at **284.421 s** against the 300 s cap.
 
-This replaces the cold open that was dropped for needing a licensed photograph — this one you film
-yourself.
+**The phone rings and nobody answers.** That is the whole sentence the opening makes: the call
+nobody makes, then the number, then what the agent did record when someone finally called.
+
+**The synthetic pipeline does not know what a cold open is.** `build-video.sh`, `build-audio.sh` and
+`fit-to-audio.py` never mention `hook` — only the own-voice scripts do. So nothing puts `hook.wav`
+in front of the narration, nothing shifts the captions, and **nothing counts these seconds against
+the cap**. `video/coldopen.sh` does all three, and prints the total. The old worry about whether
+`fit-to-audio.py --beats` tolerates footage mapping to no beat never arises: the hook never reaches
+it.
 
 ---
 

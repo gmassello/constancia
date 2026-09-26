@@ -1,0 +1,52 @@
+{
+  "shots": [
+    {
+      "seconds": 3.5,
+      "image": "video/shots/hook-ringing.png",
+      "push": 0.07,
+      "headline": "70\\% quit the plan"
+    },
+    {
+      "seconds": 3.0,
+      "image": "video/shots/hook-memory.png",
+      "box": [
+        60,
+        555,
+        1180,
+        220
+      ],
+      "readout": "fact_superseded  old=c8cbb43e-0558-5cf2-943f-f9cd69c61faf"
+    },
+    {
+      "seconds": 3.5,
+      "image": "video/shots/hook-escalated.png",
+      "box": [
+        390,
+        314,
+        152,
+        36
+      ],
+      "readout": "guard_hit  value=\"fell\"  rule=fall  branch=escalate"
+    },
+    {
+      "seconds": 1.5
+    },
+    {
+      "seconds": 2.5,
+      "title": "constancia",
+      "subtitle": "an agent that phones your patients and remembers"
+    }
+  ],
+  "audio": {
+    "hits": [
+      0.0,
+      3.5,
+      6.5,
+      11.5
+    ],
+    "drone_out": 10.0,
+    "swell_at": 11.5,
+    "loudness": -17.0,
+    "peak": -2.0
+  }
+}

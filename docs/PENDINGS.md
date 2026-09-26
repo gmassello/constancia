@@ -13,7 +13,7 @@ needs, and what the six new features left behind alongside what is deliberately 
 
 ## 1. The submission
 
-One of the four mandatory deliverables is missing: the video. **The deploy is live**, verified from
+**Three of the four mandatory deliverables are done.** The video was shot, assembled and opened on 26 Sep — `video/out/demo-coldopen.mp4`, 284.421 s against the 300 s cap, with its evidence in [`SUBMISSION.md`](SUBMISSION.md). What is left is the deck, and it is not a build problem: the slides exist and the artifact is private. **The deploy is live**, verified from
 another network on 25 Sep: `/health` answers
 `{"status":"ok","calls":0,"store":"postgres","live":true,"dialable":false}`, `/patients` serves the
 seeded Ana, and the landing serves its own title. `dialable` is `false` there on purpose — the public
@@ -22,31 +22,21 @@ panel renders no button that dials a real phone. The endcard now names that addr
 
 | | What is open | Who | How it closes |
 |---|---|---|---|
-| 1 | **The take.** The three rehearsals are done: 1 walked the shot list on the keyless buttons, 2 is subsumed by 3, and 3 was a full live call on 26 Sep — eleven turns, the four questions in order, `7 out of 10` transcribed verbatim, and the acoustics settled ([`video-script.md`](video-script.md) § *The day, in order*). What is left is the session itself, which closes **C2** and **C3** | you and me | [`video-script.md`](video-script.md) § *The day, in order*, from *Then the sequence, and only then the take*. The order is not negotiable: the three calls back to back come **before** the final reset, never after. `bash video/reset.sh` came back green on **all eleven** invariants on 26 Sep, the tunnel included — the first time the eleventh could be anything but red |
-| 2 | **Assemble `demo.mp4`.** ~~Neither `fit-to-audio.py` nor `build-video.sh` exists.~~ **Both exist**, and the earlier note was wrong: they are not in this repo because they belong to the `personal-record-video` skill, at `~/Documents/dotfiles/claude-code/skills/personal-record-video/scripts/`. Every script reads and writes inside `VIDEO_DIR`, so `VIDEO_DIR=$PWD/video` is the whole contract. Two things the skill makes conditions rather than advice: burned-in subtitles need `libass`, which the default brew ffmpeg 8 does not carry and `ffmpeg@7` does — installed here, checked 26 Sep — and **`build-audio.sh` wipes `video/out/`**, which is where the irreplaceable `narration.wav` lives. Never run it; `build-voice.py` does not. What exists is their output, in the git-ignored `video/out/`: `narration.wav` (measured 267.781167 s, the 267.8 s five documents publish), 53 clips, the silences, `concat.txt`, `captions.srt`, `timing.txt` and `endcard.png` — 49 MB that cannot be regenerated. `demo.mp4`, `raw-fitted.mov` and `demo.en.srt` do not exist, and the 20 Sep take is split across two `.mov` files | me, after the take | **Decide the route before the take, not after**: write the assembly step, or plan to cut it by hand with ffmpeg. `video/out/` is **already backed up** off the repo — copied whole on 26 Sep with `narration.wav` verified at 267.781167 s on the copy — so the only open half is the route: write the assembly step, or plan to cut it by hand with ffmpeg |
-| 3 | **Share the deck and submit on lablab.** The eleven slides are built and current — the *Application of Technology* slide was corrected on 26 Sep to say the key-phrase loop was measured and reverted, and it carries 319 tests and five honest limits. The artifact is **private**, and its URL is deliberately not in the repo: a private link is a dead link for a judge | you | Share it from the artifact's own Share menu, upload it to lablab, and only then does its public URL go in [`SUBMISSION.md`](SUBMISSION.md). [`deck.md`](deck.md) is the source of the content either way |
+| 1 | **Share the deck and submit on lablab.** The eleven slides are built and current — the *Application of Technology* slide was corrected on 26 Sep to say the key-phrase loop was measured and reverted, and it carries 319 tests and five honest limits. The artifact is **private**, and its URL is deliberately not in the repo: a private link is a dead link for a judge | you | Share it from the artifact's own Share menu, upload it to lablab, and only then does its public URL go in [`SUBMISSION.md`](SUBMISSION.md). [`deck.md`](deck.md) is the source of the content either way |
 
-**The video is now shot after the features, not before.** Three of the six changed what the agent
-says on the call, so `seed/scripts.json` and all four fixtures moved with them. What the panel's
-buttons show that they did not a day ago: a promise made in week 1 and asked about in week 2, a
-read-back of a number the recogniser was unsure of, an answer from the professional spoken word for
-word in the greeting, and a new question landing in the queue.
+**Checkpoints.** C1 and **C2** are closed. C2 was closed by the session itself and the server still
+serves the proof: the three calls start at **14:47:34, 14:50:47 and 14:54:49 UTC** on 26 Sep with
+nothing reset between them, and at **14:57:29** the retired 7/10 fact carries `superseded_by=fact-6`
+with its `valid_until` set — a chain that crossed real calls rather than a fixture. **C3** (the panel
+live *during* a call) is the one checkpoint still genuinely open, and the gap is narrow: the panel is
+filmed, in beat 6, showing the greeting quoting the patient's own words and `RECALL · 5 facts on
+file`. What is not established is whether it was on screen while a call was running or after the
+three had ended. **C4** is the submission itself. Definitions in [`PLAN.md`](PLAN.md).
 
-**[`video-script.md`](video-script.md) is corrected.** Its three patient-line tables now match
-`seed/scripts.json` turn for turn — beat 3 with the promise and the conditional read-back, beat 5 with
-the promise answer and the stairs question — and the session it describes is the one that is actually
-possible: you answer the phone and [`video/lines.html`](../video/lines.html) speaks the lines.
-
-**The narration is written against that behaviour and built.** `video/narration.tsv` carries 53
-captions in 74 rows; `build-audio.sh` measured **267.8 s = 4:27.8** against the 300 s cap with zero
-drift, and `OUTRO_REPLACE` re-derives to `2.4`. Beat 3 says *three* facts, and beat 5 narrates the
-relayed answer, the promise check-in and the question that lands in the queue. The one constraint
-that leaves for row 1: the raw screen recording has to run between **3:19 and 5:45**, or
-`build-video.sh` refuses it.
-
-**Checkpoints.** C1 is closed. **C2** (three real calls back to back, no reset, the third superseding
-the 7/10) and **C3** (the panel live during a call) close during the recording session — row 1.
-**C4** is the submission itself. Their definitions are in [`PLAN.md`](PLAN.md).
+**The 3:19–5:45 window no longer constrains anything.** It is a guard inside `build-video.sh` on the
+ratio between the footage it is handed and the narration, and `fit-to-audio.py --beats` runs first,
+so what reaches the guard is already the length of the narration. The 26 Sep take ran 9:46 and would
+have been refused fed in raw.
 
 ---
 
@@ -157,11 +147,13 @@ there and its behaviour is described in [`BACKEND.md`](BACKEND.md), [`API.md`](A
 
 **Deliberately out of scope.** Decided, and not to be reopened without saying so:
 
-- **The cold open.** `video/hook.json` was never written and the concept exists nowhere — not in
-  [`video-script.md`](video-script.md), not in `narration.tsv`, not in any script. `video/shots/`
-  holds two panel stills and nothing an opening beat could use. The narration is built and
-  measured at 267.8 s across 53 captions, so a beat in front of it means re-synthesising a
-  finished track five days from the deadline. Dropped on 25 Sep, deliberately.
+- ~~**The cold open.**~~ **Reopened on 26 Sep, on purpose, built the same day, and now in [`SUBMISSION.md`](SUBMISSION.md).** One of the two
+  reasons it was dropped was simply wrong. It said a beat in front of the narration means
+  re-synthesising a finished track — true only of putting it *inside* `narration.wav`. Concatenating
+  it in front of a finished `demo.mp4` re-synthesises nothing and re-encodes nothing. The other
+  reason was real: the pattern wants a photograph and this repo has none, only six UI captures. That
+  one is answered by filming the phone's own mirrored screen, which is not a photograph but is not a
+  render either. Nothing else about the original call changes.
 - Re-recording `seed/replay/*.json` from real calls — the fixtures stay synthetic.
 - Deleting the 20 Sep takes. They stay on disk.
 - A test runner in the front end. `tsc` is the check; presentational components do not earn one.
