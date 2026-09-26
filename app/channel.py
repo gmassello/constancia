@@ -116,8 +116,10 @@ class LiveChannel:
         try:
             await self.ws.send_text(json.dumps(message))
         except (ConnectionError, RuntimeError):
+            # ponytail: the far end is gone, so stop writing, but leave the hangup to the reader.
+            # Its `stop` branch flushes the recogniser first, and a red flag the patient said in
+            # that window still has to reach the guard. Ending the call here skips the flush.
             self.stopped = True
-            self._hang_up()
 
     async def _twilio_reader(self) -> None:
         buffer = bytearray()
