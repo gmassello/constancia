@@ -9,8 +9,10 @@
 </p>
 
 <p align="center">
+  <a href="https://youtu.be/iVDlC5y0Z38"><b>Demo video</b></a> ·
   <a href="https://constancia-voice.onrender.com"><b>Live demo</b></a> ·
   <a href="https://constancia-voice.onrender.com/panel"><b>The panel</b></a> ·
+  <a href="https://gmassello.github.io/constancia/deck.html"><b>Deck</b></a> ·
   <a href="docs/SUBMISSION.md"><b>Submission</b></a> ·
   <a href="docs/README.md"><b>Docs</b></a>
 </p>
@@ -115,7 +117,7 @@ Stage 3 of four plus the public landing (see [`docs/PLAN.md`](docs/PLAN.md) and 
   key phrases, stored in `calls.analysis` and shown in the panel. Feeding the phrases back into the next
   call's `keyterms_prompt` was built and then reverted on a measurement — the reason is in *Honest limits*.
 
-The deploy, the video and the deliverables land in stage 4.
+The video and the deck are linked at the top. [`docs/SUBMISSION.md`](docs/SUBMISSION.md) says what backs each judging criterion and where a judge sees it; [`docs/PENDINGS.md`](docs/PENDINGS.md) says what is still open.
 
 > [!WARNING]
 > There is no authentication anywhere. Anything that can reach the URL can read every patient's history and
@@ -220,8 +222,11 @@ make smoke-keyphrases URL=<recording url> # the same recording with and without 
 - **Extraction runs after hangup**, never during the call: a synchronous write would put dead air on the line.
   The facts land seconds after the patient hangs up, not while they are still talking.
 - **~1–1.5 s of silence per turn**: the LLM writes the whole sentence before the TTS starts. Sentence-level streaming is the marked upgrade path.
-- **The replay fixtures are still synthetic.** `seed/replay/*.json` come from the scripted mode, not from a
-  real call. They get re-recorded from `GET /calls/{id}/export` once a real call happens.
+- **The replay fixtures are synthetic, and they stay that way.** `seed/replay/*.json` come from the
+  scripted mode, not from a call over the wire. Real calls have since gone out — three back to back on
+  26 Sep — and re-recording the fixtures from them is listed under *Deliberately out of scope* in
+  [`docs/PENDINGS.md`](docs/PENDINGS.md) rather than left open. `GET /calls/{id}/export` is there for
+  anyone who wants to record their own.
 - **`app/analysis.py` is only tested against a canned response.** Its pure functions never see the
   network in the suite; `make smoke-analysis` is what checks the wire format by hand. It has met real
   recordings since C1: Twilio's media is behind basic auth, so the mp3 is relayed through
@@ -233,7 +238,7 @@ make smoke-keyphrases URL=<recording url> # the same recording with and without 
   the English string the call actually produces, so the demo reads end to end in either language. A fact a real
   call extracts is not in that table and falls through in English — deliberately, since showing an invented
   translation of a verbatim quote is worse than showing the quote. That path needs a Gemini key and a phone,
-  and it is the one the demo video will show: the calls in it are real, so a Spanish reader sees
+  and it is the one the demo video shows: the calls in it are real, so a Spanish reader sees
   English quotes inside a Spanish panel.
 - **The landing's hero card is a scripted loop**, not a live call: two canned scripts with the real copy — week
   one with memory off, week two with it on — behind a selector, with step, pause and replay controls under
